@@ -1,0 +1,18 @@
+{
+  "package_name": "dao-smartcontracts",
+  "version": "1.0.0",
+  "description": "Smart Contracts defining the FriendsFingers platform's DAO.",
+  "authors": [
+    "Vittorio Minacori (https://github.com/vittominacori)"
+  ],
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "token",
+    "truffle",
+    "openzeppelin"
+  ],
+  "license": "MIT"
+}
