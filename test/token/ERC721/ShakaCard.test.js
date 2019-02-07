@@ -143,6 +143,21 @@ contract('ShakaCard', function (
       });
     });
 
+    describe('if beneficiary already has a card', function () {
+      it('reverts', async function () {
+        await shouldFail.reverting(
+          this.token.newCard(
+            beneficiary,
+            this.structure.mainColor,
+            this.structure.backgroundColor,
+            this.structure.borderColor,
+            this.structure.stackedTokens,
+            { from: anotherAccount }
+          )
+        );
+      });
+    });
+
     describe('if beneficiary is the zero address', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
@@ -162,7 +177,7 @@ contract('ShakaCard', function (
       it('reverts', async function () {
         await shouldFail.reverting(
           this.token.newCard(
-            beneficiary,
+            anotherAccount,
             this.structure.mainColor,
             this.structure.backgroundColor,
             this.structure.borderColor,
