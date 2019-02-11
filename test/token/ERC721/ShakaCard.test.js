@@ -69,50 +69,98 @@ contract('ShakaCard', function (
     });
 
     context('metadata', function () {
-      let tokenStructure;
+      context('check by id', function () {
+        let tokenStructure;
 
-      describe('when token exists', function () {
         beforeEach(async function () {
-          tokenStructure = await this.token.getCard(tokenId);
+          tokenStructure = await this.token.getCardById(tokenId);
         });
 
-        describe('check metadata', function () {
-          it('has a beneficiary', async function () {
-            const toCheck = tokenStructure[0];
-            toCheck.should.be.equal(beneficiary);
-          });
+        describe('when token exists', function () {
+          describe('check metadata', function () {
+            it('has a beneficiary', async function () {
+              const toCheck = tokenStructure[0];
+              toCheck.should.be.equal(beneficiary);
+            });
 
-          it('has an main color', async function () {
-            const toCheck = tokenStructure[1];
-            assert.equal(web3.toAscii(toCheck), this.structure.mainColor);
-          });
+            it('has an main color', async function () {
+              const toCheck = tokenStructure[1];
+              assert.equal(web3.toAscii(toCheck), this.structure.mainColor);
+            });
 
-          it('has an background color', async function () {
-            const toCheck = tokenStructure[2];
-            assert.equal(web3.toAscii(toCheck), this.structure.backgroundColor);
-          });
+            it('has an background color', async function () {
+              const toCheck = tokenStructure[2];
+              assert.equal(web3.toAscii(toCheck), this.structure.backgroundColor);
+            });
 
-          it('has an border color', async function () {
-            const toCheck = tokenStructure[3];
-            assert.equal(web3.toAscii(toCheck), this.structure.borderColor);
-          });
+            it('has an border color', async function () {
+              const toCheck = tokenStructure[3];
+              assert.equal(web3.toAscii(toCheck), this.structure.borderColor);
+            });
 
-          it('has a stacked tokens value', async function () {
-            const toCheck = tokenStructure[4];
-            toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
-          });
+            it('has a stacked tokens value', async function () {
+              const toCheck = tokenStructure[4];
+              toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
+            });
 
-          it('has a creation date', async function () {
-            const toCheck = tokenStructure[5];
-            toCheck.should.be.bignumber.equal(await time.latest());
+            it('has a creation date', async function () {
+              const toCheck = tokenStructure[5];
+              toCheck.should.be.bignumber.equal(await time.latest());
+            });
+          });
+        });
+      });
+
+      context('check by address', function () {
+        let tokenStructure;
+
+        beforeEach(async function () {
+          tokenStructure = await this.token.getCardByAddress(beneficiary);
+        });
+
+        describe('when token exists', function () {
+          describe('check metadata', function () {
+            it('has a beneficiary', async function () {
+              const toCheck = tokenStructure[0];
+              toCheck.should.be.equal(beneficiary);
+            });
+
+            it('has an main color', async function () {
+              const toCheck = tokenStructure[1];
+              assert.equal(web3.toAscii(toCheck), this.structure.mainColor);
+            });
+
+            it('has an background color', async function () {
+              const toCheck = tokenStructure[2];
+              assert.equal(web3.toAscii(toCheck), this.structure.backgroundColor);
+            });
+
+            it('has an border color', async function () {
+              const toCheck = tokenStructure[3];
+              assert.equal(web3.toAscii(toCheck), this.structure.borderColor);
+            });
+
+            it('has a stacked tokens value', async function () {
+              const toCheck = tokenStructure[4];
+              toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
+            });
+
+            it('has a creation date', async function () {
+              const toCheck = tokenStructure[5];
+              toCheck.should.be.bignumber.equal(await time.latest());
+            });
           });
         });
       });
 
       describe('when token does not exist', function () {
         describe('check metadata', function () {
-          it('reverts', async function () {
-            await shouldFail.reverting(this.token.getCard(999));
+          it('reverts using id', async function () {
+            await shouldFail.reverting(this.token.getCardById(999));
+          });
+
+          it('reverts using address', async function () {
+            await shouldFail.reverting(this.token.getCardByAddress(anotherAccount));
           });
         });
       });
@@ -123,8 +171,12 @@ contract('ShakaCard', function (
         });
 
         describe('check metadata', function () {
-          it('reverts', async function () {
-            await shouldFail.reverting(this.token.getCard(tokenId));
+          it('reverts using id', async function () {
+            await shouldFail.reverting(this.token.getCardById(tokenId));
+          });
+
+          it('reverts using address', async function () {
+            await shouldFail.reverting(this.token.getCardByAddress(beneficiary));
           });
         });
       });

@@ -23,6 +23,9 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
   // a progressive id
   uint256 private _progressiveId;
 
+  // Mapping from address to token ID
+  mapping(address => uint256) private _addressIndex;
+
   // Mapping from token ID to the structures
   mapping(uint256 => TokenStructure) private _structureIndex;
 
@@ -48,6 +51,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
 
     _mint(beneficiary, tokenId);
 
+    _addressIndex[beneficiary] = tokenId;
     _structureIndex[tokenId] = TokenStructure(
       mainColor,
       backgroundColor,
@@ -68,13 +72,38 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     address tokenOwner = isMinter(msg.sender) ? ownerOf(tokenId) : msg.sender;
     super._burn(tokenOwner, tokenId);
     delete _structureIndex[tokenId];
+    _addressIndex[tokenOwner] = 0;
+  }
+
+  function progressiveId() external view returns (uint256) {
+    return _progressiveId;
+  }
+
+  /**
+   * @dev Returns the card id.
+   */
+  function getCardByAddress(address beneficiary)
+    public
+    view
+    returns (
+      address,
+      bytes6,
+      bytes6,
+      bytes6,
+      uint256,
+      uint256
+    )
+  {
+    uint256 tokenId = _addressIndex[beneficiary];
+
+    return getCardById(tokenId);
   }
 
   /**
    * @dev Returns the card structure.
    */
-  function getCard(uint256 tokenId)
-    external
+  function getCardById(uint256 tokenId)
+    public
     view
     returns (
       address beneficiary,
@@ -95,9 +124,5 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     borderColor = card.borderColor;
     stackedTokens = card.stackedTokens;
     creationDate = card.creationDate;
-  }
-
-  function progressiveId() external view returns (uint256) {
-    return _progressiveId;
   }
 }
