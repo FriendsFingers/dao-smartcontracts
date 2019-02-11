@@ -17,6 +17,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     bytes6 backgroundColor;
     bytes6 borderColor;
     uint256 stackedTokens;
+    uint256 creationDate;
   }
 
   // a progressive id
@@ -44,14 +45,19 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     require(balanceOf(beneficiary) == 0);
 
     uint256 tokenId = _progressiveId.add(1);
+
     _mint(beneficiary, tokenId);
+
     _structureIndex[tokenId] = TokenStructure(
       mainColor,
       backgroundColor,
       borderColor,
-      stackedTokens
+      stackedTokens,
+      block.timestamp // solhint-disable-line not-rely-on-time
     );
+
     _progressiveId = tokenId;
+
     return tokenId;
   }
 
@@ -75,7 +81,8 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
       bytes6 mainColor,
       bytes6 backgroundColor,
       bytes6 borderColor,
-      uint256 stackedTokens
+      uint256 stackedTokens,
+      uint256 creationDate
     )
   {
     require(_exists(tokenId));
@@ -87,6 +94,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     backgroundColor = card.backgroundColor;
     borderColor = card.borderColor;
     stackedTokens = card.stackedTokens;
+    creationDate = card.creationDate;
   }
 
   function progressiveId() external view returns (uint256) {

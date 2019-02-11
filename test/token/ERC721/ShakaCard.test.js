@@ -1,6 +1,6 @@
 const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
 const shouldFail = require('openzeppelin-solidity/test/helpers/shouldFail');
-// const time = require('openzeppelin-solidity/test/helpers/time');
+const time = require('openzeppelin-solidity/test/helpers/time');
 
 const { ZERO_ADDRESS } = require('openzeppelin-solidity/test/helpers/constants');
 
@@ -100,6 +100,11 @@ contract('ShakaCard', function (
           it('has a stacked tokens value', async function () {
             const toCheck = tokenStructure[4];
             toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
+          });
+
+          it('has a creation date', async function () {
+            const toCheck = tokenStructure[5];
+            toCheck.should.be.bignumber.equal(await time.latest());
           });
         });
       });
