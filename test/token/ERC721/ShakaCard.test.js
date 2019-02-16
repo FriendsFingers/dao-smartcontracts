@@ -19,7 +19,7 @@ contract('ShakaCard', function (
   [
     creator,
     minter,
-    beneficiary,
+    member,
     anotherAccount,
     ...accounts
   ]
@@ -58,7 +58,7 @@ contract('ShakaCard', function (
     beforeEach(async function () {
       await this.token.addMinter(minter, { from: creator });
       await this.token.newCard(
-        beneficiary,
+        member,
         this.structure.mainColor,
         this.structure.backgroundColor,
         this.structure.borderColor,
@@ -80,9 +80,9 @@ contract('ShakaCard', function (
 
         describe('when token exists', function () {
           describe('check metadata', function () {
-            it('has a beneficiary', async function () {
+            it('has a member', async function () {
               const toCheck = tokenStructure[0];
-              toCheck.should.be.equal(beneficiary);
+              toCheck.should.be.equal(member);
             });
 
             it('has an main color', async function () {
@@ -122,14 +122,14 @@ contract('ShakaCard', function (
         let tokenStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.token.getCardByAddress(beneficiary);
+          tokenStructure = await this.token.getCardByAddress(member);
         });
 
         describe('when token exists', function () {
           describe('check metadata', function () {
-            it('has a beneficiary', async function () {
+            it('has a member', async function () {
               const toCheck = tokenStructure[0];
-              toCheck.should.be.equal(beneficiary);
+              toCheck.should.be.equal(member);
             });
 
             it('has an main color', async function () {
@@ -188,7 +188,7 @@ contract('ShakaCard', function (
           });
 
           it('reverts using address', async function () {
-            await shouldFail.reverting(this.token.getCardByAddress(beneficiary));
+            await shouldFail.reverting(this.token.getCardByAddress(member));
           });
         });
       });
@@ -213,11 +213,11 @@ contract('ShakaCard', function (
       });
     });
 
-    describe('if beneficiary already has a card', function () {
+    describe('if member already has a card', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
           this.token.newCard(
-            beneficiary,
+            member,
             this.structure.mainColor,
             this.structure.backgroundColor,
             this.structure.borderColor,
@@ -229,7 +229,7 @@ contract('ShakaCard', function (
       });
     });
 
-    describe('if beneficiary is the zero address', function () {
+    describe('if member is the zero address', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
           this.token.newCard(

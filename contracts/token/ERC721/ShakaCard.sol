@@ -36,7 +36,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
    * @dev Generate a new card and the card structure.
    */
   function newCard(
-    address beneficiary,
+    address member,
     bytes6 mainColor,
     bytes6 backgroundColor,
     bytes6 borderColor,
@@ -47,13 +47,13 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     onlyMinter
     returns (uint256)
   {
-    require(balanceOf(beneficiary) == 0);
+    require(balanceOf(member) == 0);
 
     uint256 tokenId = _progressiveId.add(1);
 
-    _mint(beneficiary, tokenId);
+    _mint(member, tokenId);
 
-    _addressIndex[beneficiary] = tokenId;
+    _addressIndex[member] = tokenId;
     _structureIndex[tokenId] = TokenStructure(
       mainColor,
       backgroundColor,
@@ -83,9 +83,9 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
   }
 
   /**
-   * @dev Returns the card id.
+   * @dev Returns the card structure.
    */
-  function getCardByAddress(address beneficiary)
+  function getCardByAddress(address member)
     public
     view
     returns (
@@ -98,7 +98,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
       uint256
     )
   {
-    uint256 tokenId = _addressIndex[beneficiary];
+    uint256 tokenId = _addressIndex[member];
 
     return getCardById(tokenId);
   }
@@ -110,7 +110,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     public
     view
     returns (
-      address beneficiary,
+      address member,
       bytes6 mainColor,
       bytes6 backgroundColor,
       bytes6 borderColor,
@@ -123,7 +123,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
 
     TokenStructure storage card = _structureIndex[tokenId];
 
-    beneficiary = ownerOf(tokenId);
+    member = ownerOf(tokenId);
     mainColor = card.mainColor;
     backgroundColor = card.backgroundColor;
     borderColor = card.borderColor;
