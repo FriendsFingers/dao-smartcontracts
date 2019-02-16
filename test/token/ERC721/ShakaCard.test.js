@@ -4,8 +4,10 @@ const time = require('openzeppelin-solidity/test/helpers/time');
 
 const { ZERO_ADDRESS } = require('openzeppelin-solidity/test/helpers/constants');
 
+const { shouldBehaveLikeOwnable } = require('openzeppelin-solidity/test/ownership/Ownable.behavior');
 const { shouldBehaveLikeTokenRecover } = require('eth-token-recover/test/TokenRecover.behaviour');
 const { shouldBehaveLikeERC721Full } = require('./behaviors/ERC721Full.behavior');
+const { shouldBehaveLikeRemoveRole } = require('../../access/roles/RemoveRole.behavior');
 
 const BigNumber = web3.BigNumber;
 
@@ -18,7 +20,7 @@ const ShakaCard = artifacts.require('ShakaCardMock');
 contract('ShakaCard', function (
   [
     creator,
-    minter,
+    operator,
     member,
     anotherAccount,
     ...accounts
@@ -45,18 +47,14 @@ contract('ShakaCard', function (
   });
 
   context('testing ERC721 behaviors', function () {
-    beforeEach(async function () {
-      await this.token.addMinter(minter, { from: creator });
-    });
-
-    shouldBehaveLikeERC721Full(creator, minter, accounts, name, symbol);
+    shouldBehaveLikeERC721Full(creator, creator, accounts, name, symbol);
   });
 
   context('creating new token', function () {
     let tokenId;
 
     beforeEach(async function () {
-      await this.token.addMinter(minter, { from: creator });
+      await this.token.addOperator(operator, { from: creator });
       await this.token.newCard(
         member,
         this.structure.mainColor,
@@ -64,13 +62,13 @@ contract('ShakaCard', function (
         this.structure.borderColor,
         web3.fromUtf8(this.structure.data),
         this.structure.stackedTokens,
-        { from: minter }
+        { from: operator }
       );
 
       tokenId = await this.token.progressiveId();
     });
 
-    context('metadata', function () {
+    context('testing metadata', function () {
       context('check by id', function () {
         let tokenStructure;
 
@@ -179,7 +177,7 @@ contract('ShakaCard', function (
 
       describe('when token is burnt', function () {
         beforeEach(async function () {
-          await this.token.burn(tokenId, { from: minter });
+          await this.token.burn(tokenId, { from: operator });
         });
 
         describe('check metadata', function () {
@@ -205,7 +203,7 @@ contract('ShakaCard', function (
           this.structure.borderColor,
           web3.fromUtf8(this.structure.data),
           this.structure.stackedTokens,
-          { from: minter }
+          { from: operator }
         );
         const newProgressiveId = await this.token.progressiveId();
 
@@ -239,13 +237,13 @@ contract('ShakaCard', function (
             this.structure.borderColor,
             web3.fromUtf8(this.structure.data),
             this.structure.stackedTokens,
-            { from: minter }
+            { from: operator }
           )
         );
       });
     });
 
-    describe('if caller has not minter permission', function () {
+    describe('if caller has not operator permission', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
           this.token.newCard(
@@ -258,6 +256,28 @@ contract('ShakaCard', function (
             { from: anotherAccount }
           )
         );
+      });
+    });
+
+    context('testing ownership', function () {
+      beforeEach(async function () {
+        this.ownable = this.token;
+      });
+
+      shouldBehaveLikeOwnable(creator, [anotherAccount]);
+    });
+
+    context('testing roles', function () {
+      beforeEach(async function () {
+        this.contract = this.token;
+      });
+
+      context('testing remove roles', function () {
+        beforeEach(async function () {
+          this.contract = this.token;
+        });
+
+        shouldBehaveLikeRemoveRole(creator, operator, [anotherAccount], 'operator');
       });
     });
   });

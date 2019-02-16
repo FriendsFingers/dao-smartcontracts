@@ -1,15 +1,15 @@
 pragma solidity ^0.4.25;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
-import "openzeppelin-solidity/contracts/access/roles/MinterRole.sol";
 import "eth-token-recover/contracts/TokenRecover.sol";
+import "../../access/roles/OperatorRole.sol";
 
 /**
  * @title ShakaCard
  * @author Vittorio Minacori (https://github.com/vittominacori)
- * @dev It is an ERC721Full with minter role and a struct that identify the card
+ * @dev It is an ERC721Full with operator role and a struct that identify the card
  */
-contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
+contract ShakaCard is ERC721Full, OperatorRole, TokenRecover {
 
   // structure that defines a card
   struct TokenStructure {
@@ -44,7 +44,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     uint256 stackedTokens
   )
     external
-    onlyMinter
+    onlyOperator
     returns (uint256)
   {
     require(balanceOf(member) == 0);
@@ -69,10 +69,10 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
   }
 
   /**
-   * @dev Only minter or token owner can burn
+   * @dev Only operator or token owner can burn
    */
   function burn(uint256 tokenId) external {
-    address tokenOwner = isMinter(msg.sender) ? ownerOf(tokenId) : msg.sender;
+    address tokenOwner = isOperator(msg.sender) ? ownerOf(tokenId) : msg.sender;
     super._burn(tokenOwner, tokenId);
     delete _structureIndex[tokenId];
     _addressIndex[tokenOwner] = 0;
@@ -130,5 +130,13 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     data = card.data;
     stackedTokens = card.stackedTokens;
     creationDate = card.creationDate;
+  }
+
+  /**
+   * @dev Remove the `operator` role from address
+   * @param account Address you want to remove role
+   */
+  function removeOperator(address account) public onlyOwner {
+    _removeOperator(account);
   }
 }

@@ -10,7 +10,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeERC721Full (creator, minter, accounts, name, symbol) {
+function shouldBehaveLikeERC721Full (creator, operator, accounts, name, symbol) {
   const firstTokenId = 100;
   const secondTokenId = 200;
   const thirdTokenId = 300;
@@ -25,13 +25,13 @@ function shouldBehaveLikeERC721Full (creator, minter, accounts, name, symbol) {
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId, { from: minter });
-      await this.token.mint(owner, secondTokenId, { from: minter });
+      await this.token.mint(owner, firstTokenId, { from: operator });
+      await this.token.mint(owner, secondTokenId, { from: operator });
     });
 
     describe('mint', function () {
       beforeEach(async function () {
-        await this.token.mint(newOwner, thirdTokenId, { from: minter });
+        await this.token.mint(newOwner, thirdTokenId, { from: operator });
       });
 
       it('adjusts owner tokens by index', async function () {
@@ -192,8 +192,8 @@ function shouldBehaveLikeERC721Full (creator, minter, accounts, name, symbol) {
           const anotherNewTokenId = 400;
 
           await this.token.burn(tokenId, { from: owner });
-          await this.token.mint(newOwner, newTokenId, { from: minter });
-          await this.token.mint(newOwner, anotherNewTokenId, { from: minter });
+          await this.token.mint(newOwner, newTokenId, { from: operator });
+          await this.token.mint(newOwner, anotherNewTokenId, { from: operator });
 
           (await this.token.totalSupply()).toNumber().should.be.equal(3);
 
@@ -209,8 +209,8 @@ function shouldBehaveLikeERC721Full (creator, minter, accounts, name, symbol) {
     });
   });
 
-  shouldBehaveLikeERC721(creator, minter, accounts);
-  shouldBehaveLikeMintAndBurnERC721(creator, minter, accounts);
+  shouldBehaveLikeERC721(creator, operator, accounts);
+  shouldBehaveLikeMintAndBurnERC721(creator, operator, accounts);
 
   shouldSupportInterfaces([
     'ERC165',
