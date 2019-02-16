@@ -16,6 +16,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     bytes6 mainColor;
     bytes6 backgroundColor;
     bytes6 borderColor;
+    bytes32 data;
     uint256 stackedTokens;
     uint256 creationDate;
   }
@@ -39,6 +40,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     bytes6 mainColor,
     bytes6 backgroundColor,
     bytes6 borderColor,
+    bytes32 data,
     uint256 stackedTokens
   )
     external
@@ -56,6 +58,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
       mainColor,
       backgroundColor,
       borderColor,
+      data,
       stackedTokens,
       block.timestamp // solhint-disable-line not-rely-on-time
     );
@@ -90,6 +93,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
       bytes6,
       bytes6,
       bytes6,
+      bytes32,
       uint256,
       uint256
     )
@@ -110,6 +114,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
       bytes6 mainColor,
       bytes6 backgroundColor,
       bytes6 borderColor,
+      bytes32 data,
       uint256 stackedTokens,
       uint256 creationDate
     )
@@ -122,6 +127,7 @@ contract ShakaCard is ERC721Full, MinterRole, TokenRecover {
     mainColor = card.mainColor;
     backgroundColor = card.backgroundColor;
     borderColor = card.borderColor;
+    data = card.data;
     stackedTokens = card.stackedTokens;
     creationDate = card.creationDate;
   }

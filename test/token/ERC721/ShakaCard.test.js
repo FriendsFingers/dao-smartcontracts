@@ -37,6 +37,7 @@ contract('ShakaCard', function (
       mainColor: '97168a',
       backgroundColor: 'ffffff',
       borderColor: 'fae596',
+      data: JSON.stringify({ key: 'value' }),
       stackedTokens: new BigNumber(5),
     };
 
@@ -61,6 +62,7 @@ contract('ShakaCard', function (
         this.structure.mainColor,
         this.structure.backgroundColor,
         this.structure.borderColor,
+        web3.fromUtf8(this.structure.data),
         this.structure.stackedTokens,
         { from: minter }
       );
@@ -85,26 +87,31 @@ contract('ShakaCard', function (
 
             it('has an main color', async function () {
               const toCheck = tokenStructure[1];
-              assert.equal(web3.toAscii(toCheck), this.structure.mainColor);
+              assert.equal(web3.toUtf8(toCheck), this.structure.mainColor);
             });
 
             it('has an background color', async function () {
               const toCheck = tokenStructure[2];
-              assert.equal(web3.toAscii(toCheck), this.structure.backgroundColor);
+              assert.equal(web3.toUtf8(toCheck), this.structure.backgroundColor);
             });
 
             it('has an border color', async function () {
               const toCheck = tokenStructure[3];
-              assert.equal(web3.toAscii(toCheck), this.structure.borderColor);
+              assert.equal(web3.toUtf8(toCheck), this.structure.borderColor);
+            });
+
+            it('has a data value', async function () {
+              const toCheck = tokenStructure[4];
+              assert.equal(web3.toUtf8(toCheck), this.structure.data);
             });
 
             it('has a stacked tokens value', async function () {
-              const toCheck = tokenStructure[4];
+              const toCheck = tokenStructure[5];
               toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
             });
 
             it('has a creation date', async function () {
-              const toCheck = tokenStructure[5];
+              const toCheck = tokenStructure[6];
               toCheck.should.be.bignumber.equal(await time.latest());
             });
           });
@@ -127,26 +134,31 @@ contract('ShakaCard', function (
 
             it('has an main color', async function () {
               const toCheck = tokenStructure[1];
-              assert.equal(web3.toAscii(toCheck), this.structure.mainColor);
+              assert.equal(web3.toUtf8(toCheck), this.structure.mainColor);
             });
 
             it('has an background color', async function () {
               const toCheck = tokenStructure[2];
-              assert.equal(web3.toAscii(toCheck), this.structure.backgroundColor);
+              assert.equal(web3.toUtf8(toCheck), this.structure.backgroundColor);
             });
 
             it('has an border color', async function () {
               const toCheck = tokenStructure[3];
-              assert.equal(web3.toAscii(toCheck), this.structure.borderColor);
+              assert.equal(web3.toUtf8(toCheck), this.structure.borderColor);
+            });
+
+            it('has a data value', async function () {
+              const toCheck = tokenStructure[4];
+              assert.equal(web3.toUtf8(toCheck), this.structure.data);
             });
 
             it('has a stacked tokens value', async function () {
-              const toCheck = tokenStructure[4];
+              const toCheck = tokenStructure[5];
               toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
             });
 
             it('has a creation date', async function () {
-              const toCheck = tokenStructure[5];
+              const toCheck = tokenStructure[6];
               toCheck.should.be.bignumber.equal(await time.latest());
             });
           });
@@ -191,6 +203,7 @@ contract('ShakaCard', function (
           this.structure.mainColor,
           this.structure.backgroundColor,
           this.structure.borderColor,
+          web3.fromUtf8(this.structure.data),
           this.structure.stackedTokens,
           { from: minter }
         );
@@ -208,6 +221,7 @@ contract('ShakaCard', function (
             this.structure.mainColor,
             this.structure.backgroundColor,
             this.structure.borderColor,
+            web3.fromUtf8(this.structure.data),
             this.structure.stackedTokens,
             { from: anotherAccount }
           )
@@ -223,6 +237,7 @@ contract('ShakaCard', function (
             this.structure.mainColor,
             this.structure.backgroundColor,
             this.structure.borderColor,
+            web3.fromUtf8(this.structure.data),
             this.structure.stackedTokens,
             { from: minter }
           )
@@ -238,6 +253,7 @@ contract('ShakaCard', function (
             this.structure.mainColor,
             this.structure.backgroundColor,
             this.structure.borderColor,
+            web3.fromUtf8(this.structure.data),
             this.structure.stackedTokens,
             { from: anotherAccount }
           )
