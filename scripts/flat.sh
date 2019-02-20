@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-truffle-flattener contracts/token/ERC721/ShakaCard.sol > dist/ShakaCard.dist.sol
+truffle-flattener contracts/token/ERC721/DAOMember.sol > dist/DAOMember.dist.sol

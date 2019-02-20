@@ -5,11 +5,11 @@ import "eth-token-recover/contracts/TokenRecover.sol";
 import "../../access/roles/OperatorRole.sol";
 
 /**
- * @title ShakaCard
+ * @title DAOMember
  * @author Vittorio Minacori (https://github.com/vittominacori)
  * @dev It is an ERC721Full with operator role and a struct that identify the card
  */
-contract ShakaCard is ERC721Full, OperatorRole, TokenRecover {
+contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
 
   // structure that defines a card
   struct TokenStructure {

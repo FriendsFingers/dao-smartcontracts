@@ -83,7 +83,7 @@ Note: it is better to analyze the flattened code to have a bigger overview on th
 The `describe` command shows a summary of the contracts and methods in the files provided
 
 ```bash
-surya describe dist/ShakaCard.dist.sol
+surya describe dist/DAOMember.dist.sol
 ```
 
 ### Dependencies
@@ -91,7 +91,7 @@ surya describe dist/ShakaCard.dist.sol
 The `dependencies` command outputs the c3-linearization of a given contract's inheirtance graph. Contracts will be listed starting with most-derived, ie. if the same function is defined in more than one contract, the solidity compiler will use the definition in whichever contract is listed first.
 
 ```bash
-surya dependencies ShakaCard dist/ShakaCard.dist.sol
+surya dependencies DAOMember dist/DAOMember.dist.sol
 ```
 ### Generate Report
 

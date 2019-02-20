@@ -15,9 +15,9 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const ShakaCard = artifacts.require('ShakaCardMock');
+const DAOMember = artifacts.require('DAOMemberMock');
 
-contract('ShakaCard', function (
+contract('DAOMember', function (
   [
     creator,
     operator,
@@ -43,7 +43,7 @@ contract('ShakaCard', function (
       stackedTokens: new BigNumber(5),
     };
 
-    this.token = await ShakaCard.new(name, symbol, { from: creator });
+    this.token = await DAOMember.new(name, symbol, { from: creator });
   });
 
   context('testing ERC721 behaviors', function () {

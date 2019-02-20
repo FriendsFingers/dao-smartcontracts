@@ -29,9 +29,9 @@ App = {
       App.web3Provider.enable();
     }
 
-    $.getJSON('ShakaCard.json', function(data) {
-      App.contracts.ShakaCard = TruffleContract(data);
-      App.contracts.ShakaCard.setProvider(App.web3Provider);
+    $.getJSON('DAOMember.json', function(data) {
+      App.contracts.DAOMember = TruffleContract(data);
+      App.contracts.DAOMember.setProvider(App.web3Provider);
     });
   },
 };
