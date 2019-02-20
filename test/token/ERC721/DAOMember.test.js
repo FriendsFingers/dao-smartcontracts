@@ -55,7 +55,7 @@ contract('DAOMember', function (
 
     beforeEach(async function () {
       await this.token.addOperator(operator, { from: creator });
-      await this.token.newCard(
+      await this.token.newMember(
         member,
         this.structure.mainColor,
         this.structure.backgroundColor,
@@ -73,7 +73,7 @@ contract('DAOMember', function (
         let tokenStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.token.getCardById(tokenId);
+          tokenStructure = await this.token.getMemberById(tokenId);
         });
 
         describe('when token exists', function () {
@@ -120,7 +120,7 @@ contract('DAOMember', function (
         let tokenStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.token.getCardByAddress(member);
+          tokenStructure = await this.token.getMemberByAddress(member);
         });
 
         describe('when token exists', function () {
@@ -166,11 +166,11 @@ contract('DAOMember', function (
       describe('when token does not exist', function () {
         describe('check metadata', function () {
           it('reverts using id', async function () {
-            await shouldFail.reverting(this.token.getCardById(999));
+            await shouldFail.reverting(this.token.getMemberById(999));
           });
 
           it('reverts using address', async function () {
-            await shouldFail.reverting(this.token.getCardByAddress(anotherAccount));
+            await shouldFail.reverting(this.token.getMemberByAddress(anotherAccount));
           });
         });
       });
@@ -182,11 +182,11 @@ contract('DAOMember', function (
 
         describe('check metadata', function () {
           it('reverts using id', async function () {
-            await shouldFail.reverting(this.token.getCardById(tokenId));
+            await shouldFail.reverting(this.token.getMemberById(tokenId));
           });
 
           it('reverts using address', async function () {
-            await shouldFail.reverting(this.token.getCardByAddress(member));
+            await shouldFail.reverting(this.token.getMemberByAddress(member));
           });
         });
       });
@@ -196,7 +196,7 @@ contract('DAOMember', function (
       it('should increase', async function () {
         const oldProgressiveId = await this.token.progressiveId();
 
-        await this.token.newCard(
+        await this.token.newMember(
           anotherAccount,
           this.structure.mainColor,
           this.structure.backgroundColor,
@@ -211,10 +211,10 @@ contract('DAOMember', function (
       });
     });
 
-    describe('if member already has a card', function () {
+    describe('if member already exists', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
-          this.token.newCard(
+          this.token.newMember(
             member,
             this.structure.mainColor,
             this.structure.backgroundColor,
@@ -230,7 +230,7 @@ contract('DAOMember', function (
     describe('if member is the zero address', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
-          this.token.newCard(
+          this.token.newMember(
             ZERO_ADDRESS,
             this.structure.mainColor,
             this.structure.backgroundColor,
@@ -246,7 +246,7 @@ contract('DAOMember', function (
     describe('if caller has not operator permission', function () {
       it('reverts', async function () {
         await shouldFail.reverting(
-          this.token.newCard(
+          this.token.newMember(
             anotherAccount,
             this.structure.mainColor,
             this.structure.backgroundColor,

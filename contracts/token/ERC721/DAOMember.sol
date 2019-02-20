@@ -7,11 +7,11 @@ import "../../access/roles/OperatorRole.sol";
 /**
  * @title DAOMember
  * @author Vittorio Minacori (https://github.com/vittominacori)
- * @dev It is an ERC721Full with operator role and a struct that identify the card
+ * @dev It is an ERC721Full with operator role and a struct that identifies the member
  */
 contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
 
-  // structure that defines a card
+  // structure that defines a member
   struct TokenStructure {
     bytes6 mainColor;
     bytes6 backgroundColor;
@@ -33,9 +33,9 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   constructor(string name, string symbol) public ERC721Full(name, symbol) {} // solhint-disable-line no-empty-blocks
 
   /**
-   * @dev Generate a new card and the card structure.
+   * @dev Generate a new member and the member structure.
    */
-  function newCard(
+  function newMember(
     address member,
     bytes6 mainColor,
     bytes6 backgroundColor,
@@ -83,9 +83,9 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   }
 
   /**
-   * @dev Returns the card structure.
+   * @dev Returns the member structure.
    */
-  function getCardByAddress(address member)
+  function getMemberByAddress(address member)
     public
     view
     returns (
@@ -100,13 +100,13 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   {
     uint256 tokenId = _addressIndex[member];
 
-    return getCardById(tokenId);
+    return getMemberById(tokenId);
   }
 
   /**
-   * @dev Returns the card structure.
+   * @dev Returns the member structure.
    */
-  function getCardById(uint256 tokenId)
+  function getMemberById(uint256 tokenId)
     public
     view
     returns (
@@ -121,15 +121,15 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   {
     require(_exists(tokenId));
 
-    TokenStructure storage card = _structureIndex[tokenId];
+    TokenStructure storage structure = _structureIndex[tokenId];
 
     member = ownerOf(tokenId);
-    mainColor = card.mainColor;
-    backgroundColor = card.backgroundColor;
-    borderColor = card.borderColor;
-    data = card.data;
-    stackedTokens = card.stackedTokens;
-    creationDate = card.creationDate;
+    mainColor = structure.mainColor;
+    backgroundColor = structure.backgroundColor;
+    borderColor = structure.borderColor;
+    data = structure.data;
+    stackedTokens = structure.stackedTokens;
+    creationDate = structure.creationDate;
   }
 
   /**
