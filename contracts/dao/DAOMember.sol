@@ -1,18 +1,20 @@
 pragma solidity ^0.4.25;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "eth-token-recover/contracts/TokenRecover.sol";
-import "../../access/roles/OperatorRole.sol";
+import "../access/roles/OperatorRole.sol";
 
 /**
  * @title DAOMember
  * @author Vittorio Minacori (https://github.com/vittominacori)
- * @dev It is an ERC721Full with operator role and a struct that identifies the member
+ * @dev It identifies a DAO Member
  */
-contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
+contract DAOMember is OperatorRole, TokenRecover {
+  using SafeMath for uint256;
 
   // structure that defines a member
   struct MemberStructure {
+    address member;
     bytes6 mainColor;
     bytes6 backgroundColor;
     bytes6 borderColor;
@@ -24,13 +26,13 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   // a progressive id
   uint256 private _progressiveId;
 
-  // Mapping from address to token ID
+  // Mapping from address to member ID
   mapping(address => uint256) private _addressIndex;
 
-  // Mapping from token ID to the structures
+  // Mapping from member ID to the structures
   mapping(uint256 => MemberStructure) private _structureIndex;
 
-  constructor(string name, string symbol) public ERC721Full(name, symbol) {} // solhint-disable-line no-empty-blocks
+  constructor() public {} // solhint-disable-line no-empty-blocks
 
   /**
    * @dev Generate a new member and the member structure.
@@ -47,14 +49,14 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
     onlyOperator
     returns (uint256)
   {
-    require(balanceOf(member) == 0);
+    require(member != address(0));
+    require(!isMember(member));
 
-    uint256 tokenId = _progressiveId.add(1);
+    uint256 memberId = _progressiveId.add(1);
 
-    _mint(member, tokenId);
-
-    _addressIndex[member] = tokenId;
-    _structureIndex[tokenId] = MemberStructure(
+    _addressIndex[member] = memberId;
+    _structureIndex[memberId] = MemberStructure(
+      member,
       mainColor,
       backgroundColor,
       borderColor,
@@ -63,19 +65,9 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
       block.timestamp // solhint-disable-line not-rely-on-time
     );
 
-    _progressiveId = tokenId;
+    _progressiveId = memberId;
 
-    return tokenId;
-  }
-
-  /**
-   * @dev Only operator or token owner can burn
-   */
-  function burn(uint256 tokenId) external {
-    address tokenOwner = isOperator(msg.sender) ? ownerOf(tokenId) : msg.sender;
-    super._burn(tokenOwner, tokenId);
-    delete _structureIndex[tokenId];
-    _addressIndex[tokenOwner] = 0;
+    return memberId;
   }
 
   /**
@@ -89,7 +81,7 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
    * @dev Returns if an address is member or not
    */
   function isMember(address member) public view returns (bool) {
-    return _exists(_addressIndex[member]);
+    return _addressIndex[member] != 0;
   }
 
   /**
@@ -108,15 +100,15 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
       uint256
     )
   {
-    uint256 tokenId = _addressIndex[member];
+    require(isMember(member));
 
-    return getMemberById(tokenId);
+    return getMemberById(_addressIndex[member]);
   }
 
   /**
    * @dev Returns the member structure.
    */
-  function getMemberById(uint256 tokenId)
+  function getMemberById(uint256 memberId)
     public
     view
     returns (
@@ -129,11 +121,12 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
       uint256 creationDate
     )
   {
-    require(_exists(tokenId));
+    MemberStructure storage structure = _structureIndex[memberId];
 
-    MemberStructure storage structure = _structureIndex[tokenId];
+    member = structure.member;
 
-    member = ownerOf(tokenId);
+    require(member != address(0));
+
     mainColor = structure.mainColor;
     backgroundColor = structure.backgroundColor;
     borderColor = structure.borderColor;

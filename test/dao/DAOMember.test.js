@@ -6,8 +6,7 @@ const { ZERO_ADDRESS } = require('openzeppelin-solidity/test/helpers/constants')
 
 const { shouldBehaveLikeOwnable } = require('openzeppelin-solidity/test/ownership/Ownable.behavior');
 const { shouldBehaveLikeTokenRecover } = require('eth-token-recover/test/TokenRecover.behaviour');
-const { shouldBehaveLikeERC721Full } = require('./behaviors/ERC721Full.behavior');
-const { shouldBehaveLikeRemoveRole } = require('../../access/roles/RemoveRole.behavior');
+const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behavior');
 
 const BigNumber = web3.BigNumber;
 
@@ -15,7 +14,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const DAOMember = artifacts.require('DAOMemberMock');
+const DAOMember = artifacts.require('DAOMember');
 
 contract('DAOMember', function (
   [
@@ -26,9 +25,6 @@ contract('DAOMember', function (
     ...accounts
   ]
 ) {
-  const name = 'TokenName';
-  const symbol = 'SYM';
-
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
     await advanceBlock();
@@ -43,19 +39,11 @@ contract('DAOMember', function (
       stackedTokens: new BigNumber(5),
     };
 
-    this.member = await DAOMember.new(name, symbol, { from: creator });
-  });
-
-  context('testing ERC721 behaviors', function () {
-    beforeEach(async function () {
-      this.token = this.member;
-    });
-
-    shouldBehaveLikeERC721Full(creator, creator, accounts, name, symbol);
+    this.member = await DAOMember.new({ from: creator });
   });
 
   context('testing DAOMember behaviors', function () {
-    let tokenId;
+    let memberId;
 
     beforeEach(async function () {
       await this.member.addOperator(operator, { from: creator });
@@ -69,7 +57,7 @@ contract('DAOMember', function (
         { from: operator }
       );
 
-      tokenId = await this.member.progressiveId();
+      memberId = await this.member.progressiveId();
     });
 
     context('check properties', function () {
@@ -101,46 +89,46 @@ contract('DAOMember', function (
 
     context('testing metadata', function () {
       context('check by id', function () {
-        let tokenStructure;
+        let memberStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.member.getMemberById(tokenId);
+          memberStructure = await this.member.getMemberById(memberId);
         });
 
-        describe('when token exists', function () {
+        describe('when member exists', function () {
           describe('check metadata', function () {
             it('has a member', async function () {
-              const toCheck = tokenStructure[0];
+              const toCheck = memberStructure[0];
               toCheck.should.be.equal(member);
             });
 
             it('has an main color', async function () {
-              const toCheck = tokenStructure[1];
+              const toCheck = memberStructure[1];
               assert.equal(web3.toUtf8(toCheck), this.structure.mainColor);
             });
 
             it('has an background color', async function () {
-              const toCheck = tokenStructure[2];
+              const toCheck = memberStructure[2];
               assert.equal(web3.toUtf8(toCheck), this.structure.backgroundColor);
             });
 
             it('has an border color', async function () {
-              const toCheck = tokenStructure[3];
+              const toCheck = memberStructure[3];
               assert.equal(web3.toUtf8(toCheck), this.structure.borderColor);
             });
 
             it('has a data value', async function () {
-              const toCheck = tokenStructure[4];
+              const toCheck = memberStructure[4];
               assert.equal(web3.toUtf8(toCheck), this.structure.data);
             });
 
             it('has a stacked tokens value', async function () {
-              const toCheck = tokenStructure[5];
+              const toCheck = memberStructure[5];
               toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
             });
 
             it('has a creation date', async function () {
-              const toCheck = tokenStructure[6];
+              const toCheck = memberStructure[6];
               toCheck.should.be.bignumber.equal(await time.latest());
             });
           });
@@ -148,53 +136,53 @@ contract('DAOMember', function (
       });
 
       context('check by address', function () {
-        let tokenStructure;
+        let memberStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.member.getMemberByAddress(member);
+          memberStructure = await this.member.getMemberByAddress(member);
         });
 
-        describe('when token exists', function () {
+        describe('when member exists', function () {
           describe('check metadata', function () {
             it('has a member', async function () {
-              const toCheck = tokenStructure[0];
+              const toCheck = memberStructure[0];
               toCheck.should.be.equal(member);
             });
 
             it('has an main color', async function () {
-              const toCheck = tokenStructure[1];
+              const toCheck = memberStructure[1];
               assert.equal(web3.toUtf8(toCheck), this.structure.mainColor);
             });
 
             it('has an background color', async function () {
-              const toCheck = tokenStructure[2];
+              const toCheck = memberStructure[2];
               assert.equal(web3.toUtf8(toCheck), this.structure.backgroundColor);
             });
 
             it('has an border color', async function () {
-              const toCheck = tokenStructure[3];
+              const toCheck = memberStructure[3];
               assert.equal(web3.toUtf8(toCheck), this.structure.borderColor);
             });
 
             it('has a data value', async function () {
-              const toCheck = tokenStructure[4];
+              const toCheck = memberStructure[4];
               assert.equal(web3.toUtf8(toCheck), this.structure.data);
             });
 
             it('has a stacked tokens value', async function () {
-              const toCheck = tokenStructure[5];
+              const toCheck = memberStructure[5];
               toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
             });
 
             it('has a creation date', async function () {
-              const toCheck = tokenStructure[6];
+              const toCheck = memberStructure[6];
               toCheck.should.be.bignumber.equal(await time.latest());
             });
           });
         });
       });
 
-      describe('when token does not exist', function () {
+      describe('when member does not exist', function () {
         describe('check metadata', function () {
           it('reverts using id', async function () {
             await shouldFail.reverting(this.member.getMemberById(999));
@@ -211,31 +199,9 @@ contract('DAOMember', function (
           });
         });
       });
-
-      describe('when token is burnt', function () {
-        beforeEach(async function () {
-          await this.member.burn(tokenId, { from: operator });
-        });
-
-        describe('check metadata', function () {
-          it('reverts using id', async function () {
-            await shouldFail.reverting(this.member.getMemberById(tokenId));
-          });
-
-          it('reverts using address', async function () {
-            await shouldFail.reverting(this.member.getMemberByAddress(member));
-          });
-        });
-
-        describe('check isMember', function () {
-          it('returns false', async function () {
-            (await this.member.isMember(member)).should.be.equal(false);
-          });
-        });
-      });
     });
 
-    context('creating new token', function () {
+    context('creating new member', function () {
       describe('if member already exists', function () {
         it('reverts', async function () {
           await shouldFail.reverting(
