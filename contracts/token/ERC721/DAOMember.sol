@@ -78,8 +78,18 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
     _addressIndex[tokenOwner] = 0;
   }
 
+  /**
+   * @dev Returns the progressive id
+   */
   function progressiveId() external view returns (uint256) {
     return _progressiveId;
+  }
+
+  /**
+   * @dev Returns if an address is member or not
+   */
+  function isMember(address member) public view returns (bool) {
+    return _exists(_addressIndex[member]);
   }
 
   /**

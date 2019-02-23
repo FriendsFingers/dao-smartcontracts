@@ -50,7 +50,7 @@ contract('DAOMember', function (
     shouldBehaveLikeERC721Full(creator, creator, accounts, name, symbol);
   });
 
-  context('creating new token', function () {
+  context('testing DAOMember behaviors', function () {
     let tokenId;
 
     beforeEach(async function () {
@@ -66,6 +66,33 @@ contract('DAOMember', function (
       );
 
       tokenId = await this.token.progressiveId();
+    });
+
+    context('check properties', function () {
+      describe('check isMember', function () {
+        it('returns true', async function () {
+          (await this.token.isMember(member)).should.be.equal(true);
+        });
+      });
+
+      describe('progressive id', function () {
+        it('should increase', async function () {
+          const oldProgressiveId = await this.token.progressiveId();
+
+          await this.token.newMember(
+            anotherAccount,
+            this.structure.mainColor,
+            this.structure.backgroundColor,
+            this.structure.borderColor,
+            web3.fromUtf8(this.structure.data),
+            this.structure.stackedTokens,
+            { from: operator }
+          );
+          const newProgressiveId = await this.token.progressiveId();
+
+          newProgressiveId.should.be.bignumber.equal(oldProgressiveId.add(1));
+        });
+      });
     });
 
     context('testing metadata', function () {
@@ -173,6 +200,12 @@ contract('DAOMember', function (
             await shouldFail.reverting(this.token.getMemberByAddress(anotherAccount));
           });
         });
+
+        describe('check isMember', function () {
+          it('returns false', async function () {
+            (await this.token.isMember(anotherAccount)).should.be.equal(false);
+          });
+        });
       });
 
       describe('when token is burnt', function () {
@@ -189,73 +222,62 @@ contract('DAOMember', function (
             await shouldFail.reverting(this.token.getMemberByAddress(member));
           });
         });
+
+        describe('check isMember', function () {
+          it('returns false', async function () {
+            (await this.token.isMember(member)).should.be.equal(false);
+          });
+        });
       });
     });
 
-    describe('progressive id', function () {
-      it('should increase', async function () {
-        const oldProgressiveId = await this.token.progressiveId();
-
-        await this.token.newMember(
-          anotherAccount,
-          this.structure.mainColor,
-          this.structure.backgroundColor,
-          this.structure.borderColor,
-          web3.fromUtf8(this.structure.data),
-          this.structure.stackedTokens,
-          { from: operator }
-        );
-        const newProgressiveId = await this.token.progressiveId();
-
-        newProgressiveId.should.be.bignumber.equal(oldProgressiveId.add(1));
+    context('creating new token', function () {
+      describe('if member already exists', function () {
+        it('reverts', async function () {
+          await shouldFail.reverting(
+            this.token.newMember(
+              member,
+              this.structure.mainColor,
+              this.structure.backgroundColor,
+              this.structure.borderColor,
+              web3.fromUtf8(this.structure.data),
+              this.structure.stackedTokens,
+              { from: anotherAccount }
+            )
+          );
+        });
       });
-    });
 
-    describe('if member already exists', function () {
-      it('reverts', async function () {
-        await shouldFail.reverting(
-          this.token.newMember(
-            member,
-            this.structure.mainColor,
-            this.structure.backgroundColor,
-            this.structure.borderColor,
-            web3.fromUtf8(this.structure.data),
-            this.structure.stackedTokens,
-            { from: anotherAccount }
-          )
-        );
+      describe('if member is the zero address', function () {
+        it('reverts', async function () {
+          await shouldFail.reverting(
+            this.token.newMember(
+              ZERO_ADDRESS,
+              this.structure.mainColor,
+              this.structure.backgroundColor,
+              this.structure.borderColor,
+              web3.fromUtf8(this.structure.data),
+              this.structure.stackedTokens,
+              { from: operator }
+            )
+          );
+        });
       });
-    });
 
-    describe('if member is the zero address', function () {
-      it('reverts', async function () {
-        await shouldFail.reverting(
-          this.token.newMember(
-            ZERO_ADDRESS,
-            this.structure.mainColor,
-            this.structure.backgroundColor,
-            this.structure.borderColor,
-            web3.fromUtf8(this.structure.data),
-            this.structure.stackedTokens,
-            { from: operator }
-          )
-        );
-      });
-    });
-
-    describe('if caller has not operator permission', function () {
-      it('reverts', async function () {
-        await shouldFail.reverting(
-          this.token.newMember(
-            anotherAccount,
-            this.structure.mainColor,
-            this.structure.backgroundColor,
-            this.structure.borderColor,
-            web3.fromUtf8(this.structure.data),
-            this.structure.stackedTokens,
-            { from: anotherAccount }
-          )
-        );
+      describe('if caller has not operator permission', function () {
+        it('reverts', async function () {
+          await shouldFail.reverting(
+            this.token.newMember(
+              anotherAccount,
+              this.structure.mainColor,
+              this.structure.backgroundColor,
+              this.structure.borderColor,
+              web3.fromUtf8(this.structure.data),
+              this.structure.stackedTokens,
+              { from: anotherAccount }
+            )
+          );
+        });
       });
     });
 
