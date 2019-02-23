@@ -12,7 +12,7 @@ import "../../access/roles/OperatorRole.sol";
 contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
 
   // structure that defines a member
-  struct TokenStructure {
+  struct MemberStructure {
     bytes6 mainColor;
     bytes6 backgroundColor;
     bytes6 borderColor;
@@ -28,7 +28,7 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   mapping(address => uint256) private _addressIndex;
 
   // Mapping from token ID to the structures
-  mapping(uint256 => TokenStructure) private _structureIndex;
+  mapping(uint256 => MemberStructure) private _structureIndex;
 
   constructor(string name, string symbol) public ERC721Full(name, symbol) {} // solhint-disable-line no-empty-blocks
 
@@ -54,7 +54,7 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
     _mint(member, tokenId);
 
     _addressIndex[member] = tokenId;
-    _structureIndex[tokenId] = TokenStructure(
+    _structureIndex[tokenId] = MemberStructure(
       mainColor,
       backgroundColor,
       borderColor,
@@ -131,7 +131,7 @@ contract DAOMember is ERC721Full, OperatorRole, TokenRecover {
   {
     require(_exists(tokenId));
 
-    TokenStructure storage structure = _structureIndex[tokenId];
+    MemberStructure storage structure = _structureIndex[tokenId];
 
     member = ownerOf(tokenId);
     mainColor = structure.mainColor;

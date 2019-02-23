@@ -43,10 +43,14 @@ contract('DAOMember', function (
       stackedTokens: new BigNumber(5),
     };
 
-    this.token = await DAOMember.new(name, symbol, { from: creator });
+    this.member = await DAOMember.new(name, symbol, { from: creator });
   });
 
   context('testing ERC721 behaviors', function () {
+    beforeEach(async function () {
+      this.token = this.member;
+    });
+
     shouldBehaveLikeERC721Full(creator, creator, accounts, name, symbol);
   });
 
@@ -54,8 +58,8 @@ contract('DAOMember', function (
     let tokenId;
 
     beforeEach(async function () {
-      await this.token.addOperator(operator, { from: creator });
-      await this.token.newMember(
+      await this.member.addOperator(operator, { from: creator });
+      await this.member.newMember(
         member,
         this.structure.mainColor,
         this.structure.backgroundColor,
@@ -65,21 +69,21 @@ contract('DAOMember', function (
         { from: operator }
       );
 
-      tokenId = await this.token.progressiveId();
+      tokenId = await this.member.progressiveId();
     });
 
     context('check properties', function () {
       describe('check isMember', function () {
         it('returns true', async function () {
-          (await this.token.isMember(member)).should.be.equal(true);
+          (await this.member.isMember(member)).should.be.equal(true);
         });
       });
 
       describe('progressive id', function () {
         it('should increase', async function () {
-          const oldProgressiveId = await this.token.progressiveId();
+          const oldProgressiveId = await this.member.progressiveId();
 
-          await this.token.newMember(
+          await this.member.newMember(
             anotherAccount,
             this.structure.mainColor,
             this.structure.backgroundColor,
@@ -88,7 +92,7 @@ contract('DAOMember', function (
             this.structure.stackedTokens,
             { from: operator }
           );
-          const newProgressiveId = await this.token.progressiveId();
+          const newProgressiveId = await this.member.progressiveId();
 
           newProgressiveId.should.be.bignumber.equal(oldProgressiveId.add(1));
         });
@@ -100,7 +104,7 @@ contract('DAOMember', function (
         let tokenStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.token.getMemberById(tokenId);
+          tokenStructure = await this.member.getMemberById(tokenId);
         });
 
         describe('when token exists', function () {
@@ -147,7 +151,7 @@ contract('DAOMember', function (
         let tokenStructure;
 
         beforeEach(async function () {
-          tokenStructure = await this.token.getMemberByAddress(member);
+          tokenStructure = await this.member.getMemberByAddress(member);
         });
 
         describe('when token exists', function () {
@@ -193,39 +197,39 @@ contract('DAOMember', function (
       describe('when token does not exist', function () {
         describe('check metadata', function () {
           it('reverts using id', async function () {
-            await shouldFail.reverting(this.token.getMemberById(999));
+            await shouldFail.reverting(this.member.getMemberById(999));
           });
 
           it('reverts using address', async function () {
-            await shouldFail.reverting(this.token.getMemberByAddress(anotherAccount));
+            await shouldFail.reverting(this.member.getMemberByAddress(anotherAccount));
           });
         });
 
         describe('check isMember', function () {
           it('returns false', async function () {
-            (await this.token.isMember(anotherAccount)).should.be.equal(false);
+            (await this.member.isMember(anotherAccount)).should.be.equal(false);
           });
         });
       });
 
       describe('when token is burnt', function () {
         beforeEach(async function () {
-          await this.token.burn(tokenId, { from: operator });
+          await this.member.burn(tokenId, { from: operator });
         });
 
         describe('check metadata', function () {
           it('reverts using id', async function () {
-            await shouldFail.reverting(this.token.getMemberById(tokenId));
+            await shouldFail.reverting(this.member.getMemberById(tokenId));
           });
 
           it('reverts using address', async function () {
-            await shouldFail.reverting(this.token.getMemberByAddress(member));
+            await shouldFail.reverting(this.member.getMemberByAddress(member));
           });
         });
 
         describe('check isMember', function () {
           it('returns false', async function () {
-            (await this.token.isMember(member)).should.be.equal(false);
+            (await this.member.isMember(member)).should.be.equal(false);
           });
         });
       });
@@ -235,7 +239,7 @@ contract('DAOMember', function (
       describe('if member already exists', function () {
         it('reverts', async function () {
           await shouldFail.reverting(
-            this.token.newMember(
+            this.member.newMember(
               member,
               this.structure.mainColor,
               this.structure.backgroundColor,
@@ -251,7 +255,7 @@ contract('DAOMember', function (
       describe('if member is the zero address', function () {
         it('reverts', async function () {
           await shouldFail.reverting(
-            this.token.newMember(
+            this.member.newMember(
               ZERO_ADDRESS,
               this.structure.mainColor,
               this.structure.backgroundColor,
@@ -267,7 +271,7 @@ contract('DAOMember', function (
       describe('if caller has not operator permission', function () {
         it('reverts', async function () {
           await shouldFail.reverting(
-            this.token.newMember(
+            this.member.newMember(
               anotherAccount,
               this.structure.mainColor,
               this.structure.backgroundColor,
@@ -283,7 +287,7 @@ contract('DAOMember', function (
 
     context('testing ownership', function () {
       beforeEach(async function () {
-        this.ownable = this.token;
+        this.ownable = this.member;
       });
 
       shouldBehaveLikeOwnable(creator, [anotherAccount]);
@@ -291,12 +295,12 @@ contract('DAOMember', function (
 
     context('testing roles', function () {
       beforeEach(async function () {
-        this.contract = this.token;
+        this.contract = this.member;
       });
 
       context('testing remove roles', function () {
         beforeEach(async function () {
-          this.contract = this.token;
+          this.contract = this.member;
         });
 
         shouldBehaveLikeRemoveRole(creator, operator, [anotherAccount], 'operator');
@@ -306,7 +310,7 @@ contract('DAOMember', function (
 
   context('like a TokenRecover', function () {
     beforeEach(async function () {
-      this.instance = this.token;
+      this.instance = this.member;
     });
 
     shouldBehaveLikeTokenRecover([creator, anotherAccount]);
