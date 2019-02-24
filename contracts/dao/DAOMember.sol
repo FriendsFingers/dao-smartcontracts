@@ -35,66 +35,6 @@ contract DAOMember is OperatorRole, TokenRecover {
   constructor() public {} // solhint-disable-line no-empty-blocks
 
   /**
-   * @dev Generate a new member and the member structure.
-   */
-  function newMember(
-    address member,
-    bytes6 mainColor,
-    bytes6 backgroundColor,
-    bytes6 borderColor,
-    bytes32 data,
-    uint256 stackedTokens
-  )
-    external
-    onlyOperator
-    returns (uint256)
-  {
-    require(member != address(0));
-    require(!isMember(member));
-
-    uint256 memberId = _progressiveId.add(1);
-
-    _addressIndex[member] = memberId;
-    _structureIndex[memberId] = MemberStructure(
-      member,
-      mainColor,
-      backgroundColor,
-      borderColor,
-      data,
-      stackedTokens,
-      block.timestamp // solhint-disable-line not-rely-on-time
-    );
-
-    _progressiveId = memberId;
-
-    return memberId;
-  }
-
-  /**
-   * @dev Add tokens to member stack
-   */
-  function stake(address member, uint256 amount) public onlyOperator {
-    require(isMember(member));
-
-    MemberStructure storage structure = _structureIndex[_addressIndex[member]];
-
-    structure.stackedTokens = structure.stackedTokens.add(amount);
-  }
-
-  /**
-   * @dev Remove tokens from member stack
-   */
-  function unstake(address member, uint256 amount) public onlyOperator {
-    require(isMember(member));
-
-    MemberStructure storage structure = _structureIndex[_addressIndex[member]];
-
-    require(structure.stackedTokens >= amount);
-
-    structure.stackedTokens = structure.stackedTokens.sub(amount);
-  }
-
-  /**
    * @dev Returns the progressive id
    */
   function progressiveId() external view returns (uint256) {
@@ -104,29 +44,29 @@ contract DAOMember is OperatorRole, TokenRecover {
   /**
    * @dev Returns if an address is member or not
    */
-  function isMember(address member) public view returns (bool) {
-    return _addressIndex[member] != 0;
+  function isMember(address account) public view returns (bool) {
+    return _addressIndex[account] != 0;
   }
 
   /**
    * @dev Returns the member structure.
    */
-  function getMemberByAddress(address member)
+  function getMemberByAddress(address account)
     public
     view
     returns (
-      address,
-      bytes6,
-      bytes6,
-      bytes6,
-      bytes32,
-      uint256,
-      uint256
+      address member,
+      bytes6 mainColor,
+      bytes6 backgroundColor,
+      bytes6 borderColor,
+      bytes32 data,
+      uint256 stackedTokens,
+      uint256 creationDate
     )
   {
-    require(isMember(member));
+    require(isMember(account));
 
-    return getMemberById(_addressIndex[member]);
+    return getMemberById(_addressIndex[account]);
   }
 
   /**
@@ -157,6 +97,66 @@ contract DAOMember is OperatorRole, TokenRecover {
     data = structure.data;
     stackedTokens = structure.stackedTokens;
     creationDate = structure.creationDate;
+  }
+
+  /**
+   * @dev Generate a new member and the member structure.
+   */
+  function newMember(
+    address account,
+    bytes6 mainColor,
+    bytes6 backgroundColor,
+    bytes6 borderColor,
+    bytes32 data,
+    uint256 stackedTokens
+  )
+    public
+    onlyOperator
+    returns (uint256)
+  {
+    require(account != address(0));
+    require(!isMember(account));
+
+    uint256 memberId = _progressiveId.add(1);
+
+    _addressIndex[account] = memberId;
+    _structureIndex[memberId] = MemberStructure(
+      account,
+      mainColor,
+      backgroundColor,
+      borderColor,
+      data,
+      stackedTokens,
+      block.timestamp // solhint-disable-line not-rely-on-time
+    );
+
+    _progressiveId = memberId;
+
+    return memberId;
+  }
+
+  /**
+   * @dev Add tokens to member stack
+   */
+  function stake(address account, uint256 amount) public onlyOperator {
+    require(isMember(account));
+
+    MemberStructure storage structure = _structureIndex[_addressIndex[account]];
+
+    structure.stackedTokens = structure.stackedTokens.add(amount);
+  }
+
+  /**
+   * @dev Remove tokens from member stack
+   */
+  function unstake(address account, uint256 amount) public onlyOperator {
+    require(isMember(account));
+
+    MemberStructure storage structure = _structureIndex[_addressIndex[account]];
+
+    require(structure.stackedTokens >= amount);
+
+    structure.stackedTokens = structure.stackedTokens.sub(amount);
   }
 
   /**
