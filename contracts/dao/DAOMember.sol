@@ -12,6 +12,11 @@ import "../access/roles/OperatorRole.sol";
 contract DAOMember is OperatorRole, TokenRecover {
   using SafeMath for uint256;
 
+  event MemberAdded(
+    address indexed account,
+    uint256 id
+  );
+
   // structure that defines a member
   struct MemberStructure {
     address member;
@@ -131,6 +136,8 @@ contract DAOMember is OperatorRole, TokenRecover {
     );
 
     _progressiveId = memberId;
+
+    emit MemberAdded(account, memberId);
 
     return memberId;
   }
