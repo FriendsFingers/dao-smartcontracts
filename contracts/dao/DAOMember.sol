@@ -28,8 +28,8 @@ contract DAOMember is OperatorRole, TokenRecover {
     uint256 creationDate;
   }
 
-  // a progressive id
-  uint256 private _progressiveId;
+  // a progressive id counting members
+  uint256 private _membersNumber;
 
   // Mapping from address to member ID
   mapping(address => uint256) private _addressIndex;
@@ -40,10 +40,10 @@ contract DAOMember is OperatorRole, TokenRecover {
   constructor() public {} // solhint-disable-line no-empty-blocks
 
   /**
-   * @dev Returns the progressive id
+   * @dev Returns the members number
    */
-  function progressiveId() external view returns (uint256) {
-    return _progressiveId;
+  function membersNumber() external view returns (uint256) {
+    return _membersNumber;
   }
 
   /**
@@ -122,7 +122,7 @@ contract DAOMember is OperatorRole, TokenRecover {
     require(account != address(0));
     require(!isMember(account));
 
-    uint256 memberId = _progressiveId.add(1);
+    uint256 memberId = _membersNumber.add(1);
 
     _addressIndex[account] = memberId;
     _structureIndex[memberId] = MemberStructure(
@@ -135,7 +135,7 @@ contract DAOMember is OperatorRole, TokenRecover {
       block.timestamp // solhint-disable-line not-rely-on-time
     );
 
-    _progressiveId = memberId;
+    _membersNumber = memberId;
 
     emit MemberAdded(account, memberId);
 

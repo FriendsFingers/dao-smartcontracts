@@ -63,13 +63,15 @@ contract('DAOMember', function (
         )
         );
 
-        memberId = await this.member.progressiveId();
+        memberId = await this.member.membersNumber();
       });
 
       it('emits a MemberAdded event', async function () {
+        const newMembersNumber = await this.member.membersNumber();
+
         expectEvent.inLogs(this.logs, 'MemberAdded', {
           account: member,
-          id: 1,
+          id: newMembersNumber,
         });
       });
 
@@ -80,9 +82,9 @@ contract('DAOMember', function (
           });
         });
 
-        describe('progressive id', function () {
+        describe('members number', function () {
           it('should increase', async function () {
-            const oldProgressiveId = await this.member.progressiveId();
+            const oldMembersNumber = await this.member.membersNumber();
 
             await this.member.newMember(
               anotherAccount,
@@ -93,9 +95,9 @@ contract('DAOMember', function (
               this.structure.stackedTokens,
               { from: operator }
             );
-            const newProgressiveId = await this.member.progressiveId();
+            const newMembersNumber = await this.member.membersNumber();
 
-            newProgressiveId.should.be.bignumber.equal(oldProgressiveId.add(1));
+            newMembersNumber.should.be.bignumber.equal(oldMembersNumber.add(1));
           });
         });
       });
