@@ -71,6 +71,30 @@ contract DAOMember is OperatorRole, TokenRecover {
   }
 
   /**
+   * @dev Add tokens to member stack
+   */
+  function stake(address member, uint256 amount) public onlyOperator {
+    require(isMember(member));
+
+    MemberStructure storage structure = _structureIndex[_addressIndex[member]];
+
+    structure.stackedTokens = structure.stackedTokens.add(amount);
+  }
+
+  /**
+   * @dev Remove tokens from member stack
+   */
+  function unstake(address member, uint256 amount) public onlyOperator {
+    require(isMember(member));
+
+    MemberStructure storage structure = _structureIndex[_addressIndex[member]];
+
+    require(structure.stackedTokens >= amount);
+
+    structure.stackedTokens = structure.stackedTokens.sub(amount);
+  }
+
+  /**
    * @dev Returns the progressive id
    */
   function progressiveId() external view returns (uint256) {

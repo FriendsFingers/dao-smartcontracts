@@ -251,6 +251,79 @@ contract('DAOMember', function (
       });
     });
 
+    context('testing stake/unstake', function () {
+      let memberStructure;
+
+      describe('stake tokens', function () {
+        const toStake = new BigNumber(1);
+
+        describe('if an operator is calling', function () {
+          describe('if user is member', function () {
+            beforeEach(async function () {
+              await this.member.stake(member, toStake, { from: operator });
+              memberStructure = await this.member.getMemberByAddress(member);
+            });
+
+            it('should increase member staked tokens', async function () {
+              memberStructure[5].should.be.bignumber.equal(this.structure.stackedTokens.add(toStake));
+            });
+          });
+
+          describe('if user is not member', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(this.member.stake(anotherAccount, toStake, { from: operator }));
+            });
+          });
+        });
+
+        describe('if another account is calling', function () {
+          it('reverts', async function () {
+            await shouldFail.reverting(this.member.stake(member, toStake, { from: anotherAccount }));
+          });
+        });
+      });
+
+      describe('unstake tokens', function () {
+        describe('if an operator is calling', function () {
+          describe('if user is member', function () {
+            describe('if member has enough staked token', function () {
+              beforeEach(async function () {
+                await this.member.unstake(member, this.structure.stackedTokens, { from: operator });
+                memberStructure = await this.member.getMemberByAddress(member);
+              });
+
+              it('should decrease member staked tokens', async function () {
+                memberStructure[5].should.be.bignumber.equal(0);
+              });
+            });
+            describe('if member has not enough staked token', function () {
+              it('reverts', async function () {
+                await shouldFail.reverting(
+                  this.member.unstake(member, this.structure.stackedTokens.add(1), { from: operator })
+                );
+              });
+            });
+          });
+
+          describe('if user is not member', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(
+                this.member.unstake(anotherAccount, this.structure.stackedTokens, { from: operator })
+              );
+            });
+          });
+        });
+
+        describe('if another account is calling', function () {
+          it('reverts', async function () {
+            await shouldFail.reverting(
+              this.member.unstake(member, this.structure.stackedTokens, { from: anotherAccount })
+            );
+          });
+        });
+      });
+    });
+
     context('testing ownership', function () {
       beforeEach(async function () {
         this.ownable = this.member;
