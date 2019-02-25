@@ -227,7 +227,7 @@ contract('DAOMember', function (
                 this.structure.borderColor,
                 web3.fromUtf8(this.structure.data),
                 this.structure.stackedTokens,
-                { from: anotherAccount }
+                { from: operator }
               )
             );
           });
