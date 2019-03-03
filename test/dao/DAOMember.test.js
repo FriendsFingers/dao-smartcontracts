@@ -37,6 +37,7 @@ contract('DAOMember', function (
       backgroundColor: 'ffffff',
       borderColor: 'fae596',
       data: JSON.stringify({ key: 'value' }),
+      kyc: true,
       stackedTokens: new BigNumber(5),
     };
 
@@ -58,6 +59,7 @@ contract('DAOMember', function (
           this.structure.backgroundColor,
           this.structure.borderColor,
           web3.fromUtf8(this.structure.data),
+          this.structure.kyc,
           this.structure.stackedTokens,
           { from: operator }
         )
@@ -92,6 +94,7 @@ contract('DAOMember', function (
               this.structure.backgroundColor,
               this.structure.borderColor,
               web3.fromUtf8(this.structure.data),
+              this.structure.kyc,
               this.structure.stackedTokens,
               { from: operator }
             );
@@ -137,13 +140,18 @@ contract('DAOMember', function (
                 assert.equal(web3.toUtf8(toCheck), this.structure.data);
               });
 
-              it('has a stacked tokens value', async function () {
+              it('has a kyc value', async function () {
                 const toCheck = memberStructure[5];
+                assert.equal(toCheck, this.structure.kyc);
+              });
+
+              it('has a stacked tokens value', async function () {
+                const toCheck = memberStructure[6];
                 toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
               });
 
               it('has a creation date', async function () {
-                const toCheck = memberStructure[6];
+                const toCheck = memberStructure[7];
                 toCheck.should.be.bignumber.equal(await time.latest());
               });
             });
@@ -184,13 +192,18 @@ contract('DAOMember', function (
                 assert.equal(web3.toUtf8(toCheck), this.structure.data);
               });
 
-              it('has a stacked tokens value', async function () {
+              it('has a kyc value', async function () {
                 const toCheck = memberStructure[5];
+                assert.equal(toCheck, this.structure.kyc);
+              });
+
+              it('has a stacked tokens value', async function () {
+                const toCheck = memberStructure[6];
                 toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
               });
 
               it('has a creation date', async function () {
-                const toCheck = memberStructure[6];
+                const toCheck = memberStructure[7];
                 toCheck.should.be.bignumber.equal(await time.latest());
               });
             });
@@ -226,6 +239,7 @@ contract('DAOMember', function (
                 this.structure.backgroundColor,
                 this.structure.borderColor,
                 web3.fromUtf8(this.structure.data),
+                this.structure.kyc,
                 this.structure.stackedTokens,
                 { from: operator }
               )
@@ -242,6 +256,7 @@ contract('DAOMember', function (
                 this.structure.backgroundColor,
                 this.structure.borderColor,
                 web3.fromUtf8(this.structure.data),
+                this.structure.kyc,
                 this.structure.stackedTokens,
                 { from: operator }
               )
@@ -258,6 +273,7 @@ contract('DAOMember', function (
                 this.structure.backgroundColor,
                 this.structure.borderColor,
                 web3.fromUtf8(this.structure.data),
+                this.structure.kyc,
                 this.structure.stackedTokens,
                 { from: anotherAccount }
               )
@@ -280,7 +296,7 @@ contract('DAOMember', function (
               });
 
               it('should increase member staked tokens', async function () {
-                memberStructure[5].should.be.bignumber.equal(this.structure.stackedTokens.add(toStake));
+                memberStructure[6].should.be.bignumber.equal(this.structure.stackedTokens.add(toStake));
               });
             });
 
@@ -308,7 +324,7 @@ contract('DAOMember', function (
                 });
 
                 it('should decrease member staked tokens', async function () {
-                  memberStructure[5].should.be.bignumber.equal(0);
+                  memberStructure[6].should.be.bignumber.equal(0);
                 });
               });
               describe('if member has not enough staked token', function () {

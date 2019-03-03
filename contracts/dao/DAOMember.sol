@@ -24,6 +24,7 @@ contract DAOMember is OperatorRole, TokenRecover {
     bytes6 backgroundColor;
     bytes6 borderColor;
     bytes32 data;
+    bool kyc;
     uint256 stackedTokens;
     uint256 creationDate;
   }
@@ -65,6 +66,7 @@ contract DAOMember is OperatorRole, TokenRecover {
       bytes6 backgroundColor,
       bytes6 borderColor,
       bytes32 data,
+      bool kyc,
       uint256 stackedTokens,
       uint256 creationDate
     )
@@ -86,6 +88,7 @@ contract DAOMember is OperatorRole, TokenRecover {
       bytes6 backgroundColor,
       bytes6 borderColor,
       bytes32 data,
+      bool kyc,
       uint256 stackedTokens,
       uint256 creationDate
     )
@@ -100,6 +103,7 @@ contract DAOMember is OperatorRole, TokenRecover {
     backgroundColor = structure.backgroundColor;
     borderColor = structure.borderColor;
     data = structure.data;
+    kyc = structure.kyc;
     stackedTokens = structure.stackedTokens;
     creationDate = structure.creationDate;
   }
@@ -113,6 +117,7 @@ contract DAOMember is OperatorRole, TokenRecover {
     bytes6 backgroundColor,
     bytes6 borderColor,
     bytes32 data,
+    bool kyc,
     uint256 stackedTokens
   )
     public
@@ -131,6 +136,7 @@ contract DAOMember is OperatorRole, TokenRecover {
       backgroundColor,
       borderColor,
       data,
+      kyc,
       stackedTokens,
       block.timestamp // solhint-disable-line not-rely-on-time
     );
