@@ -1,19 +1,9 @@
-const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
-const shouldFail = require('openzeppelin-solidity/test/helpers/shouldFail');
-const expectEvent = require('openzeppelin-solidity/test/helpers/expectEvent');
-const time = require('openzeppelin-solidity/test/helpers/time');
+const { BN, constants, shouldFail, expectEvent, time } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
-const { ZERO_ADDRESS } = require('openzeppelin-solidity/test/helpers/constants');
-
-const { shouldBehaveLikeOwnable } = require('openzeppelin-solidity/test/ownership/Ownable.behavior');
 const { shouldBehaveLikeTokenRecover } = require('eth-token-recover/test/TokenRecover.behaviour');
+const { shouldBehaveLikeOwnable } = require('../ownership/Ownable.behavior');
 const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behavior');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
 
 const DAOMember = artifacts.require('DAOMember');
 
@@ -28,7 +18,7 @@ contract('DAOMember', function (
 ) {
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {
@@ -38,7 +28,7 @@ contract('DAOMember', function (
       borderColor: 'fae596',
       data: JSON.stringify({ key: 'value' }),
       kyc: true,
-      stackedTokens: new BigNumber(5),
+      stackedTokens: new BN(5),
     };
 
     this.member = await DAOMember.new({ from: creator });
@@ -55,10 +45,10 @@ contract('DAOMember', function (
       beforeEach(async function () {
         ({ logs: this.logs } = await this.member.newMember(
           member,
-          this.structure.mainColor,
-          this.structure.backgroundColor,
-          this.structure.borderColor,
-          web3.fromUtf8(this.structure.data),
+          web3.utils.utf8ToHex(this.structure.mainColor),
+          web3.utils.utf8ToHex(this.structure.backgroundColor),
+          web3.utils.utf8ToHex(this.structure.borderColor),
+          web3.utils.utf8ToHex(this.structure.data),
           this.structure.kyc,
           this.structure.stackedTokens,
           { from: operator }
@@ -90,17 +80,16 @@ contract('DAOMember', function (
 
             await this.member.newMember(
               anotherAccount,
-              this.structure.mainColor,
-              this.structure.backgroundColor,
-              this.structure.borderColor,
-              web3.fromUtf8(this.structure.data),
+              web3.utils.utf8ToHex(this.structure.mainColor),
+              web3.utils.utf8ToHex(this.structure.backgroundColor),
+              web3.utils.utf8ToHex(this.structure.borderColor),
+              web3.utils.utf8ToHex(this.structure.data),
               this.structure.kyc,
               this.structure.stackedTokens,
               { from: operator }
             );
             const newMembersNumber = await this.member.membersNumber();
-
-            newMembersNumber.should.be.bignumber.equal(oldMembersNumber.add(1));
+            newMembersNumber.should.be.bignumber.equal(oldMembersNumber.add(new BN(1)));
           });
         });
       });
@@ -122,22 +111,22 @@ contract('DAOMember', function (
 
               it('has an main color', async function () {
                 const toCheck = memberStructure[1];
-                assert.equal(web3.toUtf8(toCheck), this.structure.mainColor);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.mainColor);
               });
 
               it('has an background color', async function () {
                 const toCheck = memberStructure[2];
-                assert.equal(web3.toUtf8(toCheck), this.structure.backgroundColor);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.backgroundColor);
               });
 
               it('has an border color', async function () {
                 const toCheck = memberStructure[3];
-                assert.equal(web3.toUtf8(toCheck), this.structure.borderColor);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.borderColor);
               });
 
               it('has a data value', async function () {
                 const toCheck = memberStructure[4];
-                assert.equal(web3.toUtf8(toCheck), this.structure.data);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.data);
               });
 
               it('has a kyc value', async function () {
@@ -174,22 +163,22 @@ contract('DAOMember', function (
 
               it('has an main color', async function () {
                 const toCheck = memberStructure[1];
-                assert.equal(web3.toUtf8(toCheck), this.structure.mainColor);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.mainColor);
               });
 
               it('has an background color', async function () {
                 const toCheck = memberStructure[2];
-                assert.equal(web3.toUtf8(toCheck), this.structure.backgroundColor);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.backgroundColor);
               });
 
               it('has an border color', async function () {
                 const toCheck = memberStructure[3];
-                assert.equal(web3.toUtf8(toCheck), this.structure.borderColor);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.borderColor);
               });
 
               it('has a data value', async function () {
                 const toCheck = memberStructure[4];
-                assert.equal(web3.toUtf8(toCheck), this.structure.data);
+                assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.data);
               });
 
               it('has a kyc value', async function () {
@@ -235,10 +224,10 @@ contract('DAOMember', function (
             await shouldFail.reverting(
               this.member.newMember(
                 member,
-                this.structure.mainColor,
-                this.structure.backgroundColor,
-                this.structure.borderColor,
-                web3.fromUtf8(this.structure.data),
+                web3.utils.utf8ToHex(this.structure.mainColor),
+                web3.utils.utf8ToHex(this.structure.backgroundColor),
+                web3.utils.utf8ToHex(this.structure.borderColor),
+                web3.utils.utf8ToHex(this.structure.data),
                 this.structure.kyc,
                 this.structure.stackedTokens,
                 { from: operator }
@@ -252,10 +241,10 @@ contract('DAOMember', function (
             await shouldFail.reverting(
               this.member.newMember(
                 ZERO_ADDRESS,
-                this.structure.mainColor,
-                this.structure.backgroundColor,
-                this.structure.borderColor,
-                web3.fromUtf8(this.structure.data),
+                web3.utils.utf8ToHex(this.structure.mainColor),
+                web3.utils.utf8ToHex(this.structure.backgroundColor),
+                web3.utils.utf8ToHex(this.structure.borderColor),
+                web3.utils.utf8ToHex(this.structure.data),
                 this.structure.kyc,
                 this.structure.stackedTokens,
                 { from: operator }
@@ -269,10 +258,10 @@ contract('DAOMember', function (
             await shouldFail.reverting(
               this.member.newMember(
                 anotherAccount,
-                this.structure.mainColor,
-                this.structure.backgroundColor,
-                this.structure.borderColor,
-                web3.fromUtf8(this.structure.data),
+                web3.utils.utf8ToHex(this.structure.mainColor),
+                web3.utils.utf8ToHex(this.structure.backgroundColor),
+                web3.utils.utf8ToHex(this.structure.borderColor),
+                web3.utils.utf8ToHex(this.structure.data),
                 this.structure.kyc,
                 this.structure.stackedTokens,
                 { from: anotherAccount }
@@ -286,7 +275,7 @@ contract('DAOMember', function (
         let memberStructure;
 
         describe('stake tokens', function () {
-          const toStake = new BigNumber(1);
+          const toStake = new BN(1);
 
           describe('if an operator is calling', function () {
             describe('if user is member', function () {
@@ -324,13 +313,13 @@ contract('DAOMember', function (
                 });
 
                 it('should decrease member staked tokens', async function () {
-                  memberStructure[6].should.be.bignumber.equal(0);
+                  memberStructure[6].should.be.bignumber.equal(new BN(0));
                 });
               });
               describe('if member has not enough staked token', function () {
                 it('reverts', async function () {
                   await shouldFail.reverting(
-                    this.member.unstake(member, this.structure.stackedTokens.add(1), { from: operator })
+                    this.member.unstake(member, this.structure.stackedTokens.add(new BN(1)), { from: operator })
                   );
                 });
               });

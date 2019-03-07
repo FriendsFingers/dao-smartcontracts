@@ -1,43 +1,43 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.5.5;
 
 import "openzeppelin-solidity/contracts/access/Roles.sol";
 
 contract OperatorRole {
-  using Roles for Roles.Role;
+    using Roles for Roles.Role;
 
-  event OperatorAdded(address indexed account);
-  event OperatorRemoved(address indexed account);
+    event OperatorAdded(address indexed account);
+    event OperatorRemoved(address indexed account);
 
-  Roles.Role private _operators;
+    Roles.Role private _operators;
 
-  constructor() internal {
-    _addOperator(msg.sender);
-  }
+    constructor () internal {
+        _addOperator(msg.sender);
+    }
 
-  modifier onlyOperator() {
-    require(isOperator(msg.sender));
-    _;
-  }
+    modifier onlyOperator() {
+        require(isOperator(msg.sender));
+        _;
+    }
 
-  function isOperator(address account) public view returns (bool) {
-    return _operators.has(account);
-  }
+    function isOperator(address account) public view returns (bool) {
+        return _operators.has(account);
+    }
 
-  function addOperator(address account) public onlyOperator {
-    _addOperator(account);
-  }
+    function addOperator(address account) public onlyOperator {
+        _addOperator(account);
+    }
 
-  function renounceOperator() public {
-    _removeOperator(msg.sender);
-  }
+    function renounceOperator() public {
+        _removeOperator(msg.sender);
+    }
 
-  function _addOperator(address account) internal {
-    _operators.add(account);
-    emit OperatorAdded(account);
-  }
+    function _addOperator(address account) internal {
+        _operators.add(account);
+        emit OperatorAdded(account);
+    }
 
-  function _removeOperator(address account) internal {
-    _operators.remove(account);
-    emit OperatorRemoved(account);
-  }
+    function _removeOperator(address account) internal {
+        _operators.remove(account);
+        emit OperatorRemoved(account);
+    }
 }

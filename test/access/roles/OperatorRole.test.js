@@ -1,4 +1,5 @@
-const { shouldBehaveLikePublicRole } = require('openzeppelin-solidity/test/access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('openzeppelin-solidity/test/behaviors/access/roles/PublicRole.behavior');
+
 const OperatorRoleMock = artifacts.require('OperatorRoleMock');
 
 contract('OperatorRole', function ([_, operator, otherOperator, ...otherAccounts]) {

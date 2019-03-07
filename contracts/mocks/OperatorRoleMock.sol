@@ -1,11 +1,11 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.5.5;
 
 import "../access/roles/OperatorRole.sol";
 
 contract OperatorRoleMock is OperatorRole {
-  function removeOperator(address account) public {
-    _removeOperator(account);
-  }
+    function removeOperator(address account) public {
+        _removeOperator(account);
+    }
 
-  function onlyOperatorMock() public view onlyOperator {} // solhint-disable-line no-empty-blocks
+    function onlyOperatorMock() public view onlyOperator {} // solhint-disable-line no-empty-blocks
 }

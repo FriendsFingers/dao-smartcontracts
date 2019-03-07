@@ -1,9 +1,5 @@
-const shouldFail = require('openzeppelin-solidity/test/helpers/shouldFail');
-const { ZERO_ADDRESS } = require('openzeppelin-solidity/test/helpers/constants');
-const expectEvent = require('openzeppelin-solidity/test/helpers/expectEvent');
-
-require('chai')
-  .should();
+const { constants, shouldFail, expectEvent } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function capitalize (str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
