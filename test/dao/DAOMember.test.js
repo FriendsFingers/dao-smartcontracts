@@ -2,7 +2,6 @@ const { BN, constants, shouldFail, expectEvent, time } = require('openzeppelin-t
 const { ZERO_ADDRESS } = constants;
 
 const { shouldBehaveLikeTokenRecover } = require('eth-token-recover/test/TokenRecover.behaviour');
-const { shouldBehaveLikeOwnable } = require('../ownership/Ownable.behavior');
 const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behavior');
 
 const DAOMember = artifacts.require('DAOMember');
@@ -343,14 +342,6 @@ contract('DAOMember', function (
           });
         });
       });
-    });
-
-    context('testing ownership', function () {
-      beforeEach(async function () {
-        this.ownable = this.member;
-      });
-
-      shouldBehaveLikeOwnable(creator, [anotherAccount]);
     });
 
     context('testing roles', function () {

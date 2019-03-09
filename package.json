@@ -70,7 +70,7 @@
     "truffle-flattener": "1.2.12"
   },
   "dependencies": {
-    "eth-token-recover": "2.1.0",
+    "eth-token-recover": "2.1.1",
     "openzeppelin-solidity": "2.1.3"
   }
 }
