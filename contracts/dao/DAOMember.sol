@@ -42,6 +42,7 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Returns the members number
+     * @return uint256
      */
     function membersNumber() external view returns (uint256) {
         return _membersNumber;
@@ -49,6 +50,8 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Returns if an address is member or not
+     * @param account Address of the member you are looking for
+     * @return bool
      */
     function isMember(address account) public view returns (bool) {
         return _addressIndex[account] != 0;
@@ -56,6 +59,8 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Returns the member structure.
+     * @param account Address of the member you are looking for
+     * @return array
      */
     function getMemberByAddress(address account)
         public
@@ -78,6 +83,8 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Returns the member structure.
+     * @param memberId Id of the member you are looking for
+     * @return array
      */
     function getMemberById(uint256 memberId)
         public
@@ -110,6 +117,14 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Generate a new member and the member structure.
+     * @param account Address you want to make member
+     * @param mainColor The member's main color
+     * @param backgroundColor The member's background color
+     * @param borderColor The member's border color
+     * @param data An hex string defining some member properties
+     * @param kyc If member has a valid kyc
+     * @param stackedTokens Number of stacked tokens
+     * @return uint256 The new member id
      */
     function newMember(
         address account,
@@ -150,6 +165,8 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Add tokens to member stack
+     * @param account Address you want to stake tokens
+     * @param amount Number of tokens to stake
      */
     function stake(address account, uint256 amount) public onlyOperator {
         require(isMember(account));
@@ -161,6 +178,8 @@ contract DAOMember is OperatorRole, TokenRecover {
 
     /**
      * @dev Remove tokens from member stack
+     * @param account Address you want to unstake tokens
+     * @param amount Number of tokens to unstake
      */
     function unstake(address account, uint256 amount) public onlyOperator {
         require(isMember(account));
