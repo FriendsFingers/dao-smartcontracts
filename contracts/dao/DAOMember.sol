@@ -1,6 +1,7 @@
 pragma solidity ^0.5.5;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "erc-payable-token/contracts/proposals/ERC1363Payable.sol";
 import "eth-token-recover/contracts/TokenRecover.sol";
 import "../access/roles/OperatorRole.sol";
 
@@ -9,7 +10,7 @@ import "../access/roles/OperatorRole.sol";
  * @author Vittorio Minacori (https://github.com/vittominacori)
  * @dev It identifies a DAO Member
  */
-contract DAOMember is OperatorRole, TokenRecover {
+contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     using SafeMath for uint256;
 
     event MemberAdded(
@@ -38,7 +39,7 @@ contract DAOMember is OperatorRole, TokenRecover {
     // Mapping from member ID to the structures
     mapping(uint256 => MemberStructure) private _structureIndex;
 
-    constructor () public {} // solhint-disable-line no-empty-blocks
+    constructor (IERC1363 acceptedToken) public ERC1363Payable(acceptedToken) {} // solhint-disable-line no-empty-blocks
 
     /**
      * @dev Returns the members number
@@ -197,5 +198,30 @@ contract DAOMember is OperatorRole, TokenRecover {
      */
     function removeOperator(address account) public onlyOwner {
         _removeOperator(account);
+    }
+
+    /**
+     * @dev Called after validating a `onTransferReceived`
+     * @param operator address The address which called `transferAndCall` or `transferFromAndCall` function
+     * @param from address The address which are token transferred from
+     * @param value uint256 The amount of tokens transferred
+     * @param data bytes Additional data with no specified format
+     */
+    function _transferReceived(address operator, address from, uint256 value, bytes memory data) internal {
+        // solhint-disable-previous-line no-empty-blocks
+
+        // TODO
+    }
+
+    /**
+     * @dev Called after validating a `onApprovalReceived`
+     * @param owner address The address which called `approveAndCall` function
+     * @param value uint256 The amount of tokens to be spent
+     * @param data bytes Additional data with no specified format
+     */
+    function _approvalReceived(address owner, uint256 value, bytes memory data) internal {
+        // solhint-disable-previous-line no-empty-blocks
+
+        // TODO
     }
 }
