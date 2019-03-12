@@ -1,4 +1,4 @@
-const { BN, shouldFail, expectEvent } = require('openzeppelin-test-helpers');
+const { shouldFail, expectEvent } = require('openzeppelin-test-helpers');
 
 const { shouldSupportInterfaces } = require('erc-payable-token/test/introspection/SupportsInterface.behavior');
 

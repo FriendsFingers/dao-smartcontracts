@@ -1,7 +1,7 @@
 pragma solidity ^0.5.5;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "erc-payable-token/contracts/proposals/ERC1363Payable.sol";
+import "erc-payable-token/contracts/payment/ERC1363Payable.sol";
 import "eth-token-recover/contracts/TokenRecover.sol";
 import "../access/roles/OperatorRole.sol";
 
