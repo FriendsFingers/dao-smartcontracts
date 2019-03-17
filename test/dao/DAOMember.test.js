@@ -63,7 +63,95 @@ contract('DAOMember', function (
         this.mock = this.memberContract;
       });
 
-      shouldBehaveLikeERC1363Payable(DAOMember, [creator, spender], tokenBalance);
+      describe('if a member is calling ERC1363 functions', function () {
+        beforeEach(async function () {
+          await this.mock.newMember(
+            creator,
+            web3.utils.utf8ToHex(this.structure.mainColor),
+            web3.utils.utf8ToHex(this.structure.backgroundColor),
+            web3.utils.utf8ToHex(this.structure.borderColor),
+            web3.utils.utf8ToHex(this.structure.data),
+            this.structure.kyc,
+            this.structure.stackedTokens,
+            { from: creator }
+          );
+        });
+
+        shouldBehaveLikeERC1363Payable(DAOMember, [creator, spender], tokenBalance);
+      });
+
+      describe('if not a member is calling ERC1363 functions', function () {
+        const value = tokenBalance;
+
+        describe('via transferFromAndCall', function () {
+          beforeEach(async function () {
+            await this.token.approve(spender, value, { from: creator });
+          });
+
+          const transferFromAndCallWithData = function (from, to, value, opts) {
+            return this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
+              from, to, value, web3.utils.utf8ToHex(this.structure.data), opts
+            );
+          };
+
+          const transferFromAndCallWithoutData = function (from, to, value, opts) {
+            return this.token.methods['transferFromAndCall(address,address,uint256)'](from, to, value, opts);
+          };
+
+          it('reverts', async function () {
+            await shouldFail.reverting(
+              transferFromAndCallWithData.call(this, creator, this.mock.address, value, { from: spender })
+            );
+            await shouldFail.reverting(
+              transferFromAndCallWithoutData.call(this, creator, this.mock.address, value, { from: spender })
+            );
+          });
+        });
+
+        describe('via transferAndCall', function () {
+          const value = tokenBalance;
+
+          const transferAndCallWithData = function (to, value, opts) {
+            return this.token.methods['transferAndCall(address,uint256,bytes)'](
+              to, value, web3.utils.utf8ToHex(this.structure.data), opts
+            );
+          };
+
+          const transferAndCallWithoutData = function (to, value, opts) {
+            return this.token.methods['transferAndCall(address,uint256)'](to, value, opts);
+          };
+
+          it('reverts', async function () {
+            await shouldFail.reverting(
+              transferAndCallWithData.call(this, this.mock.address, value, { from: creator })
+            );
+            await shouldFail.reverting(
+              transferAndCallWithoutData.call(this, this.mock.address, value, { from: creator })
+            );
+          });
+        });
+
+        describe('via approveAndCall', function () {
+          const approveAndCallWithData = function (spender, value, opts) {
+            return this.token.methods['approveAndCall(address,uint256,bytes)'](
+              spender, value, web3.utils.utf8ToHex(this.structure.data), opts
+            );
+          };
+
+          const approveAndCallWithoutData = function (spender, value, opts) {
+            return this.token.methods['approveAndCall(address,uint256)'](spender, value, opts);
+          };
+
+          it('reverts', async function () {
+            await shouldFail.reverting(
+              approveAndCallWithData.call(this, this.mock.address, value, { from: creator })
+            );
+            await shouldFail.reverting(
+              approveAndCallWithoutData.call(this, this.mock.address, value, { from: creator })
+            );
+          });
+        });
+      });
     });
 
     context('testing DAOMember behaviors', function () {
@@ -311,13 +399,22 @@ contract('DAOMember', function (
 
             describe('if an operator is calling', function () {
               describe('if user is member', function () {
+                let receipt;
+
                 beforeEach(async function () {
-                  await this.memberContract.stake(member, toStake, { from: operator });
+                  receipt = await this.memberContract.stake(member, toStake, { from: operator });
                   memberStructure = await this.memberContract.getMemberByAddress(member);
                 });
 
                 it('should increase member staked tokens', async function () {
                   memberStructure[6].should.be.bignumber.equal(this.structure.stackedTokens.add(toStake));
+                });
+
+                it('should emit StakedTokens', async function () {
+                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'StakedTokens', {
+                    account: member,
+                    value: toStake,
+                  });
                 });
               });
 
@@ -339,15 +436,30 @@ contract('DAOMember', function (
             describe('if an operator is calling', function () {
               describe('if user is member', function () {
                 describe('if member has enough staked token', function () {
+                  let receipt;
+
                   beforeEach(async function () {
-                    await this.memberContract.unstake(member, this.structure.stackedTokens, { from: operator });
+                    receipt = await this.memberContract.unstake(
+                      member,
+                      this.structure.stackedTokens,
+                      { from: operator }
+                    );
+
                     memberStructure = await this.memberContract.getMemberByAddress(member);
                   });
 
                   it('should decrease member staked tokens', async function () {
                     memberStructure[6].should.be.bignumber.equal(new BN(0));
                   });
+
+                  it('should emit StakedTokens', async function () {
+                    await expectEvent.inTransaction(receipt.tx, DAOMember, 'UnstakedTokens', {
+                      account: member,
+                      value: this.structure.stackedTokens,
+                    });
+                  });
                 });
+
                 describe('if member has not enough staked token', function () {
                   it('reverts', async function () {
                     await shouldFail.reverting(

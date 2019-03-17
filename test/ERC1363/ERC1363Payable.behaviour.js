@@ -34,8 +34,13 @@ function shouldBehaveLikeERC1363Payable (ERC1363Payable, [owner, spender], balan
           });
         });
 
-        it.skip('should execute transferReceived', async function () {
-          // TODO
+        it('should execute transferReceived', async function () {
+          const receipt = await transferFun.call(this, owner, this.mock.address, value, { from: spender });
+
+          await expectEvent.inTransaction(receipt.tx, ERC1363Payable, 'StakedTokens', {
+            account: owner,
+            value: value,
+          });
         });
       });
 
@@ -78,8 +83,13 @@ function shouldBehaveLikeERC1363Payable (ERC1363Payable, [owner, spender], balan
           });
         });
 
-        it.skip('should execute transferReceived', async function () {
-          // TODO
+        it('should execute transferReceived', async function () {
+          const receipt = await transferFun.call(this, this.mock.address, value, { from: owner });
+
+          await expectEvent.inTransaction(receipt.tx, ERC1363Payable, 'StakedTokens', {
+            account: owner,
+            value: value,
+          });
         });
       });
 
@@ -121,8 +131,13 @@ function shouldBehaveLikeERC1363Payable (ERC1363Payable, [owner, spender], balan
           });
         });
 
-        it.skip('should execute approvalReceived', async function () {
-          // TODO
+        it('should execute approvalReceived', async function () {
+          const receipt = await approveFun.call(this, this.mock.address, value, { from: owner });
+
+          await expectEvent.inTransaction(receipt.tx, ERC1363Payable, 'StakedTokens', {
+            account: owner,
+            value: value,
+          });
         });
       });
 

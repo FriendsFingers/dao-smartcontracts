@@ -18,6 +18,16 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         uint256 id
     );
 
+    event StakedTokens(
+        address indexed account,
+        uint256 value
+    );
+
+    event UnstakedTokens(
+        address indexed account,
+        uint256 value
+    );
+
     // structure that defines a member
     struct MemberStructure {
         address member;
@@ -131,10 +141,15 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param value uint256 The amount of tokens transferred
      * @param data bytes Additional data with no specified format
      */
-    function _transferReceived(address operator, address from, uint256 value, bytes memory data) internal {
-        // solhint-disable-previous-line no-empty-blocks
-
-        // TODO
+    function _transferReceived(
+        address operator, // solhint-disable-line no-unused-vars
+        address from,
+        uint256 value,
+        bytes memory data // solhint-disable-line no-unused-vars
+    )
+        internal
+    {
+        _stake(from, value);
     }
 
     /**
@@ -143,10 +158,14 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param value uint256 The amount of tokens to be spent
      * @param data bytes Additional data with no specified format
      */
-    function _approvalReceived(address owner, uint256 value, bytes memory data) internal {
-        // solhint-disable-previous-line no-empty-blocks
-
-        // TODO
+    function _approvalReceived(
+        address owner,
+        uint256 value,
+        bytes memory data // solhint-disable-line no-unused-vars
+    )
+        internal
+    {
+        _stake(owner, value);
     }
 
     /**
@@ -207,6 +226,8 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         MemberStructure storage structure = _structureIndex[_addressIndex[account]];
 
         structure.stackedTokens = structure.stackedTokens.add(amount);
+
+        emit StakedTokens(account, amount);
     }
 
     /**
@@ -222,5 +243,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         require(structure.stackedTokens >= amount);
 
         structure.stackedTokens = structure.stackedTokens.sub(amount);
+
+        emit UnstakedTokens(account, amount);
     }
 }
