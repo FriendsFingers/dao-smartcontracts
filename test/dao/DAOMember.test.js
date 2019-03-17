@@ -7,7 +7,7 @@ const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behav
 
 const ERC20 = artifacts.require('ERC20');
 const ERC1363 = artifacts.require('ERC1363Mock');
-const DAOMember = artifacts.require('DAOMember');
+const DAOMember = artifacts.require('DAOMemberMock');
 
 contract('DAOMember', function (
   [

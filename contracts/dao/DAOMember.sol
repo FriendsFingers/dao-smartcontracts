@@ -117,6 +117,39 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     }
 
     /**
+     * @dev Remove the `operator` role from address
+     * @param account Address you want to remove role
+     */
+    function removeOperator(address account) public onlyOwner {
+        _removeOperator(account);
+    }
+
+    /**
+     * @dev Called after validating a `onTransferReceived`
+     * @param operator address The address which called `transferAndCall` or `transferFromAndCall` function
+     * @param from address The address which are token transferred from
+     * @param value uint256 The amount of tokens transferred
+     * @param data bytes Additional data with no specified format
+     */
+    function _transferReceived(address operator, address from, uint256 value, bytes memory data) internal {
+        // solhint-disable-previous-line no-empty-blocks
+
+        // TODO
+    }
+
+    /**
+     * @dev Called after validating a `onApprovalReceived`
+     * @param owner address The address which called `approveAndCall` function
+     * @param value uint256 The amount of tokens to be spent
+     * @param data bytes Additional data with no specified format
+     */
+    function _approvalReceived(address owner, uint256 value, bytes memory data) internal {
+        // solhint-disable-previous-line no-empty-blocks
+
+        // TODO
+    }
+
+    /**
      * @dev Generate a new member and the member structure.
      * @param account Address you want to make member
      * @param mainColor The member's main color
@@ -127,7 +160,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param stackedTokens Number of stacked tokens
      * @return uint256 The new member id
      */
-    function newMember(
+    function _newMember(
         address account,
         bytes6 mainColor,
         bytes6 backgroundColor,
@@ -136,8 +169,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         bool kyc,
         uint256 stackedTokens
     )
-        public
-        onlyOperator
+        internal
         returns (uint256)
     {
         require(account != address(0));
@@ -169,7 +201,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param account Address you want to stake tokens
      * @param amount Number of tokens to stake
      */
-    function stake(address account, uint256 amount) public onlyOperator {
+    function _stake(address account, uint256 amount) internal {
         require(isMember(account));
 
         MemberStructure storage structure = _structureIndex[_addressIndex[account]];
@@ -182,7 +214,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param account Address you want to unstake tokens
      * @param amount Number of tokens to unstake
      */
-    function unstake(address account, uint256 amount) public onlyOperator {
+    function _unstake(address account, uint256 amount) internal {
         require(isMember(account));
 
         MemberStructure storage structure = _structureIndex[_addressIndex[account]];
@@ -190,38 +222,5 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         require(structure.stackedTokens >= amount);
 
         structure.stackedTokens = structure.stackedTokens.sub(amount);
-    }
-
-    /**
-     * @dev Remove the `operator` role from address
-     * @param account Address you want to remove role
-     */
-    function removeOperator(address account) public onlyOwner {
-        _removeOperator(account);
-    }
-
-    /**
-     * @dev Called after validating a `onTransferReceived`
-     * @param operator address The address which called `transferAndCall` or `transferFromAndCall` function
-     * @param from address The address which are token transferred from
-     * @param value uint256 The amount of tokens transferred
-     * @param data bytes Additional data with no specified format
-     */
-    function _transferReceived(address operator, address from, uint256 value, bytes memory data) internal {
-        // solhint-disable-previous-line no-empty-blocks
-
-        // TODO
-    }
-
-    /**
-     * @dev Called after validating a `onApprovalReceived`
-     * @param owner address The address which called `approveAndCall` function
-     * @param value uint256 The amount of tokens to be spent
-     * @param data bytes Additional data with no specified format
-     */
-    function _approvalReceived(address owner, uint256 value, bytes memory data) internal {
-        // solhint-disable-previous-line no-empty-blocks
-
-        // TODO
     }
 }
