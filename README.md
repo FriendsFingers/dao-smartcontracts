@@ -12,8 +12,6 @@ Smart Contracts defining the FriendsFingers platform's DAO.
 
 Install Truffle if you want to run your own node
 
-Version 5.0.7+ required
-
 ```bash
 npm install -g truffle
 ```
