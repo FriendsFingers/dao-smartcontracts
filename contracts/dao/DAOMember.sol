@@ -157,6 +157,10 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     )
         internal
     {
+        if (!isMember(from)) {
+            _generateMember(from);
+        }
+
         _stake(from, value);
     }
 
@@ -174,7 +178,33 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         internal
     {
         IERC20(acceptedToken()).transferFrom(owner, address(this), value);
+
+        if (!isMember(owner)) {
+            _generateMember(owner);
+        }
+
         _stake(owner, value);
+    }
+
+    /**
+     * @dev Generate a new member and the member structure.
+     * @param account Address you want to make member
+     * @return uint256 The new member id
+     */
+    function _generateMember(address account) internal returns (uint256) {
+        bytes6 mainColor = _getRandomBytes(1);
+        bytes6 backgroundColor = _getRandomBytes(2);
+        bytes6 borderColor = _getRandomBytes(3);
+
+        return _newMember(
+            account,
+            mainColor,
+            backgroundColor,
+            borderColor,
+            "",
+            false,
+            0
+        );
     }
 
     /**
@@ -254,5 +284,14 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         structure.stackedTokens = structure.stackedTokens.sub(amount);
 
         emit UnstakedTokens(account, amount);
+    }
+
+    /**
+     * @dev Generate a random color hex.
+     * @return bytes6 It represents an hex color
+     */
+    function _getRandomBytes(uint8 salt) internal view returns (bytes6) {
+        // solhint-disable-next-line not-rely-on-time
+        return bytes6(keccak256(abi.encodePacked(msg.sender, block.timestamp, salt)));
     }
 }
