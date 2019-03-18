@@ -173,6 +173,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     )
         internal
     {
+        IERC20(acceptedToken()).transferFrom(owner, address(this), value);
         _stake(owner, value);
     }
 
