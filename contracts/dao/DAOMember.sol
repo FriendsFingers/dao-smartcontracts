@@ -127,6 +127,14 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     }
 
     /**
+     * @dev Remove tokens from member stack
+     * @param amount Number of tokens to unstake
+     */
+    function unstake(uint256 amount) public {
+        _unstake(msg.sender, amount);
+    }
+
+    /**
      * @dev Remove the `operator` role from address
      * @param account Address you want to remove role
      */

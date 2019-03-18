@@ -433,59 +433,47 @@ contract('DAOMember', function (
           });
 
           describe('unstake tokens', function () {
-            describe('if an operator is calling', function () {
-              describe('if user is member', function () {
-                describe('if member has enough staked token', function () {
-                  let receipt;
+            describe('if user is member', function () {
+              describe('if member has enough staked token', function () {
+                let receipt;
 
-                  beforeEach(async function () {
-                    receipt = await this.memberContract.unstake(
-                      member,
-                      this.structure.stackedTokens,
-                      { from: operator }
-                    );
+                beforeEach(async function () {
+                  receipt = await this.memberContract.unstake(
+                    this.structure.stackedTokens,
+                    { from: member }
+                  );
 
-                    memberStructure = await this.memberContract.getMemberByAddress(member);
-                  });
-
-                  it('should decrease member staked tokens', async function () {
-                    memberStructure[6].should.be.bignumber.equal(new BN(0));
-                  });
-
-                  it('should emit StakedTokens', async function () {
-                    await expectEvent.inTransaction(receipt.tx, DAOMember, 'UnstakedTokens', {
-                      account: member,
-                      value: this.structure.stackedTokens,
-                    });
-                  });
+                  memberStructure = await this.memberContract.getMemberByAddress(member);
                 });
 
-                describe('if member has not enough staked token', function () {
-                  it('reverts', async function () {
-                    await shouldFail.reverting(
-                      this.memberContract.unstake(
-                        member,
-                        this.structure.stackedTokens.add(new BN(1)),
-                        { from: operator }
-                      )
-                    );
+                it('should decrease member staked tokens', async function () {
+                  memberStructure[6].should.be.bignumber.equal(new BN(0));
+                });
+
+                it('should emit StakedTokens', async function () {
+                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'UnstakedTokens', {
+                    account: member,
+                    value: this.structure.stackedTokens,
                   });
                 });
               });
 
-              describe('if user is not member', function () {
+              describe('if member has not enough staked token', function () {
                 it('reverts', async function () {
                   await shouldFail.reverting(
-                    this.memberContract.unstake(anotherAccount, this.structure.stackedTokens, { from: operator })
+                    this.memberContract.unstake(
+                      this.structure.stackedTokens.add(new BN(1)),
+                      { from: operator }
+                    )
                   );
                 });
               });
             });
 
-            describe('if another account is calling', function () {
+            describe('if user is not member', function () {
               it('reverts', async function () {
                 await shouldFail.reverting(
-                  this.memberContract.unstake(member, this.structure.stackedTokens, { from: anotherAccount })
+                  this.memberContract.unstake(this.structure.stackedTokens, { from: anotherAccount })
                 );
               });
             });

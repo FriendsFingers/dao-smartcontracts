@@ -33,8 +33,4 @@ contract DAOMemberMock is DAOMember {
     function stake(address account, uint256 amount) public onlyOperator {
         _stake(account, amount);
     }
-
-    function unstake(address account, uint256 amount) public onlyOperator {
-        _unstake(account, amount);
-    }
 }
