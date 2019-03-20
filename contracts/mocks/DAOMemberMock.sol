@@ -13,7 +13,7 @@ contract DAOMemberMock is DAOMember {
         bytes6 borderColor,
         bytes32 data,
         bool kyc,
-        uint256 stackedTokens
+        uint256 stakedTokens
     )
         public
         onlyOperator
@@ -26,7 +26,7 @@ contract DAOMemberMock is DAOMember {
             borderColor,
             data,
             kyc,
-            stackedTokens
+            stakedTokens
         );
     }
 

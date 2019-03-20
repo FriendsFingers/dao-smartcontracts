@@ -36,7 +36,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         bytes6 borderColor;
         bytes32 data;
         bool kyc;
-        uint256 stackedTokens;
+        uint256 stakedTokens;
         uint256 creationDate;
     }
 
@@ -83,7 +83,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
             bytes6 borderColor,
             bytes32 data,
             bool kyc,
-            uint256 stackedTokens,
+            uint256 stakedTokens,
             uint256 creationDate
         )
     {
@@ -107,7 +107,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
             bytes6 borderColor,
             bytes32 data,
             bool kyc,
-            uint256 stackedTokens,
+            uint256 stakedTokens,
             uint256 creationDate
         )
     {
@@ -122,7 +122,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         borderColor = structure.borderColor;
         data = structure.data;
         kyc = structure.kyc;
-        stackedTokens = structure.stackedTokens;
+        stakedTokens = structure.stakedTokens;
         creationDate = structure.creationDate;
     }
 
@@ -215,7 +215,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param borderColor The member's border color
      * @param data An hex string defining some member properties
      * @param kyc If member has a valid kyc
-     * @param stackedTokens Number of stacked tokens
+     * @param stakedTokens Number of staked tokens
      * @return uint256 The new member id
      */
     function _newMember(
@@ -225,7 +225,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         bytes6 borderColor,
         bytes32 data,
         bool kyc,
-        uint256 stackedTokens
+        uint256 stakedTokens
     )
         internal
         returns (uint256)
@@ -243,7 +243,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
             borderColor,
             data,
             kyc,
-            stackedTokens,
+            stakedTokens,
             block.timestamp // solhint-disable-line not-rely-on-time
         );
 
@@ -264,7 +264,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
         MemberStructure storage structure = _structureIndex[_addressIndex[account]];
 
-        structure.stackedTokens = structure.stackedTokens.add(amount);
+        structure.stakedTokens = structure.stakedTokens.add(amount);
 
         emit StakedTokens(account, amount);
     }
@@ -279,9 +279,9 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
         MemberStructure storage structure = _structureIndex[_addressIndex[account]];
 
-        require(structure.stackedTokens >= amount);
+        require(structure.stakedTokens >= amount);
 
-        structure.stackedTokens = structure.stackedTokens.sub(amount);
+        structure.stakedTokens = structure.stakedTokens.sub(amount);
 
         emit UnstakedTokens(account, amount);
     }

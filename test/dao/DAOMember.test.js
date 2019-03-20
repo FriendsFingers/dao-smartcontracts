@@ -49,7 +49,7 @@ contract('DAOMember', function (
         borderColor: 'fae596',
         data: JSON.stringify({ key: 'value' }),
         kyc: true,
-        stackedTokens: new BN(5),
+        stakedTokens: new BN(5),
       };
 
       this.token = await ERC1363.new(creator, tokenBalance);
@@ -72,7 +72,7 @@ contract('DAOMember', function (
             web3.utils.utf8ToHex(this.structure.borderColor),
             web3.utils.utf8ToHex(this.structure.data),
             this.structure.kyc,
-            this.structure.stackedTokens,
+            this.structure.stakedTokens,
             { from: creator }
           );
         });
@@ -173,7 +173,7 @@ contract('DAOMember', function (
             web3.utils.utf8ToHex(this.structure.borderColor),
             web3.utils.utf8ToHex(this.structure.data),
             this.structure.kyc,
-            this.structure.stackedTokens,
+            this.structure.stakedTokens,
             { from: operator }
           )
           );
@@ -208,7 +208,7 @@ contract('DAOMember', function (
                 web3.utils.utf8ToHex(this.structure.borderColor),
                 web3.utils.utf8ToHex(this.structure.data),
                 this.structure.kyc,
-                this.structure.stackedTokens,
+                this.structure.stakedTokens,
                 { from: operator }
               );
               const newMembersNumber = await this.memberContract.membersNumber();
@@ -257,9 +257,9 @@ contract('DAOMember', function (
                   assert.equal(toCheck, this.structure.kyc);
                 });
 
-                it('has a stacked tokens value', async function () {
+                it('has a staked tokens value', async function () {
                   const toCheck = memberStructure[6];
-                  toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
+                  toCheck.should.be.bignumber.equal(this.structure.stakedTokens);
                 });
 
                 it('has a creation date', async function () {
@@ -309,9 +309,9 @@ contract('DAOMember', function (
                   assert.equal(toCheck, this.structure.kyc);
                 });
 
-                it('has a stacked tokens value', async function () {
+                it('has a staked tokens value', async function () {
                   const toCheck = memberStructure[6];
-                  toCheck.should.be.bignumber.equal(this.structure.stackedTokens);
+                  toCheck.should.be.bignumber.equal(this.structure.stakedTokens);
                 });
 
                 it('has a creation date', async function () {
@@ -352,7 +352,7 @@ contract('DAOMember', function (
                   web3.utils.utf8ToHex(this.structure.borderColor),
                   web3.utils.utf8ToHex(this.structure.data),
                   this.structure.kyc,
-                  this.structure.stackedTokens,
+                  this.structure.stakedTokens,
                   { from: operator }
                 )
               );
@@ -369,7 +369,7 @@ contract('DAOMember', function (
                   web3.utils.utf8ToHex(this.structure.borderColor),
                   web3.utils.utf8ToHex(this.structure.data),
                   this.structure.kyc,
-                  this.structure.stackedTokens,
+                  this.structure.stakedTokens,
                   { from: operator }
                 )
               );
@@ -386,7 +386,7 @@ contract('DAOMember', function (
                   web3.utils.utf8ToHex(this.structure.borderColor),
                   web3.utils.utf8ToHex(this.structure.data),
                   this.structure.kyc,
-                  this.structure.stackedTokens,
+                  this.structure.stakedTokens,
                   { from: anotherAccount }
                 )
               );
@@ -410,7 +410,7 @@ contract('DAOMember', function (
                 });
 
                 it('should increase member staked tokens', async function () {
-                  memberStructure[6].should.be.bignumber.equal(this.structure.stackedTokens.add(toStake));
+                  memberStructure[6].should.be.bignumber.equal(this.structure.stakedTokens.add(toStake));
                 });
 
                 it('should emit StakedTokens', async function () {
@@ -442,7 +442,7 @@ contract('DAOMember', function (
 
                 beforeEach(async function () {
                   receipt = await this.memberContract.unstake(
-                    this.structure.stackedTokens,
+                    this.structure.stakedTokens,
                     { from: member }
                   );
 
@@ -456,7 +456,7 @@ contract('DAOMember', function (
                 it('should emit StakedTokens', async function () {
                   await expectEvent.inTransaction(receipt.tx, DAOMember, 'UnstakedTokens', {
                     account: member,
-                    value: this.structure.stackedTokens,
+                    value: this.structure.stakedTokens,
                   });
                 });
               });
@@ -465,7 +465,7 @@ contract('DAOMember', function (
                 it('reverts', async function () {
                   await shouldFail.reverting(
                     this.memberContract.unstake(
-                      this.structure.stackedTokens.add(new BN(1)),
+                      this.structure.stakedTokens.add(new BN(1)),
                       { from: operator }
                     )
                   );
@@ -476,7 +476,7 @@ contract('DAOMember', function (
             describe('if user is not member', function () {
               it('reverts', async function () {
                 await shouldFail.reverting(
-                  this.memberContract.unstake(this.structure.stackedTokens, { from: anotherAccount })
+                  this.memberContract.unstake(this.structure.stakedTokens, { from: anotherAccount })
                 );
               });
             });
