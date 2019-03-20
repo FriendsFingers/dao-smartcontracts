@@ -162,6 +162,10 @@ contract('DAOMember', function (
         await this.memberContract.addOperator(operator, { from: creator });
       });
 
+      it('should start with zero totalStakedTokens', async function () {
+        (await this.memberContract.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
+      });
+
       context('creating a new member', function () {
         let memberId;
 
@@ -181,12 +185,19 @@ contract('DAOMember', function (
           memberId = await this.memberContract.membersNumber();
         });
 
-        it('emits a MemberAdded event', async function () {
+        it('should emit a MemberAdded event', async function () {
           const newMembersNumber = await this.memberContract.membersNumber();
 
           expectEvent.inLogs(this.logs, 'MemberAdded', {
             account: member,
             id: newMembersNumber,
+          });
+        });
+
+        it('should emit StakedTokens', async function () {
+          expectEvent.inLogs(this.logs, 'StakedTokens', {
+            account: member,
+            value: this.structure.stakedTokens,
           });
         });
 
@@ -413,6 +424,11 @@ contract('DAOMember', function (
                   memberStructure[6].should.be.bignumber.equal(this.structure.stakedTokens.add(toStake));
                 });
 
+                it('should increase total staked tokens', async function () {
+                  (await this.memberContract.totalStakedTokens())
+                    .should.be.bignumber.equal(this.structure.stakedTokens.add(toStake));
+                });
+
                 it('should emit StakedTokens', async function () {
                   await expectEvent.inTransaction(receipt.tx, DAOMember, 'StakedTokens', {
                     account: member,
@@ -451,6 +467,10 @@ contract('DAOMember', function (
 
                 it('should decrease member staked tokens', async function () {
                   memberStructure[6].should.be.bignumber.equal(new BN(0));
+                });
+
+                it('should decrease total staked tokens', async function () {
+                  (await this.memberContract.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
                 });
 
                 it('should emit StakedTokens', async function () {

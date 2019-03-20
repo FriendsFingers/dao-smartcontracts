@@ -43,6 +43,9 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     // a progressive id counting members
     uint256 private _membersNumber;
 
+    // a number indicating the total number of staked tokens
+    uint256 private _totalStakedTokens;
+
     // Mapping from address to member ID
     mapping(address => uint256) private _addressIndex;
 
@@ -57,6 +60,14 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      */
     function membersNumber() external view returns (uint256) {
         return _membersNumber;
+    }
+
+    /**
+     * @dev Returns the total staked tokens number
+     * @return uint256
+     */
+    function totalStakedTokens() external view returns (uint256) {
+        return _totalStakedTokens;
     }
 
     /**
@@ -243,13 +254,15 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
             borderColor,
             data,
             kyc,
-            stakedTokens,
+            0,
             block.timestamp // solhint-disable-line not-rely-on-time
         );
 
         _membersNumber = memberId;
 
         emit MemberAdded(account, memberId);
+
+        _stake(account, stakedTokens);
 
         return memberId;
     }
@@ -262,9 +275,10 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     function _stake(address account, uint256 amount) internal {
         require(isMember(account));
 
-        MemberStructure storage structure = _structureIndex[_addressIndex[account]];
+        MemberStructure storage member = _structureIndex[_addressIndex[account]];
+        member.stakedTokens = member.stakedTokens.add(amount);
 
-        structure.stakedTokens = structure.stakedTokens.add(amount);
+        _totalStakedTokens = _totalStakedTokens.add(amount);
 
         emit StakedTokens(account, amount);
     }
@@ -277,11 +291,11 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     function _unstake(address account, uint256 amount) internal {
         require(isMember(account));
 
-        MemberStructure storage structure = _structureIndex[_addressIndex[account]];
+        MemberStructure storage member = _structureIndex[_addressIndex[account]];
+        require(member.stakedTokens >= amount);
+        member.stakedTokens = member.stakedTokens.sub(amount);
 
-        require(structure.stakedTokens >= amount);
-
-        structure.stakedTokens = structure.stakedTokens.sub(amount);
+        _totalStakedTokens = _totalStakedTokens.sub(amount);
 
         emit UnstakedTokens(account, amount);
     }
