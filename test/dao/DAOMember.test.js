@@ -210,7 +210,7 @@ contract('DAOMember', function (
               await this.memberContract.newMember(anotherAccount, { from: operator });
 
               const newMembersNumber = await this.memberContract.membersNumber();
-              newMembersNumber.should.be.bignumber.equal(oldMembersNumber.add(new BN(1)));
+              newMembersNumber.should.be.bignumber.equal(oldMembersNumber.addn(1));
             });
           });
         });
@@ -427,8 +427,8 @@ contract('DAOMember', function (
                 it('reverts', async function () {
                   await shouldFail.reverting(
                     this.memberContract.unstake(
-                      this.structure.stakedTokens.add(new BN(1)),
-                      { from: operator }
+                      this.structure.stakedTokens.addn(1),
+                      { from: member }
                     )
                   );
                 });
