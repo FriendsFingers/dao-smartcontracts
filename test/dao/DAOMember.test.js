@@ -344,8 +344,6 @@ contract('DAOMember', function (
         });
 
         context('testing stake/unstake', function () {
-          let memberStructure;
-
           describe('stake tokens', function () {
             const toStake = new BN(1);
 
@@ -353,18 +351,24 @@ contract('DAOMember', function (
               describe('if user is member', function () {
                 let receipt;
 
+                let preMemberStructure;
+                let preStakedTokens;
+
                 beforeEach(async function () {
+                  preMemberStructure = await this.memberContract.getMemberByAddress(member);
+                  preStakedTokens = await this.memberContract.totalStakedTokens();
+
                   receipt = await this.memberContract.stake(member, toStake, { from: operator });
-                  memberStructure = await this.memberContract.getMemberByAddress(member);
                 });
 
                 it('should increase member staked tokens', async function () {
-                  memberStructure[3].should.be.bignumber.equal(toStake);
+                  const memberStructure = await this.memberContract.getMemberByAddress(member);
+                  memberStructure[3].should.be.bignumber.equal(preMemberStructure[3].add(toStake));
                 });
 
                 it('should increase total staked tokens', async function () {
                   (await this.memberContract.totalStakedTokens())
-                    .should.be.bignumber.equal(toStake);
+                    .should.be.bignumber.equal(preStakedTokens.add(toStake));
                 });
 
                 it('should emit StakedTokens', async function () {
@@ -393,26 +397,49 @@ contract('DAOMember', function (
             describe('if user is member', function () {
               beforeEach(async function () {
                 await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
+
+                // the below call is because of staking by ERC1363 functions implies a transfer of tokens
+                await this.token.transfer(this.memberContract.address, this.structure.stakedTokens, { from: member });
               });
 
               describe('if member has enough staked token', function () {
                 let receipt;
 
+                let preMemberStructure;
+                let preStakedTokens;
+                let contractPreBalance;
+                let accountPreBalance;
+
                 beforeEach(async function () {
+                  preMemberStructure = await this.memberContract.getMemberByAddress(member);
+                  preStakedTokens = await this.memberContract.totalStakedTokens();
+                  contractPreBalance = await this.token.balanceOf(this.memberContract.address);
+                  accountPreBalance = await this.token.balanceOf(member);
+
                   receipt = await this.memberContract.unstake(
                     this.structure.stakedTokens,
                     { from: member }
                   );
-
-                  memberStructure = await this.memberContract.getMemberByAddress(member);
                 });
 
                 it('should decrease member staked tokens', async function () {
-                  memberStructure[3].should.be.bignumber.equal(new BN(0));
+                  const memberStructure = await this.memberContract.getMemberByAddress(member);
+                  memberStructure[3].should.be.bignumber.equal(preMemberStructure[3].sub(this.structure.stakedTokens));
                 });
 
                 it('should decrease total staked tokens', async function () {
-                  (await this.memberContract.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
+                  (await this.memberContract.totalStakedTokens())
+                    .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
+                });
+
+                it('should decrease contract token balance', async function () {
+                  (await this.token.balanceOf(this.memberContract.address))
+                    .should.be.bignumber.equal(contractPreBalance.sub(this.structure.stakedTokens));
+                });
+
+                it('should increase account token balance', async function () {
+                  (await this.token.balanceOf(member))
+                    .should.be.bignumber.equal(accountPreBalance.add(this.structure.stakedTokens));
                 });
 
                 it('should emit UnstakedTokens', async function () {

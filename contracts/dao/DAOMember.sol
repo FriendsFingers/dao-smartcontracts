@@ -248,6 +248,8 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
         _totalStakedTokens = _totalStakedTokens.sub(amount);
 
+        IERC20(acceptedToken()).transfer(account, amount);
+
         emit UnstakedTokens(account, amount);
     }
 
