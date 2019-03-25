@@ -19,7 +19,7 @@ contract('DAOMember', function (
     ...accounts
   ]
 ) {
-  const tokenBalance = new BN(10000);
+  const tokenBalance = new BN(20000);
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
@@ -44,11 +44,7 @@ contract('DAOMember', function (
   context('if valid constructor', function () {
     beforeEach(async function () {
       this.structure = {
-        mainColor: '97168a',
-        backgroundColor: 'ffffff',
-        borderColor: 'fae596',
         data: JSON.stringify({ key: 'value' }),
-        kyc: true,
         stakedTokens: new BN(5),
       };
 
@@ -65,16 +61,7 @@ contract('DAOMember', function (
 
       describe('if a member is calling ERC1363 functions', function () {
         beforeEach(async function () {
-          await this.mock.newMember(
-            creator,
-            web3.utils.utf8ToHex(this.structure.mainColor),
-            web3.utils.utf8ToHex(this.structure.backgroundColor),
-            web3.utils.utf8ToHex(this.structure.borderColor),
-            web3.utils.utf8ToHex(this.structure.data),
-            this.structure.kyc,
-            this.structure.stakedTokens,
-            { from: creator }
-          );
+          await this.mock.newMember(creator, { from: creator });
         });
 
         shouldBehaveLikeERC1363Payable(DAOMember, [creator, spender], tokenBalance);
@@ -170,17 +157,7 @@ contract('DAOMember', function (
         let memberId;
 
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.memberContract.newMember(
-            member,
-            web3.utils.utf8ToHex(this.structure.mainColor),
-            web3.utils.utf8ToHex(this.structure.backgroundColor),
-            web3.utils.utf8ToHex(this.structure.borderColor),
-            web3.utils.utf8ToHex(this.structure.data),
-            this.structure.kyc,
-            this.structure.stakedTokens,
-            { from: operator }
-          )
-          );
+          ({ logs: this.logs } = await this.memberContract.newMember(member, { from: operator }));
 
           memberId = await this.memberContract.membersNumber();
         });
@@ -191,13 +168,6 @@ contract('DAOMember', function (
           expectEvent.inLogs(this.logs, 'MemberAdded', {
             account: member,
             id: newMembersNumber,
-          });
-        });
-
-        it('should emit StakedTokens', async function () {
-          expectEvent.inLogs(this.logs, 'StakedTokens', {
-            account: member,
-            value: this.structure.stakedTokens,
           });
         });
 
@@ -212,16 +182,8 @@ contract('DAOMember', function (
             it('should increase', async function () {
               const oldMembersNumber = await this.memberContract.membersNumber();
 
-              await this.memberContract.newMember(
-                anotherAccount,
-                web3.utils.utf8ToHex(this.structure.mainColor),
-                web3.utils.utf8ToHex(this.structure.backgroundColor),
-                web3.utils.utf8ToHex(this.structure.borderColor),
-                web3.utils.utf8ToHex(this.structure.data),
-                this.structure.kyc,
-                this.structure.stakedTokens,
-                { from: operator }
-              );
+              await this.memberContract.newMember(anotherAccount, { from: operator });
+
               const newMembersNumber = await this.memberContract.membersNumber();
               newMembersNumber.should.be.bignumber.equal(oldMembersNumber.add(new BN(1)));
             });
@@ -243,39 +205,35 @@ contract('DAOMember', function (
                   toCheck.should.be.equal(member);
                 });
 
-                it('has an main color', async function () {
+                it('has a fingerprint', async function () {
+                  const fingerprint = await this.memberContract.getFingerprintMock(
+                    member,
+                    memberId,
+                    await time.latest()
+                  );
+
                   const toCheck = memberStructure[1];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.mainColor);
+                  assert.equal(toCheck, fingerprint);
                 });
 
-                it('has an background color', async function () {
+                it('has a creation date', async function () {
                   const toCheck = memberStructure[2];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.backgroundColor);
+                  toCheck.should.be.bignumber.equal(await time.latest());
                 });
 
-                it('has an border color', async function () {
+                it('has a staked tokens value', async function () {
                   const toCheck = memberStructure[3];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.borderColor);
+                  toCheck.should.be.bignumber.equal(new BN(0));
                 });
 
                 it('has a data value', async function () {
                   const toCheck = memberStructure[4];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.data);
+                  assert.equal(web3.utils.hexToUtf8(toCheck), '');
                 });
 
                 it('has a kyc value', async function () {
                   const toCheck = memberStructure[5];
-                  assert.equal(toCheck, this.structure.kyc);
-                });
-
-                it('has a staked tokens value', async function () {
-                  const toCheck = memberStructure[6];
-                  toCheck.should.be.bignumber.equal(this.structure.stakedTokens);
-                });
-
-                it('has a creation date', async function () {
-                  const toCheck = memberStructure[7];
-                  toCheck.should.be.bignumber.equal(await time.latest());
+                  assert.equal(toCheck, false);
                 });
               });
             });
@@ -295,39 +253,35 @@ contract('DAOMember', function (
                   toCheck.should.be.equal(member);
                 });
 
-                it('has an main color', async function () {
+                it('has a fingerprint', async function () {
+                  const fingerprint = await this.memberContract.getFingerprintMock(
+                    member,
+                    memberId,
+                    await time.latest()
+                  );
+
                   const toCheck = memberStructure[1];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.mainColor);
+                  assert.equal(toCheck, fingerprint);
                 });
 
-                it('has an background color', async function () {
+                it('has a creation date', async function () {
                   const toCheck = memberStructure[2];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.backgroundColor);
+                  toCheck.should.be.bignumber.equal(await time.latest());
                 });
 
-                it('has an border color', async function () {
+                it('has a staked tokens value', async function () {
                   const toCheck = memberStructure[3];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.borderColor);
+                  toCheck.should.be.bignumber.equal(new BN(0));
                 });
 
                 it('has a data value', async function () {
                   const toCheck = memberStructure[4];
-                  assert.equal(web3.utils.hexToUtf8(toCheck), this.structure.data);
+                  assert.equal(web3.utils.hexToUtf8(toCheck), '');
                 });
 
                 it('has a kyc value', async function () {
                   const toCheck = memberStructure[5];
-                  assert.equal(toCheck, this.structure.kyc);
-                });
-
-                it('has a staked tokens value', async function () {
-                  const toCheck = memberStructure[6];
-                  toCheck.should.be.bignumber.equal(this.structure.stakedTokens);
-                });
-
-                it('has a creation date', async function () {
-                  const toCheck = memberStructure[7];
-                  toCheck.should.be.bignumber.equal(await time.latest());
+                  assert.equal(toCheck, false);
                 });
               });
             });
@@ -355,52 +309,19 @@ contract('DAOMember', function (
         context('creating another member', function () {
           describe('if member already exists', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
-                this.memberContract.newMember(
-                  member,
-                  web3.utils.utf8ToHex(this.structure.mainColor),
-                  web3.utils.utf8ToHex(this.structure.backgroundColor),
-                  web3.utils.utf8ToHex(this.structure.borderColor),
-                  web3.utils.utf8ToHex(this.structure.data),
-                  this.structure.kyc,
-                  this.structure.stakedTokens,
-                  { from: operator }
-                )
-              );
+              await shouldFail.reverting(this.memberContract.newMember(member, { from: operator }));
             });
           });
 
           describe('if member is the zero address', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
-                this.memberContract.newMember(
-                  ZERO_ADDRESS,
-                  web3.utils.utf8ToHex(this.structure.mainColor),
-                  web3.utils.utf8ToHex(this.structure.backgroundColor),
-                  web3.utils.utf8ToHex(this.structure.borderColor),
-                  web3.utils.utf8ToHex(this.structure.data),
-                  this.structure.kyc,
-                  this.structure.stakedTokens,
-                  { from: operator }
-                )
-              );
+              await shouldFail.reverting(this.memberContract.newMember(ZERO_ADDRESS, { from: operator }));
             });
           });
 
           describe('if caller has not operator permission', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
-                this.memberContract.newMember(
-                  anotherAccount,
-                  web3.utils.utf8ToHex(this.structure.mainColor),
-                  web3.utils.utf8ToHex(this.structure.backgroundColor),
-                  web3.utils.utf8ToHex(this.structure.borderColor),
-                  web3.utils.utf8ToHex(this.structure.data),
-                  this.structure.kyc,
-                  this.structure.stakedTokens,
-                  { from: anotherAccount }
-                )
-              );
+              await shouldFail.reverting(this.memberContract.newMember(anotherAccount, { from: anotherAccount }));
             });
           });
         });
@@ -421,12 +342,12 @@ contract('DAOMember', function (
                 });
 
                 it('should increase member staked tokens', async function () {
-                  memberStructure[6].should.be.bignumber.equal(this.structure.stakedTokens.add(toStake));
+                  memberStructure[3].should.be.bignumber.equal(toStake);
                 });
 
                 it('should increase total staked tokens', async function () {
                   (await this.memberContract.totalStakedTokens())
-                    .should.be.bignumber.equal(this.structure.stakedTokens.add(toStake));
+                    .should.be.bignumber.equal(toStake);
                 });
 
                 it('should emit StakedTokens', async function () {
@@ -453,6 +374,10 @@ contract('DAOMember', function (
 
           describe('unstake tokens', function () {
             describe('if user is member', function () {
+              beforeEach(async function () {
+                await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
+              });
+
               describe('if member has enough staked token', function () {
                 let receipt;
 
@@ -466,14 +391,14 @@ contract('DAOMember', function (
                 });
 
                 it('should decrease member staked tokens', async function () {
-                  memberStructure[6].should.be.bignumber.equal(new BN(0));
+                  memberStructure[3].should.be.bignumber.equal(new BN(0));
                 });
 
                 it('should decrease total staked tokens', async function () {
                   (await this.memberContract.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
                 });
 
-                it('should emit StakedTokens', async function () {
+                it('should emit UnstakedTokens', async function () {
                   await expectEvent.inTransaction(receipt.tx, DAOMember, 'UnstakedTokens', {
                     account: member,
                     value: this.structure.stakedTokens,

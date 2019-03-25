@@ -31,13 +31,11 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
     // structure that defines a member
     struct MemberStructure {
         address member;
-        bytes6 mainColor;
-        bytes6 backgroundColor;
-        bytes6 borderColor;
+        bytes9 fingerprint;
+        uint256 creationDate;
+        uint256 stakedTokens;
         bytes32 data;
         bool kyc;
-        uint256 stakedTokens;
-        uint256 creationDate;
     }
 
     // a progressive id counting members
@@ -89,13 +87,11 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         view
         returns (
             address member,
-            bytes6 mainColor,
-            bytes6 backgroundColor,
-            bytes6 borderColor,
-            bytes32 data,
-            bool kyc,
+            bytes9 fingerprint,
+            uint256 creationDate,
             uint256 stakedTokens,
-            uint256 creationDate
+            bytes32 data,
+            bool kyc
         )
     {
         require(isMember(account));
@@ -113,13 +109,11 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         view
         returns (
             address member,
-            bytes6 mainColor,
-            bytes6 backgroundColor,
-            bytes6 borderColor,
-            bytes32 data,
-            bool kyc,
+            bytes9 fingerprint,
+            uint256 creationDate,
             uint256 stakedTokens,
-            uint256 creationDate
+            bytes32 data,
+            bool kyc
         )
     {
         MemberStructure storage structure = _structureIndex[memberId];
@@ -128,13 +122,11 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
         require(member != address(0));
 
-        mainColor = structure.mainColor;
-        backgroundColor = structure.backgroundColor;
-        borderColor = structure.borderColor;
+        fingerprint = structure.fingerprint;
+        creationDate = structure.creationDate;
+        stakedTokens = structure.stakedTokens;
         data = structure.data;
         kyc = structure.kyc;
-        stakedTokens = structure.stakedTokens;
-        creationDate = structure.creationDate;
     }
 
     /**
@@ -169,7 +161,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         internal
     {
         if (!isMember(from)) {
-            _generateMember(from);
+            _newMember(from);
         }
 
         _stake(from, value);
@@ -191,7 +183,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         IERC20(acceptedToken()).transferFrom(owner, address(this), value);
 
         if (!isMember(owner)) {
-            _generateMember(owner);
+            _newMember(owner);
         }
 
         _stake(owner, value);
@@ -202,67 +194,26 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @param account Address you want to make member
      * @return uint256 The new member id
      */
-    function _generateMember(address account) internal returns (uint256) {
-        bytes6 mainColor = _getRandomBytes(1);
-        bytes6 backgroundColor = _getRandomBytes(2);
-        bytes6 borderColor = _getRandomBytes(3);
-
-        return _newMember(
-            account,
-            mainColor,
-            backgroundColor,
-            borderColor,
-            "",
-            false,
-            0
-        );
-    }
-
-    /**
-     * @dev Generate a new member and the member structure.
-     * @param account Address you want to make member
-     * @param mainColor The member's main color
-     * @param backgroundColor The member's background color
-     * @param borderColor The member's border color
-     * @param data An hex string defining some member properties
-     * @param kyc If member has a valid kyc
-     * @param stakedTokens Number of staked tokens
-     * @return uint256 The new member id
-     */
-    function _newMember(
-        address account,
-        bytes6 mainColor,
-        bytes6 backgroundColor,
-        bytes6 borderColor,
-        bytes32 data,
-        bool kyc,
-        uint256 stakedTokens
-    )
-        internal
-        returns (uint256)
-    {
+    function _newMember(address account) internal returns (uint256) {
         require(account != address(0));
         require(!isMember(account));
 
         uint256 memberId = _membersNumber.add(1);
+        bytes9 fingerprint = _getFingerprint(account, memberId);
 
         _addressIndex[account] = memberId;
         _structureIndex[memberId] = MemberStructure(
             account,
-            mainColor,
-            backgroundColor,
-            borderColor,
-            data,
-            kyc,
+            fingerprint,
+            block.timestamp, // solhint-disable-line not-rely-on-time
             0,
-            block.timestamp // solhint-disable-line not-rely-on-time
+            "",
+            false
         );
 
         _membersNumber = memberId;
 
         emit MemberAdded(account, memberId);
-
-        _stake(account, stakedTokens);
 
         return memberId;
     }
@@ -302,10 +253,12 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
     /**
      * @dev Generate a random color hex.
-     * @return bytes6 It represents an hex color
+     * @param account Address you want to make member
+     * @param memberId The member id
+     * @return bytes9 It represents 3 concatenated hex colors
      */
-    function _getRandomBytes(uint8 salt) internal view returns (bytes6) {
+    function _getFingerprint(address account, uint256 memberId) internal view returns (bytes9) {
         // solhint-disable-next-line not-rely-on-time
-        return bytes6(keccak256(abi.encodePacked(msg.sender, block.timestamp, salt)));
+        return bytes9(keccak256(abi.encodePacked(account, memberId, block.timestamp)));
     }
 }
