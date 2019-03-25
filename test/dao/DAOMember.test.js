@@ -206,11 +206,7 @@ contract('DAOMember', function (
                 });
 
                 it('has a fingerprint', async function () {
-                  const fingerprint = await this.memberContract.getFingerprintMock(
-                    member,
-                    memberId,
-                    await time.latest()
-                  );
+                  const fingerprint = await this.memberContract.getFingerprint(member, memberId);
 
                   const toCheck = memberStructure[1];
                   assert.equal(toCheck, fingerprint);
@@ -254,11 +250,7 @@ contract('DAOMember', function (
                 });
 
                 it('has a fingerprint', async function () {
-                  const fingerprint = await this.memberContract.getFingerprintMock(
-                    member,
-                    memberId,
-                    await time.latest()
-                  );
+                  const fingerprint = await this.memberContract.getFingerprint(member, memberId);
 
                   const toCheck = memberStructure[1];
                   assert.equal(toCheck, fingerprint);

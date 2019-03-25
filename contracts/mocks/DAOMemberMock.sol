@@ -10,8 +10,8 @@ contract DAOMemberMock is DAOMember {
         return _newMember(account);
     }
 
-    function getFingerprintMock(address account, uint256 memberId, uint256 timestamp) public pure returns (bytes9) {
-        return bytes9(keccak256(abi.encodePacked(account, memberId, timestamp)));
+    function getFingerprint(address account, uint256 memberId) public pure returns (bytes9) {
+        return _getFingerprint(account, memberId);
     }
 
     function stake(address account, uint256 amount) public onlyOperator {
