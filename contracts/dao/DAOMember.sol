@@ -260,7 +260,6 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
      * @return bytes9 It represents 3 concatenated hex colors
      */
     function _getFingerprint(address account, uint256 memberId) internal pure returns (bytes9) {
-        // solhint-disable-next-line not-rely-on-time
         return bytes9(keccak256(abi.encodePacked(account, memberId)));
     }
 }
