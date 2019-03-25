@@ -51,6 +51,8 @@ contract('DAOMember', function (
       this.token = await ERC1363.new(creator, tokenBalance);
       this.notAcceptedToken = await ERC1363.new(creator, tokenBalance);
 
+      await this.token.mintMock(tokenBalance, { from: member });
+
       this.memberContract = await DAOMember.new(this.token.address, { from: creator });
     });
 
@@ -72,7 +74,7 @@ contract('DAOMember', function (
 
         describe('via transferFromAndCall', function () {
           beforeEach(async function () {
-            await this.token.approve(spender, value, { from: creator });
+            await this.token.approve(spender, value, { from: member });
           });
 
           const transferFromAndCallWithData = function (from, to, value, opts) {
@@ -81,18 +83,27 @@ contract('DAOMember', function (
             );
           };
 
-          const transferFromAndCallWithoutData = function (from, to, value, opts) {
-            return this.token.methods['transferFromAndCall(address,address,uint256)'](from, to, value, opts);
-          };
+          describe('should add a member', function () {
+            let memberStructure;
 
-          // it should add a new member
-          it.skip('reverts', async function () {
-            await shouldFail.reverting(
-              transferFromAndCallWithData.call(this, creator, this.mock.address, value, { from: spender })
-            );
-            await shouldFail.reverting(
-              transferFromAndCallWithoutData.call(this, creator, this.mock.address, value, { from: spender })
-            );
+            beforeEach(async function () {
+              await transferFromAndCallWithData.call(
+                this, member, this.memberContract.address, value, { from: spender }
+              );
+              memberStructure = await this.memberContract.getMemberByAddress(member);
+            });
+
+            describe('check isMember', function () {
+              it('returns true', async function () {
+                (await this.memberContract.isMember(member)).should.be.equal(true);
+              });
+            });
+
+            describe('check stacked tokens', function () {
+              it('should be equal to sent tokens', async function () {
+                memberStructure[3].should.be.bignumber.equal(value);
+              });
+            });
           });
         });
 
@@ -105,18 +116,25 @@ contract('DAOMember', function (
             );
           };
 
-          const transferAndCallWithoutData = function (to, value, opts) {
-            return this.token.methods['transferAndCall(address,uint256)'](to, value, opts);
-          };
+          describe('should add a member', function () {
+            let memberStructure;
 
-          // it should add a new member
-          it.skip('reverts', async function () {
-            await shouldFail.reverting(
-              transferAndCallWithData.call(this, this.mock.address, value, { from: creator })
-            );
-            await shouldFail.reverting(
-              transferAndCallWithoutData.call(this, this.mock.address, value, { from: creator })
-            );
+            beforeEach(async function () {
+              await transferAndCallWithData.call(this, this.memberContract.address, value, { from: member });
+              memberStructure = await this.memberContract.getMemberByAddress(member);
+            });
+
+            describe('check isMember', function () {
+              it('returns true', async function () {
+                (await this.memberContract.isMember(member)).should.be.equal(true);
+              });
+            });
+
+            describe('check stacked tokens', function () {
+              it('should be equal to sent tokens', async function () {
+                memberStructure[3].should.be.bignumber.equal(value);
+              });
+            });
           });
         });
 
@@ -127,18 +145,25 @@ contract('DAOMember', function (
             );
           };
 
-          const approveAndCallWithoutData = function (spender, value, opts) {
-            return this.token.methods['approveAndCall(address,uint256)'](spender, value, opts);
-          };
+          describe('should add a member', function () {
+            let memberStructure;
 
-          // it should add a new member
-          it.skip('reverts', async function () {
-            await shouldFail.reverting(
-              approveAndCallWithData.call(this, this.mock.address, value, { from: creator })
-            );
-            await shouldFail.reverting(
-              approveAndCallWithoutData.call(this, this.mock.address, value, { from: creator })
-            );
+            beforeEach(async function () {
+              await approveAndCallWithData.call(this, this.memberContract.address, value, { from: member });
+              memberStructure = await this.memberContract.getMemberByAddress(member);
+            });
+
+            describe('check isMember', function () {
+              it('returns true', async function () {
+                (await this.memberContract.isMember(member)).should.be.equal(true);
+              });
+            });
+
+            describe('check stacked tokens', function () {
+              it('should be equal to sent tokens', async function () {
+                memberStructure[3].should.be.bignumber.equal(value);
+              });
+            });
           });
         });
       });
