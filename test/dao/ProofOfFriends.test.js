@@ -7,9 +7,9 @@ const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behav
 
 const ERC20 = artifacts.require('ERC20');
 const ERC1363 = artifacts.require('ERC1363Mock');
-const DAOMember = artifacts.require('DAOMemberMock');
+const ProofOfFriends = artifacts.require('ProofOfFriendsMock');
 
-contract('DAOMember', function (
+contract('ProofOfFriends', function (
   [
     creator,
     operator,
@@ -29,14 +29,14 @@ contract('DAOMember', function (
   context('if invalid constructor', function () {
     describe('if accepted token is the zero address', function () {
       it('reverts', async function () {
-        await shouldFail.reverting(DAOMember.new(ZERO_ADDRESS));
+        await shouldFail.reverting(ProofOfFriends.new(ZERO_ADDRESS));
       });
     });
 
     describe('if token does not support ERC1363 interface', function () {
       it('reverts', async function () {
         const erc20Token = await ERC20.new();
-        await shouldFail.reverting(DAOMember.new(erc20Token.address));
+        await shouldFail.reverting(ProofOfFriends.new(erc20Token.address));
       });
     });
   });
@@ -53,7 +53,7 @@ contract('DAOMember', function (
 
       await this.token.mintMock(tokenBalance, { from: member });
 
-      this.memberContract = await DAOMember.new(this.token.address, { from: creator });
+      this.memberContract = await ProofOfFriends.new(this.token.address, { from: creator });
     });
 
     context('as an ERC1363Payable', function () {
@@ -66,7 +66,7 @@ contract('DAOMember', function (
           await this.mock.newMember(creator, { from: creator });
         });
 
-        shouldBehaveLikeERC1363Payable(DAOMember, [creator, spender], tokenBalance);
+        shouldBehaveLikeERC1363Payable(ProofOfFriends, [creator, spender], tokenBalance);
       });
 
       describe('if not a member is calling ERC1363 functions', function () {
@@ -169,7 +169,7 @@ contract('DAOMember', function (
       });
     });
 
-    context('testing DAOMember behaviors', function () {
+    context('testing ProofOfFriends behaviors', function () {
       beforeEach(async function () {
         await this.memberContract.addOperator(operator, { from: creator });
       });
@@ -347,48 +347,43 @@ contract('DAOMember', function (
           describe('stake tokens', function () {
             const toStake = new BN(1);
 
-            describe('if an operator is calling', function () {
-              describe('if user is member', function () {
-                let receipt;
+            let receipt;
 
-                let preMemberStructure;
-                let preStakedTokens;
+            let preMemberStructure;
+            let preStakedTokens;
 
-                beforeEach(async function () {
-                  preMemberStructure = await this.memberContract.getMemberByAddress(member);
-                  preStakedTokens = await this.memberContract.totalStakedTokens();
+            beforeEach(async function () {
+              preMemberStructure = await this.memberContract.getMemberByAddress(member);
+              preStakedTokens = await this.memberContract.totalStakedTokens();
 
-                  receipt = await this.memberContract.stake(member, toStake, { from: operator });
-                });
+              receipt = await this.memberContract.stake(member, toStake, { from: operator });
+            });
 
-                it('should increase member staked tokens', async function () {
-                  const memberStructure = await this.memberContract.getMemberByAddress(member);
-                  memberStructure[3].should.be.bignumber.equal(preMemberStructure[3].add(toStake));
-                });
+            describe('if user is not member', function () {
+              it('should emit a MemberAdded event', async function () {
+                const newMembersNumber = await this.memberContract.membersNumber();
 
-                it('should increase total staked tokens', async function () {
-                  (await this.memberContract.totalStakedTokens())
-                    .should.be.bignumber.equal(preStakedTokens.add(toStake));
-                });
-
-                it('should emit TokensStaked', async function () {
-                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'TokensStaked', {
-                    account: member,
-                    value: toStake,
-                  });
-                });
-              });
-
-              describe('if user is not member', function () {
-                it('reverts', async function () {
-                  await shouldFail.reverting(this.memberContract.stake(anotherAccount, toStake, { from: operator }));
+                expectEvent.inLogs(this.logs, 'MemberAdded', {
+                  account: member,
+                  id: newMembersNumber,
                 });
               });
             });
 
-            describe('if another account is calling', function () {
-              it('reverts', async function () {
-                await shouldFail.reverting(this.memberContract.stake(member, toStake, { from: anotherAccount }));
+            it('should increase member staked tokens', async function () {
+              const memberStructure = await this.memberContract.getMemberByAddress(member);
+              memberStructure[3].should.be.bignumber.equal(preMemberStructure[3].add(toStake));
+            });
+
+            it('should increase total staked tokens', async function () {
+              (await this.memberContract.totalStakedTokens())
+                .should.be.bignumber.equal(preStakedTokens.add(toStake));
+            });
+
+            it('should emit TokensStaked', async function () {
+              await expectEvent.inTransaction(receipt.tx, ProofOfFriends, 'TokensStaked', {
+                account: member,
+                value: toStake,
               });
             });
           });
@@ -443,7 +438,7 @@ contract('DAOMember', function (
                 });
 
                 it('should emit TokensUnstaked', async function () {
-                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'TokensUnstaked', {
+                  await expectEvent.inTransaction(receipt.tx, ProofOfFriends, 'TokensUnstaked', {
                     account: member,
                     value: this.structure.stakedTokens,
                   });

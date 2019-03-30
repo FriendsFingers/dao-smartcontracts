@@ -29,14 +29,14 @@ App = {
       App.web3Provider.enable();
     }
 
-    $.getJSON('DAOMember.json', function(data) {
-      App.contracts.DAOMember = TruffleContract(data);
-      App.contracts.DAOMember.setProvider(App.web3Provider);
+    $.getJSON('ProofOfFriends.json', function (data) {
+      App.contracts.ProofOfFriends = TruffleContract(data);
+      App.contracts.ProofOfFriends.setProvider(App.web3Provider);
     });
   },
 };
 
-$(function() {
+$(function () {
   $(window).load(function () {
     App.init();
   });

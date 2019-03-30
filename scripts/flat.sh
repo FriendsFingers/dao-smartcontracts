@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-truffle-flattener contracts/dao/DAOMember.sol > dist/DAOMember.dist.sol
+truffle-flattener contracts/dao/ProofOfFriends.sol > dist/ProofOfFriends.dist.sol
