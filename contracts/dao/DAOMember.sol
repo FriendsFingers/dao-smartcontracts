@@ -18,12 +18,12 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
         uint256 id
     );
 
-    event StakedTokens(
+    event TokensStaked(
         address indexed account,
         uint256 value
     );
 
-    event UnstakedTokens(
+    event TokensUnstaked(
         address indexed account,
         uint256 value
     );
@@ -231,7 +231,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
         _totalStakedTokens = _totalStakedTokens.add(amount);
 
-        emit StakedTokens(account, amount);
+        emit TokensStaked(account, amount);
     }
 
     /**
@@ -250,7 +250,7 @@ contract DAOMember is ERC1363Payable, OperatorRole, TokenRecover {
 
         IERC20(acceptedToken()).transfer(account, amount);
 
-        emit UnstakedTokens(account, amount);
+        emit TokensUnstaked(account, amount);
     }
 
     /**

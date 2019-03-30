@@ -371,8 +371,8 @@ contract('DAOMember', function (
                     .should.be.bignumber.equal(preStakedTokens.add(toStake));
                 });
 
-                it('should emit StakedTokens', async function () {
-                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'StakedTokens', {
+                it('should emit TokensStaked', async function () {
+                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'TokensStaked', {
                     account: member,
                     value: toStake,
                   });
@@ -442,8 +442,8 @@ contract('DAOMember', function (
                     .should.be.bignumber.equal(accountPreBalance.add(this.structure.stakedTokens));
                 });
 
-                it('should emit UnstakedTokens', async function () {
-                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'UnstakedTokens', {
+                it('should emit TokensUnstaked', async function () {
+                  await expectEvent.inTransaction(receipt.tx, DAOMember, 'TokensUnstaked', {
                     account: member,
                     value: this.structure.stakedTokens,
                   });
