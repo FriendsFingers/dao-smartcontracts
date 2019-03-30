@@ -75,6 +75,7 @@ contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
         public
         view
         returns (
+            uint256 id,
             address member,
             bytes9 fingerprint,
             uint256 creationDate,
@@ -97,6 +98,7 @@ contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
         public
         view
         returns (
+            uint256 id,
             address member,
             bytes9 fingerprint,
             uint256 creationDate,

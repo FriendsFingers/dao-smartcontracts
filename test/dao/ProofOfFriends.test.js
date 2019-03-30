@@ -101,7 +101,7 @@ contract('ProofOfFriends', function (
 
             describe('check stacked tokens', function () {
               it('should be equal to sent tokens', async function () {
-                memberStructure[3].should.be.bignumber.equal(value);
+                memberStructure[4].should.be.bignumber.equal(value);
               });
             });
           });
@@ -132,7 +132,7 @@ contract('ProofOfFriends', function (
 
             describe('check stacked tokens', function () {
               it('should be equal to sent tokens', async function () {
-                memberStructure[3].should.be.bignumber.equal(value);
+                memberStructure[4].should.be.bignumber.equal(value);
               });
             });
           });
@@ -161,7 +161,7 @@ contract('ProofOfFriends', function (
 
             describe('check stacked tokens', function () {
               it('should be equal to sent tokens', async function () {
-                memberStructure[3].should.be.bignumber.equal(value);
+                memberStructure[4].should.be.bignumber.equal(value);
               });
             });
           });
@@ -225,35 +225,40 @@ contract('ProofOfFriends', function (
 
             describe('when member exists', function () {
               describe('check metadata', function () {
-                it('has a member', async function () {
+                it('has an id', async function () {
                   const toCheck = memberStructure[0];
+                  toCheck.should.be.bignumber.equal(memberId);
+                });
+
+                it('has a member', async function () {
+                  const toCheck = memberStructure[1];
                   toCheck.should.be.equal(member);
                 });
 
                 it('has a fingerprint', async function () {
                   const fingerprint = await this.memberContract.getFingerprint(member, memberId);
 
-                  const toCheck = memberStructure[1];
+                  const toCheck = memberStructure[2];
                   assert.equal(toCheck, fingerprint);
                 });
 
                 it('has a creation date', async function () {
-                  const toCheck = memberStructure[2];
+                  const toCheck = memberStructure[3];
                   toCheck.should.be.bignumber.equal(await time.latest());
                 });
 
                 it('has a staked tokens value', async function () {
-                  const toCheck = memberStructure[3];
+                  const toCheck = memberStructure[4];
                   toCheck.should.be.bignumber.equal(new BN(0));
                 });
 
                 it('has a data value', async function () {
-                  const toCheck = memberStructure[4];
+                  const toCheck = memberStructure[5];
                   assert.equal(web3.utils.hexToUtf8(toCheck), '');
                 });
 
                 it('has a kyc value', async function () {
-                  const toCheck = memberStructure[5];
+                  const toCheck = memberStructure[6];
                   assert.equal(toCheck, false);
                 });
               });
@@ -269,35 +274,40 @@ contract('ProofOfFriends', function (
 
             describe('when member exists', function () {
               describe('check metadata', function () {
-                it('has a member', async function () {
+                it('has an id', async function () {
                   const toCheck = memberStructure[0];
+                  toCheck.should.be.bignumber.equal(memberId);
+                });
+
+                it('has a member', async function () {
+                  const toCheck = memberStructure[1];
                   toCheck.should.be.equal(member);
                 });
 
                 it('has a fingerprint', async function () {
                   const fingerprint = await this.memberContract.getFingerprint(member, memberId);
 
-                  const toCheck = memberStructure[1];
+                  const toCheck = memberStructure[2];
                   assert.equal(toCheck, fingerprint);
                 });
 
                 it('has a creation date', async function () {
-                  const toCheck = memberStructure[2];
+                  const toCheck = memberStructure[3];
                   toCheck.should.be.bignumber.equal(await time.latest());
                 });
 
                 it('has a staked tokens value', async function () {
-                  const toCheck = memberStructure[3];
+                  const toCheck = memberStructure[4];
                   toCheck.should.be.bignumber.equal(new BN(0));
                 });
 
                 it('has a data value', async function () {
-                  const toCheck = memberStructure[4];
+                  const toCheck = memberStructure[5];
                   assert.equal(web3.utils.hexToUtf8(toCheck), '');
                 });
 
                 it('has a kyc value', async function () {
-                  const toCheck = memberStructure[5];
+                  const toCheck = memberStructure[6];
                   assert.equal(toCheck, false);
                 });
               });
@@ -372,7 +382,7 @@ contract('ProofOfFriends', function (
 
             it('should increase member staked tokens', async function () {
               const memberStructure = await this.memberContract.getMemberByAddress(member);
-              memberStructure[3].should.be.bignumber.equal(preMemberStructure[3].add(toStake));
+              memberStructure[4].should.be.bignumber.equal(preMemberStructure[4].add(toStake));
             });
 
             it('should increase total staked tokens', async function () {
@@ -419,7 +429,7 @@ contract('ProofOfFriends', function (
 
                 it('should decrease member staked tokens', async function () {
                   const memberStructure = await this.memberContract.getMemberByAddress(member);
-                  memberStructure[3].should.be.bignumber.equal(preMemberStructure[3].sub(this.structure.stakedTokens));
+                  memberStructure[4].should.be.bignumber.equal(preMemberStructure[4].sub(this.structure.stakedTokens));
                 });
 
                 it('should decrease total staked tokens', async function () {

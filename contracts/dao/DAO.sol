@@ -49,6 +49,7 @@ library DAO {
         internal
         view
         returns (
+            uint256 id,
             address member,
             bytes9 fingerprint,
             uint256 creationDate,
@@ -63,6 +64,7 @@ library DAO {
 
         require(member != address(0));
 
+        id = memberId;
         fingerprint = structure.fingerprint;
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
