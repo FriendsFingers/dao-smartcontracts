@@ -72,7 +72,6 @@
   },
   "dependencies": {
     "erc-payable-token": "2.2.1",
-    "eth-token-recover": "2.2.1",
     "openzeppelin-solidity": "2.2.0"
   }
 }

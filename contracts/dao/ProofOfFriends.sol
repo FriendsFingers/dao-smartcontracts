@@ -1,7 +1,6 @@
 pragma solidity ^0.5.7;
 
 import "erc-payable-token/contracts/payment/ERC1363Payable.sol";
-import "eth-token-recover/contracts/TokenRecover.sol";
 import "../access/roles/OperatorRole.sol";
 import "./DAO.sol";
 
@@ -10,7 +9,7 @@ import "./DAO.sol";
  * @author Vittorio Minacori (https://github.com/vittominacori)
  * @dev It identifies a DAO Member
  */
-contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
+contract ProofOfFriends is ERC1363Payable, OperatorRole {
     using DAO for DAO.Members;
 
     event MemberAdded(
@@ -31,14 +30,6 @@ contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
     DAO.Members private _members;
 
     constructor (IERC1363 acceptedToken) public ERC1363Payable(acceptedToken) {} // solhint-disable-line no-empty-blocks
-
-    /**
-     * @dev Remove the `operator` role from address
-     * @param account Address you want to remove role
-     */
-    function removeOperator(address account) public onlyOwner {
-        _removeOperator(account);
-    }
 
     /**
      * @dev Returns the members number

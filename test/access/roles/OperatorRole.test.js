@@ -1,12 +1,24 @@
-const { shouldBehaveLikePublicRole } = require('openzeppelin-solidity/test/behaviors/access/roles/PublicRole.behavior');
+const { shouldBehaveLikeOwnable } = require('../../ownership/Ownable.behavior');
+const { shouldBehaveLikePublicRole } = require('./PublicRole.behavior');
 
 const OperatorRoleMock = artifacts.require('OperatorRoleMock');
 
-contract('OperatorRole', function ([_, operator, otherOperator, ...otherAccounts]) {
+contract('OperatorRole', function ([owner, operator, otherOperator, thirdParty, ...otherAccounts]) {
   beforeEach(async function () {
-    this.contract = await OperatorRoleMock.new({ from: operator });
-    await this.contract.addOperator(otherOperator, { from: operator });
+    this.contract = await OperatorRoleMock.new({ from: owner });
+    await this.contract.addOperator(operator, { from: owner });
+    await this.contract.addOperator(otherOperator, { from: owner });
   });
 
-  shouldBehaveLikePublicRole(operator, otherOperator, otherAccounts, 'operator');
+  context('testing roles behaviour', function () {
+    shouldBehaveLikePublicRole(owner, operator, otherOperator, otherAccounts, 'operator');
+  });
+
+  context('testing ownership', function () {
+    beforeEach(async function () {
+      this.ownable = this.contract;
+    });
+
+    shouldBehaveLikeOwnable(owner, [thirdParty]);
+  });
 });

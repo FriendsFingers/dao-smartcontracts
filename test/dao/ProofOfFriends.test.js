@@ -3,9 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { structDecode } = require('./utils/structDecode');
 
-const { shouldBehaveLikeTokenRecover } = require('eth-token-recover/test/TokenRecover.behaviour');
 const { shouldBehaveLikeERC1363Payable } = require('../ERC1363/ERC1363Payable.behaviour');
-const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behavior');
 
 const ERC20 = artifacts.require('ERC20');
 const ERC1363 = artifacts.require('ERC1363Mock');
@@ -481,28 +479,6 @@ contract('ProofOfFriends', function (
           });
         });
       });
-
-      context('testing roles', function () {
-        beforeEach(async function () {
-          this.contract = this.memberContract;
-        });
-
-        context('testing remove roles', function () {
-          beforeEach(async function () {
-            this.contract = this.memberContract;
-          });
-
-          shouldBehaveLikeRemoveRole(creator, operator, [anotherAccount], 'operator');
-        });
-      });
-    });
-
-    context('like a TokenRecover', function () {
-      beforeEach(async function () {
-        this.instance = this.memberContract;
-      });
-
-      shouldBehaveLikeTokenRecover([creator, anotherAccount]);
     });
   });
 });
