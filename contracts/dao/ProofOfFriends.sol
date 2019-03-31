@@ -11,7 +11,6 @@ import "./DAO.sol";
  * @dev It identifies a DAO Member
  */
 contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
-    using SafeMath for uint256;
     using DAO for DAO.Members;
 
     event MemberAdded(
@@ -107,7 +106,7 @@ contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
             bool kyc
         )
     {
-        return _members.get(memberId);
+        return _members.getMember(memberId);
     }
 
     /**
@@ -164,7 +163,7 @@ contract ProofOfFriends is ERC1363Payable, OperatorRole, TokenRecover {
      * @return uint256 The new member id
      */
     function _newMember(address account) internal {
-        uint256 memberId = _members.add(account);
+        uint256 memberId = _members.addMember(account);
 
         emit MemberAdded(account, memberId);
     }

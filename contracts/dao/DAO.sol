@@ -1,7 +1,6 @@
 pragma solidity ^0.5.7;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title DAO
@@ -45,7 +44,7 @@ library DAO {
      * @param memberId Id of the member you are looking for
      * @return array
      */
-    function get(Members storage members, uint256 memberId)
+    function getMember(Members storage members, uint256 memberId)
         internal
         view
         returns (
@@ -78,7 +77,7 @@ library DAO {
      * @param account Address you want to make member
      * @return uint256 The new member id
      */
-    function add(Members storage members, address account) internal returns (uint256) {
+    function addMember(Members storage members, address account) internal returns (uint256) {
         require(account != address(0));
         require(!isMember(members, account));
 

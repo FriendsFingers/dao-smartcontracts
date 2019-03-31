@@ -1,6 +1,8 @@
 const { BN, constants, shouldFail, expectEvent, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { structDecode } = require('./utils/structDecode');
+
 const { shouldBehaveLikeTokenRecover } = require('eth-token-recover/test/TokenRecover.behaviour');
 const { shouldBehaveLikeERC1363Payable } = require('../ERC1363/ERC1363Payable.behaviour');
 const { shouldBehaveLikeRemoveRole } = require('../access/roles/RemoveRole.behavior');
@@ -90,7 +92,7 @@ contract('ProofOfFriends', function (
               await transferFromAndCallWithData.call(
                 this, member, this.memberContract.address, value, { from: spender }
               );
-              memberStructure = await this.memberContract.getMemberByAddress(member);
+              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
             });
 
             describe('check isMember', function () {
@@ -101,7 +103,7 @@ contract('ProofOfFriends', function (
 
             describe('check stacked tokens', function () {
               it('should be equal to sent tokens', async function () {
-                memberStructure[4].should.be.bignumber.equal(value);
+                memberStructure.stakedTokens.should.be.bignumber.equal(value);
               });
             });
           });
@@ -121,7 +123,7 @@ contract('ProofOfFriends', function (
 
             beforeEach(async function () {
               await transferAndCallWithData.call(this, this.memberContract.address, value, { from: member });
-              memberStructure = await this.memberContract.getMemberByAddress(member);
+              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
             });
 
             describe('check isMember', function () {
@@ -132,7 +134,7 @@ contract('ProofOfFriends', function (
 
             describe('check stacked tokens', function () {
               it('should be equal to sent tokens', async function () {
-                memberStructure[4].should.be.bignumber.equal(value);
+                memberStructure.stakedTokens.should.be.bignumber.equal(value);
               });
             });
           });
@@ -150,7 +152,7 @@ contract('ProofOfFriends', function (
 
             beforeEach(async function () {
               await approveAndCallWithData.call(this, this.memberContract.address, value, { from: member });
-              memberStructure = await this.memberContract.getMemberByAddress(member);
+              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
             });
 
             describe('check isMember', function () {
@@ -161,7 +163,7 @@ contract('ProofOfFriends', function (
 
             describe('check stacked tokens', function () {
               it('should be equal to sent tokens', async function () {
-                memberStructure[4].should.be.bignumber.equal(value);
+                memberStructure.stakedTokens.should.be.bignumber.equal(value);
               });
             });
           });
@@ -220,45 +222,45 @@ contract('ProofOfFriends', function (
             let memberStructure;
 
             beforeEach(async function () {
-              memberStructure = await this.memberContract.getMemberById(memberId);
+              memberStructure = structDecode(await this.memberContract.getMemberById(memberId));
             });
 
             describe('when member exists', function () {
               describe('check metadata', function () {
                 it('has an id', async function () {
-                  const toCheck = memberStructure[0];
+                  const toCheck = memberStructure.id;
                   toCheck.should.be.bignumber.equal(memberId);
                 });
 
                 it('has a member', async function () {
-                  const toCheck = memberStructure[1];
+                  const toCheck = memberStructure.member;
                   toCheck.should.be.equal(member);
                 });
 
                 it('has a fingerprint', async function () {
                   const fingerprint = await this.memberContract.getFingerprint(member, memberId);
 
-                  const toCheck = memberStructure[2];
+                  const toCheck = memberStructure.fingerprint;
                   assert.equal(toCheck, fingerprint);
                 });
 
                 it('has a creation date', async function () {
-                  const toCheck = memberStructure[3];
+                  const toCheck = memberStructure.creationDate;
                   toCheck.should.be.bignumber.equal(await time.latest());
                 });
 
                 it('has a staked tokens value', async function () {
-                  const toCheck = memberStructure[4];
+                  const toCheck = memberStructure.stakedTokens;
                   toCheck.should.be.bignumber.equal(new BN(0));
                 });
 
                 it('has a data value', async function () {
-                  const toCheck = memberStructure[5];
+                  const toCheck = memberStructure.data;
                   assert.equal(web3.utils.hexToUtf8(toCheck), '');
                 });
 
                 it('has a kyc value', async function () {
-                  const toCheck = memberStructure[6];
+                  const toCheck = memberStructure.kyc;
                   assert.equal(toCheck, false);
                 });
               });
@@ -269,45 +271,45 @@ contract('ProofOfFriends', function (
             let memberStructure;
 
             beforeEach(async function () {
-              memberStructure = await this.memberContract.getMemberByAddress(member);
+              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
             });
 
             describe('when member exists', function () {
               describe('check metadata', function () {
                 it('has an id', async function () {
-                  const toCheck = memberStructure[0];
+                  const toCheck = memberStructure.id;
                   toCheck.should.be.bignumber.equal(memberId);
                 });
 
                 it('has a member', async function () {
-                  const toCheck = memberStructure[1];
+                  const toCheck = memberStructure.member;
                   toCheck.should.be.equal(member);
                 });
 
                 it('has a fingerprint', async function () {
                   const fingerprint = await this.memberContract.getFingerprint(member, memberId);
 
-                  const toCheck = memberStructure[2];
+                  const toCheck = memberStructure.fingerprint;
                   assert.equal(toCheck, fingerprint);
                 });
 
                 it('has a creation date', async function () {
-                  const toCheck = memberStructure[3];
+                  const toCheck = memberStructure.creationDate;
                   toCheck.should.be.bignumber.equal(await time.latest());
                 });
 
                 it('has a staked tokens value', async function () {
-                  const toCheck = memberStructure[4];
+                  const toCheck = memberStructure.stakedTokens;
                   toCheck.should.be.bignumber.equal(new BN(0));
                 });
 
                 it('has a data value', async function () {
-                  const toCheck = memberStructure[5];
+                  const toCheck = memberStructure.data;
                   assert.equal(web3.utils.hexToUtf8(toCheck), '');
                 });
 
                 it('has a kyc value', async function () {
-                  const toCheck = memberStructure[6];
+                  const toCheck = memberStructure.kyc;
                   assert.equal(toCheck, false);
                 });
               });
@@ -363,7 +365,7 @@ contract('ProofOfFriends', function (
             let preStakedTokens;
 
             beforeEach(async function () {
-              preMemberStructure = await this.memberContract.getMemberByAddress(member);
+              preMemberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
               preStakedTokens = await this.memberContract.totalStakedTokens();
 
               receipt = await this.memberContract.stake(member, toStake, { from: operator });
@@ -381,8 +383,8 @@ contract('ProofOfFriends', function (
             });
 
             it('should increase member staked tokens', async function () {
-              const memberStructure = await this.memberContract.getMemberByAddress(member);
-              memberStructure[4].should.be.bignumber.equal(preMemberStructure[4].add(toStake));
+              const memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+              memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
             });
 
             it('should increase total staked tokens', async function () {
@@ -416,7 +418,7 @@ contract('ProofOfFriends', function (
                 let accountPreBalance;
 
                 beforeEach(async function () {
-                  preMemberStructure = await this.memberContract.getMemberByAddress(member);
+                  preMemberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
                   preStakedTokens = await this.memberContract.totalStakedTokens();
                   contractPreBalance = await this.token.balanceOf(this.memberContract.address);
                   accountPreBalance = await this.token.balanceOf(member);
@@ -428,8 +430,10 @@ contract('ProofOfFriends', function (
                 });
 
                 it('should decrease member staked tokens', async function () {
-                  const memberStructure = await this.memberContract.getMemberByAddress(member);
-                  memberStructure[4].should.be.bignumber.equal(preMemberStructure[4].sub(this.structure.stakedTokens));
+                  const memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+                  memberStructure.stakedTokens.should.be.bignumber.equal(
+                    preMemberStructure.stakedTokens.sub(this.structure.stakedTokens)
+                  );
                 });
 
                 it('should decrease total staked tokens', async function () {
