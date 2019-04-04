@@ -4,24 +4,31 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/access/Roles.sol";
 
 /**
- * @title OperatorRole
+ * @title DAORoles
  * @author Vittorio Minacori (https://github.com/vittominacori)
- * @dev It identifies the operators role
+ * @dev It identifies the DAO roles
  */
-contract OperatorRole is Ownable {
+contract DAORoles is Ownable {
     using Roles for Roles.Role;
 
     event OperatorAdded(address indexed account);
     event OperatorRemoved(address indexed account);
 
-    Roles.Role private _operators;
+    event DappAdded(address indexed account);
+    event DappRemoved(address indexed account);
 
-    constructor () internal {
-        _addOperator(msg.sender);
-    }
+    Roles.Role private _operators;
+    Roles.Role private _dapps;
+
+    constructor () internal {} // solhint-disable-line no-empty-blocks
 
     modifier onlyOperator() {
         require(isOperator(msg.sender));
+        _;
+    }
+
+    modifier onlyDapp() {
+        require(isDapp(msg.sender));
         _;
     }
 
@@ -34,11 +41,27 @@ contract OperatorRole is Ownable {
     }
 
     /**
+     * @dev Check if an address has the `dapp` role
+     * @param account Address you want to check
+     */
+    function isDapp(address account) public view returns (bool) {
+        return _dapps.has(account);
+    }
+
+    /**
      * @dev Add the `operator` role from address
      * @param account Address you want to add role
      */
-    function addOperator(address account) public onlyOperator {
+    function addOperator(address account) public onlyOwner {
         _addOperator(account);
+    }
+
+    /**
+     * @dev Add the `dapp` role from address
+     * @param account Address you want to add role
+     */
+    function addDapp(address account) public onlyOperator {
+        _addDapp(account);
     }
 
     /**
@@ -50,10 +73,11 @@ contract OperatorRole is Ownable {
     }
 
     /**
-     * @dev Renounce the `operator` role
+     * @dev Remove the `operator` role from address
+     * @param account Address you want to remove role
      */
-    function renounceOperator() public {
-        _removeOperator(msg.sender);
+    function removeDapp(address account) public onlyOperator {
+        _removeDapp(account);
     }
 
     function _addOperator(address account) internal {
@@ -61,8 +85,18 @@ contract OperatorRole is Ownable {
         emit OperatorAdded(account);
     }
 
+    function _addDapp(address account) internal {
+        _dapps.add(account);
+        emit DappAdded(account);
+    }
+
     function _removeOperator(address account) internal {
         _operators.remove(account);
         emit OperatorRemoved(account);
+    }
+
+    function _removeDapp(address account) internal {
+        _dapps.remove(account);
+        emit DappRemoved(account);
     }
 }

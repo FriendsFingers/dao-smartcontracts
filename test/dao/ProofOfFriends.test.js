@@ -57,12 +57,10 @@ contract('ProofOfFriends', function (
     });
 
     context('as an ERC1363Payable', function () {
-      beforeEach(async function () {
-        this.mock = this.memberContract;
-      });
-
       describe('if a member is calling ERC1363 functions', function () {
         beforeEach(async function () {
+          this.mock = this.memberContract;
+
           await this.mock.newMember(creator, { from: creator });
         });
 
@@ -343,12 +341,6 @@ contract('ProofOfFriends', function (
           describe('if member is the zero address', function () {
             it('reverts', async function () {
               await shouldFail.reverting(this.memberContract.newMember(ZERO_ADDRESS, { from: operator }));
-            });
-          });
-
-          describe('if caller has not operator permission', function () {
-            it('reverts', async function () {
-              await shouldFail.reverting(this.memberContract.newMember(anotherAccount, { from: anotherAccount }));
             });
           });
         });

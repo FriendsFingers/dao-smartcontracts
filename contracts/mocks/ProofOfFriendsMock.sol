@@ -6,7 +6,7 @@ contract ProofOfFriendsMock is ProofOfFriends {
 
     constructor (IERC1363 acceptedToken) public ProofOfFriends(acceptedToken) {} // solhint-disable-line no-empty-blocks
 
-    function newMember(address account) public onlyOperator {
+    function newMember(address account) public {
         return _newMember(account);
     }
 

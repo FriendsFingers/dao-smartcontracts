@@ -1,7 +1,7 @@
 pragma solidity ^0.5.7;
 
 import "erc-payable-token/contracts/payment/ERC1363Payable.sol";
-import "../access/roles/OperatorRole.sol";
+import "../access/roles/DAORoles.sol";
 import "./DAO.sol";
 
 /**
@@ -9,7 +9,7 @@ import "./DAO.sol";
  * @author Vittorio Minacori (https://github.com/vittominacori)
  * @dev It identifies a DAO Member
  */
-contract ProofOfFriends is ERC1363Payable, OperatorRole {
+contract ProofOfFriends is ERC1363Payable, DAORoles {
     using DAO for DAO.Members;
 
     event MemberAdded(
