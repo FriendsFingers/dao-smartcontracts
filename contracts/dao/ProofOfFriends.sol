@@ -7,7 +7,7 @@ import "./DAO.sol";
 /**
  * @title ProofOfFriends
  * @author Vittorio Minacori (https://github.com/vittominacori)
- * @dev It identifies a DAO Member
+ * @dev It identifies the DAO and Proof of Friends logic
  */
 contract ProofOfFriends is ERC1363Payable, DAORoles {
     using DAO for DAO.Members;
@@ -30,6 +30,36 @@ contract ProofOfFriends is ERC1363Payable, DAORoles {
     DAO.Members private _members;
 
     constructor (IERC1363 acceptedToken) public ERC1363Payable(acceptedToken) {} // solhint-disable-line no-empty-blocks
+
+    /**
+     * @dev fallback. This function will create a new member
+     */
+    function () external payable { // solhint-disable-line no-complex-fallback
+        require(msg.value == 0);
+
+        _newMember(msg.sender);
+    }
+
+    /**
+     * @dev Generate a new member and the member structure
+     * @param account Address you want to make member
+     * @return uint256 The new member id
+     */
+    function newMember(address account) external onlyOperator {
+        _newMember(account);
+    }
+
+    /**
+     * @dev Remove tokens from member stack
+     * @param amount Number of tokens to unstake
+     */
+    function unstake(uint256 amount) public {
+        _members.unstake(msg.sender, amount);
+
+        IERC20(acceptedToken()).transfer(msg.sender, amount);
+
+        emit TokensUnstaked(msg.sender, amount);
+    }
 
     /**
      * @dev Returns the members number
@@ -98,18 +128,6 @@ contract ProofOfFriends is ERC1363Payable, DAORoles {
         )
     {
         return _members.getMember(memberId);
-    }
-
-    /**
-     * @dev Remove tokens from member stack
-     * @param amount Number of tokens to unstake
-     */
-    function unstake(uint256 amount) public {
-        _members.unstake(msg.sender, amount);
-
-        IERC20(acceptedToken()).transfer(msg.sender, amount);
-
-        emit TokensUnstaked(msg.sender, amount);
     }
 
     /**

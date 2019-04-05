@@ -29,6 +29,10 @@ contract('DAO', function (
       (await this.dao.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
     });
 
+    it('should start with zero members', async function () {
+      (await this.dao.membersNumber()).should.be.bignumber.equal(new BN(0));
+    });
+
     context('creating a new member', function () {
       let memberId;
 
