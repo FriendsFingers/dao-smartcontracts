@@ -1,51 +1,116 @@
 pragma solidity ^0.5.7;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "erc-payable-token/contracts/payment/ERC1363Payable.sol";
+import "../access/roles/DAORoles.sol";
+import "./Organization.sol";
 
 /**
  * @title DAO
  * @author Vittorio Minacori (https://github.com/vittominacori)
- * @dev Library for managing members
+ * @dev It identifies the DAO and Organization logic
  */
-library DAO {
-    using SafeMath for uint256;
+contract DAO is ERC1363Payable, DAORoles {
+    using Organization for Organization.Members;
 
-    // structure defining a member
-    struct MemberStructure {
-        address member;
-        bytes9 fingerprint;
-        uint256 creationDate;
-        uint256 stakedTokens;
-        bytes32 data;
-        bool kyc;
+    event MemberAdded(
+        address indexed account,
+        uint256 id
+    );
+
+    event TokensStaked(
+        address indexed account,
+        uint256 value
+    );
+
+    event TokensUnstaked(
+        address indexed account,
+        uint256 value
+    );
+
+    event TokensUsed(
+        address indexed account,
+        uint256 value
+    );
+
+    Organization.Members private _members;
+
+    constructor (IERC1363 acceptedToken) public ERC1363Payable(acceptedToken) {} // solhint-disable-line no-empty-blocks
+
+    /**
+     * @dev fallback. This function will create a new member
+     */
+    function () external payable { // solhint-disable-line no-complex-fallback
+        require(msg.value == 0);
+
+        _newMember(msg.sender);
     }
 
-    // structure defining members status
-    struct Members {
-        uint256 count;
-        uint256 totalStakedTokens;
-        mapping(address => uint256) addressMap;
-        mapping(uint256 => MemberStructure) list;
+    /**
+     * @dev Generate a new member and the member structure
+     * @param account Address you want to make member
+     * @return uint256 The new member id
+     */
+    function newMember(address account) external onlyOperator {
+        _newMember(account);
+    }
+
+    /**
+     * @dev Remove tokens from member stack
+     * @param amount Number of tokens to unstake
+     */
+    function unstake(uint256 amount) public {
+        _members.unstake(msg.sender, amount);
+
+        IERC20(acceptedToken()).transfer(msg.sender, amount);
+
+        emit TokensUnstaked(msg.sender, amount);
+    }
+
+    /**
+     * @dev Use tokens from a specific account
+     * @param account Address to use the tokens from
+     * @param amount Number of tokens to use
+     */
+    function use(address account, uint256 amount) public onlyDapp {
+        _members.unstake(account, amount);
+
+        IERC20(acceptedToken()).transfer(msg.sender, amount);
+
+        emit TokensUsed(account, amount);
+    }
+
+    /**
+     * @dev Returns the members number
+     * @return uint256
+     */
+    function membersNumber() public view returns (uint256) {
+        return _members.count;
+    }
+
+    /**
+     * @dev Returns the total staked tokens number
+     * @return uint256
+     */
+    function totalStakedTokens() public view returns (uint256) {
+        return _members.totalStakedTokens;
     }
 
     /**
      * @dev Returns if an address is member or not
-     * @param members Current members struct
      * @param account Address of the member you are looking for
      * @return bool
      */
-    function isMember(Members storage members, address account) internal view returns (bool) {
-        return members.addressMap[account] != 0;
+    function isMember(address account) public view returns (bool) {
+        return _members.isMember(account);
     }
 
     /**
      * @dev Returns the member structure
-     * @param members Current members struct
-     * @param memberId Id of the member you are looking for
+     * @param account Address of the member you are looking for
      * @return array
      */
-    function getMember(Members storage members, uint256 memberId)
-        internal
+    function getMemberByAddress(address account)
+        public
         view
         returns (
             uint256 id,
@@ -57,86 +122,91 @@ library DAO {
             bool kyc
         )
     {
-        MemberStructure storage structure = members.list[memberId];
+        require(isMember(account));
 
-        member = structure.member;
+        return getMemberById(_members.addressMap[account]);
+    }
 
-        require(member != address(0));
+    /**
+     * @dev Returns the member structure
+     * @param memberId Id of the member you are looking for
+     * @return array
+     */
+    function getMemberById(uint256 memberId)
+        public
+        view
+        returns (
+            uint256 id,
+            address member,
+            bytes9 fingerprint,
+            uint256 creationDate,
+            uint256 stakedTokens,
+            bytes32 data,
+            bool kyc
+        )
+    {
+        return _members.getMember(memberId);
+    }
 
-        id = memberId;
-        fingerprint = structure.fingerprint;
-        creationDate = structure.creationDate;
-        stakedTokens = structure.stakedTokens;
-        data = structure.data;
-        kyc = structure.kyc;
+    /**
+     * @dev Called after validating a `onTransferReceived`
+     * @param operator address The address which called `transferAndCall` or `transferFromAndCall` function
+     * @param from address The address which are token transferred from
+     * @param value uint256 The amount of tokens transferred
+     * @param data bytes Additional data with no specified format
+     */
+    function _transferReceived(
+        address operator, // solhint-disable-line no-unused-vars
+        address from,
+        uint256 value,
+        bytes memory data // solhint-disable-line no-unused-vars
+    )
+        internal
+    {
+        _stake(from, value);
+    }
+
+    /**
+     * @dev Called after validating a `onApprovalReceived`
+     * @param owner address The address which called `approveAndCall` function
+     * @param value uint256 The amount of tokens to be spent
+     * @param data bytes Additional data with no specified format
+     */
+    function _approvalReceived(
+        address owner,
+        uint256 value,
+        bytes memory data // solhint-disable-line no-unused-vars
+    )
+        internal
+    {
+        IERC20(acceptedToken()).transferFrom(owner, address(this), value);
+
+        _stake(owner, value);
     }
 
     /**
      * @dev Generate a new member and the member structure
-     * @param members Current members struct
      * @param account Address you want to make member
      * @return uint256 The new member id
      */
-    function addMember(Members storage members, address account) internal returns (uint256) {
-        require(account != address(0));
-        require(!isMember(members, account));
+    function _newMember(address account) internal {
+        uint256 memberId = _members.addMember(account);
 
-        uint256 memberId = members.count.add(1);
-        bytes9 fingerprint = getFingerprint(account, memberId);
-
-        members.addressMap[account] = memberId;
-        members.list[memberId] = MemberStructure(
-            account,
-            fingerprint,
-            block.timestamp, // solhint-disable-line not-rely-on-time
-            0,
-            "",
-            false
-        );
-
-        members.count = memberId;
-
-        return memberId;
+        emit MemberAdded(account, memberId);
     }
 
     /**
      * @dev Add tokens to member stack
-     * @param members Current members struct
      * @param account Address you want to stake tokens
      * @param amount Number of tokens to stake
      */
-    function stake(Members storage members, address account, uint256 amount) internal {
-        require(isMember(members, account));
+    function _stake(address account, uint256 amount) internal {
+        if (!isMember(account)) {
+            _newMember(account);
+        }
 
-        MemberStructure storage member = members.list[members.addressMap[account]];
-        member.stakedTokens = member.stakedTokens.add(amount);
+        _members.stake(account, amount);
 
-        members.totalStakedTokens = members.totalStakedTokens.add(amount);
-    }
-
-    /**
-     * @dev Remove tokens from member stack
-     * @param members Current members struct
-     * @param account Address you want to unstake tokens
-     * @param amount Number of tokens to unstake
-     */
-    function unstake(Members storage members, address account, uint256 amount) internal {
-        require(isMember(members, account));
-
-        MemberStructure storage member = members.list[members.addressMap[account]];
-        require(member.stakedTokens >= amount);
-        member.stakedTokens = member.stakedTokens.sub(amount);
-
-        members.totalStakedTokens = members.totalStakedTokens.sub(amount);
-    }
-
-    /**
-     * @dev Generate a member fingerprint
-     * @param account Address you want to make member
-     * @param memberId The member id
-     * @return bytes9 It represents member fingerprint
-     */
-    function getFingerprint(address account, uint256 memberId) internal pure returns (bytes9) {
-        return bytes9(keccak256(abi.encodePacked(account, memberId)));
+        emit TokensStaked(account, amount);
     }
 }

@@ -29,9 +29,9 @@ App = {
       App.web3Provider.enable();
     }
 
-    $.getJSON('ProofOfFriends.json', function (data) {
-      App.contracts.ProofOfFriends = TruffleContract(data);
-      App.contracts.ProofOfFriends.setProvider(App.web3Provider);
+    $.getJSON('DAO.json', function (data) {
+      App.contracts.DAO = TruffleContract(data);
+      App.contracts.DAO.setProvider(App.web3Provider);
     });
   },
 };

@@ -7,9 +7,9 @@ const { shouldBehaveLikeERC1363Payable } = require('../ERC1363/ERC1363Payable.be
 
 const ERC20 = artifacts.require('ERC20');
 const ERC1363 = artifacts.require('ERC1363Mock');
-const ProofOfFriends = artifacts.require('ProofOfFriendsMock');
+const DAO = artifacts.require('DAOMock');
 
-contract('ProofOfFriends', function (
+contract('DAO', function (
   [
     creator,
     operator,
@@ -30,14 +30,14 @@ contract('ProofOfFriends', function (
   context('if invalid constructor', function () {
     describe('if accepted token is the zero address', function () {
       it('reverts', async function () {
-        await shouldFail.reverting(ProofOfFriends.new(ZERO_ADDRESS));
+        await shouldFail.reverting(DAO.new(ZERO_ADDRESS));
       });
     });
 
     describe('if token does not support ERC1363 interface', function () {
       it('reverts', async function () {
         const erc20Token = await ERC20.new();
-        await shouldFail.reverting(ProofOfFriends.new(erc20Token.address));
+        await shouldFail.reverting(DAO.new(erc20Token.address));
       });
     });
   });
@@ -54,31 +54,31 @@ contract('ProofOfFriends', function (
 
       await this.token.mintMock(tokenBalance, { from: member });
 
-      this.memberContract = await ProofOfFriends.new(this.token.address, { from: creator });
+      this.dao = await DAO.new(this.token.address, { from: creator });
 
-      await this.memberContract.addOperator(operator, { from: creator });
-      await this.memberContract.addDapp(dapp, { from: operator });
+      await this.dao.addOperator(operator, { from: creator });
+      await this.dao.addDapp(dapp, { from: operator });
     });
 
     it('should start with zero totalStakedTokens', async function () {
-      (await this.memberContract.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
+      (await this.dao.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
     });
 
     it('should start with zero members', async function () {
-      (await this.memberContract.membersNumber()).should.be.bignumber.equal(new BN(0));
+      (await this.dao.membersNumber()).should.be.bignumber.equal(new BN(0));
     });
 
     context('creating members', function () {
       let memberId;
 
       beforeEach(async function () {
-        ({ logs: this.logs } = await this.memberContract.newMember(member, { from: operator }));
+        ({ logs: this.logs } = await this.dao.newMember(member, { from: operator }));
 
-        memberId = await this.memberContract.membersNumber();
+        memberId = await this.dao.membersNumber();
       });
 
       it('should emit a MemberAdded event', async function () {
-        const newMembersNumber = await this.memberContract.membersNumber();
+        const newMembersNumber = await this.dao.membersNumber();
 
         expectEvent.inLogs(this.logs, 'MemberAdded', {
           account: member,
@@ -89,17 +89,17 @@ contract('ProofOfFriends', function (
       context('check properties', function () {
         describe('check isMember', function () {
           it('returns true', async function () {
-            (await this.memberContract.isMember(member)).should.be.equal(true);
+            (await this.dao.isMember(member)).should.be.equal(true);
           });
         });
 
         describe('members number', function () {
           it('should increase', async function () {
-            const oldMembersNumber = await this.memberContract.membersNumber();
+            const oldMembersNumber = await this.dao.membersNumber();
 
-            await this.memberContract.newMember(anotherAccount, { from: operator });
+            await this.dao.newMember(anotherAccount, { from: operator });
 
-            const newMembersNumber = await this.memberContract.membersNumber();
+            const newMembersNumber = await this.dao.membersNumber();
             newMembersNumber.should.be.bignumber.equal(oldMembersNumber.addn(1));
           });
         });
@@ -110,7 +110,7 @@ contract('ProofOfFriends', function (
           let memberStructure;
 
           beforeEach(async function () {
-            memberStructure = structDecode(await this.memberContract.getMemberById(memberId));
+            memberStructure = structDecode(await this.dao.getMemberById(memberId));
           });
 
           describe('when member exists', function () {
@@ -126,7 +126,7 @@ contract('ProofOfFriends', function (
               });
 
               it('has a fingerprint', async function () {
-                const fingerprint = await this.memberContract.getFingerprint(member, memberId);
+                const fingerprint = await this.dao.getFingerprint(member, memberId);
 
                 const toCheck = memberStructure.fingerprint;
                 assert.equal(toCheck, fingerprint);
@@ -159,7 +159,7 @@ contract('ProofOfFriends', function (
           let memberStructure;
 
           beforeEach(async function () {
-            memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+            memberStructure = structDecode(await this.dao.getMemberByAddress(member));
           });
 
           describe('when member exists', function () {
@@ -175,7 +175,7 @@ contract('ProofOfFriends', function (
               });
 
               it('has a fingerprint', async function () {
-                const fingerprint = await this.memberContract.getFingerprint(member, memberId);
+                const fingerprint = await this.dao.getFingerprint(member, memberId);
 
                 const toCheck = memberStructure.fingerprint;
                 assert.equal(toCheck, fingerprint);
@@ -207,17 +207,17 @@ contract('ProofOfFriends', function (
         context('when member does not exist', function () {
           describe('check metadata', function () {
             it('reverts using id', async function () {
-              await shouldFail.reverting(this.memberContract.getMemberById(999));
+              await shouldFail.reverting(this.dao.getMemberById(999));
             });
 
             it('reverts using address', async function () {
-              await shouldFail.reverting(this.memberContract.getMemberByAddress(anotherAccount));
+              await shouldFail.reverting(this.dao.getMemberByAddress(anotherAccount));
             });
           });
 
           describe('check isMember', function () {
             it('returns false', async function () {
-              (await this.memberContract.isMember(anotherAccount)).should.be.equal(false);
+              (await this.dao.isMember(anotherAccount)).should.be.equal(false);
             });
           });
         });
@@ -227,19 +227,19 @@ contract('ProofOfFriends', function (
         context('via newMember function', function () {
           describe('if not an operator is calling', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.memberContract.newMember(anotherAccount, { from: anotherAccount }));
+              await shouldFail.reverting(this.dao.newMember(anotherAccount, { from: anotherAccount }));
             });
           });
 
           describe('if member already exists', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.memberContract.newMember(member, { from: operator }));
+              await shouldFail.reverting(this.dao.newMember(member, { from: operator }));
             });
           });
 
           describe('if member is the zero address', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.memberContract.newMember(ZERO_ADDRESS, { from: operator }));
+              await shouldFail.reverting(this.dao.newMember(ZERO_ADDRESS, { from: operator }));
             });
           });
         });
@@ -247,22 +247,22 @@ contract('ProofOfFriends', function (
         context('via fallback function', function () {
           describe('if sending more than 0', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.memberContract.sendTransaction({ value: 1, from: anotherAccount }));
+              await shouldFail.reverting(this.dao.sendTransaction({ value: 1, from: anotherAccount }));
             });
           });
 
           describe('if sending 0', function () {
             describe('if member already exists', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(this.memberContract.sendTransaction({ value: 0, from: member }));
+                await shouldFail.reverting(this.dao.sendTransaction({ value: 0, from: member }));
               });
             });
 
             describe('if member does not exist', function () {
               it('success and emit MemberAdded event', async function () {
-                ({ logs: this.logs } = await this.memberContract.sendTransaction({ value: 0, from: anotherAccount }));
+                ({ logs: this.logs } = await this.dao.sendTransaction({ value: 0, from: anotherAccount }));
 
-                const newMembersNumber = await this.memberContract.membersNumber();
+                const newMembersNumber = await this.dao.membersNumber();
 
                 expectEvent.inLogs(this.logs, 'MemberAdded', {
                   account: anotherAccount,
@@ -284,15 +284,15 @@ contract('ProofOfFriends', function (
           let preStakedTokens;
 
           beforeEach(async function () {
-            preMemberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
-            preStakedTokens = await this.memberContract.totalStakedTokens();
+            preMemberStructure = structDecode(await this.dao.getMemberByAddress(member));
+            preStakedTokens = await this.dao.totalStakedTokens();
 
-            receipt = await this.memberContract.stake(member, toStake, { from: operator });
+            receipt = await this.dao.stake(member, toStake, { from: operator });
           });
 
           describe('if user is not member', function () {
             it('should emit a MemberAdded event', async function () {
-              const newMembersNumber = await this.memberContract.membersNumber();
+              const newMembersNumber = await this.dao.membersNumber();
 
               expectEvent.inLogs(this.logs, 'MemberAdded', {
                 account: member,
@@ -302,17 +302,17 @@ contract('ProofOfFriends', function (
           });
 
           it('should increase member staked tokens', async function () {
-            const memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+            const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
             memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
           });
 
           it('should increase total staked tokens', async function () {
-            (await this.memberContract.totalStakedTokens())
+            (await this.dao.totalStakedTokens())
               .should.be.bignumber.equal(preStakedTokens.add(toStake));
           });
 
           it('should emit TokensStaked', async function () {
-            await expectEvent.inTransaction(receipt.tx, ProofOfFriends, 'TokensStaked', {
+            await expectEvent.inTransaction(receipt.tx, DAO, 'TokensStaked', {
               account: member,
               value: toStake,
             });
@@ -321,11 +321,11 @@ contract('ProofOfFriends', function (
 
         describe('unstake tokens', function () {
           beforeEach(async function () {
-            await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
+            await this.dao.stake(member, this.structure.stakedTokens, { from: operator });
 
             // the below call is because of staking by ERC1363 functions implies
             // a transfer of tokens but we are using stake mock
-            await this.token.transfer(this.memberContract.address, this.structure.stakedTokens, { from: member });
+            await this.token.transfer(this.dao.address, this.structure.stakedTokens, { from: member });
           });
 
           describe('if user is member', function () {
@@ -338,31 +338,31 @@ contract('ProofOfFriends', function (
               let accountPreBalance;
 
               beforeEach(async function () {
-                preMemberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
-                preStakedTokens = await this.memberContract.totalStakedTokens();
-                contractPreBalance = await this.token.balanceOf(this.memberContract.address);
+                preMemberStructure = structDecode(await this.dao.getMemberByAddress(member));
+                preStakedTokens = await this.dao.totalStakedTokens();
+                contractPreBalance = await this.token.balanceOf(this.dao.address);
                 accountPreBalance = await this.token.balanceOf(member);
 
-                receipt = await this.memberContract.unstake(
+                receipt = await this.dao.unstake(
                   this.structure.stakedTokens,
                   { from: member }
                 );
               });
 
               it('should decrease member staked tokens', async function () {
-                const memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+                const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
                 memberStructure.stakedTokens.should.be.bignumber.equal(
                   preMemberStructure.stakedTokens.sub(this.structure.stakedTokens)
                 );
               });
 
               it('should decrease total staked tokens', async function () {
-                (await this.memberContract.totalStakedTokens())
+                (await this.dao.totalStakedTokens())
                   .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
               });
 
               it('should decrease contract token balance', async function () {
-                (await this.token.balanceOf(this.memberContract.address))
+                (await this.token.balanceOf(this.dao.address))
                   .should.be.bignumber.equal(contractPreBalance.sub(this.structure.stakedTokens));
               });
 
@@ -372,7 +372,7 @@ contract('ProofOfFriends', function (
               });
 
               it('should emit TokensUnstaked', async function () {
-                await expectEvent.inTransaction(receipt.tx, ProofOfFriends, 'TokensUnstaked', {
+                await expectEvent.inTransaction(receipt.tx, DAO, 'TokensUnstaked', {
                   account: member,
                   value: this.structure.stakedTokens,
                 });
@@ -382,7 +382,7 @@ contract('ProofOfFriends', function (
             describe('if member has not enough staked token', function () {
               it('reverts', async function () {
                 await shouldFail.reverting(
-                  this.memberContract.unstake(
+                  this.dao.unstake(
                     this.structure.stakedTokens.addn(1),
                     { from: member }
                   )
@@ -394,7 +394,7 @@ contract('ProofOfFriends', function (
           describe('if user is not member', function () {
             it('reverts', async function () {
               await shouldFail.reverting(
-                this.memberContract.unstake(this.structure.stakedTokens, { from: anotherAccount })
+                this.dao.unstake(this.structure.stakedTokens, { from: anotherAccount })
               );
             });
           });
@@ -404,11 +404,11 @@ contract('ProofOfFriends', function (
       context('testing use', function () {
         describe('use tokens', function () {
           beforeEach(async function () {
-            await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
+            await this.dao.stake(member, this.structure.stakedTokens, { from: operator });
 
             // the below call is because of staking by ERC1363 functions implies
             // a transfer of tokens but we are using stake mock
-            await this.token.transfer(this.memberContract.address, this.structure.stakedTokens, { from: member });
+            await this.token.transfer(this.dao.address, this.structure.stakedTokens, { from: member });
           });
 
           describe('if user is member', function () {
@@ -416,19 +416,19 @@ contract('ProofOfFriends', function (
               describe('if not a dapp is calling', function () {
                 it('reverts', async function () {
                   await shouldFail.reverting(
-                    this.memberContract.use(member, this.structure.stakedTokens, { from: creator })
+                    this.dao.use(member, this.structure.stakedTokens, { from: creator })
                   );
 
                   await shouldFail.reverting(
-                    this.memberContract.use(member, this.structure.stakedTokens, { from: operator })
+                    this.dao.use(member, this.structure.stakedTokens, { from: operator })
                   );
 
                   await shouldFail.reverting(
-                    this.memberContract.use(member, this.structure.stakedTokens, { from: member })
+                    this.dao.use(member, this.structure.stakedTokens, { from: member })
                   );
 
                   await shouldFail.reverting(
-                    this.memberContract.use(member, this.structure.stakedTokens, { from: anotherAccount })
+                    this.dao.use(member, this.structure.stakedTokens, { from: anotherAccount })
                   );
                 });
               });
@@ -442,12 +442,12 @@ contract('ProofOfFriends', function (
                 let dappPreBalance;
 
                 beforeEach(async function () {
-                  preMemberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
-                  preStakedTokens = await this.memberContract.totalStakedTokens();
-                  contractPreBalance = await this.token.balanceOf(this.memberContract.address);
+                  preMemberStructure = structDecode(await this.dao.getMemberByAddress(member));
+                  preStakedTokens = await this.dao.totalStakedTokens();
+                  contractPreBalance = await this.token.balanceOf(this.dao.address);
                   dappPreBalance = await this.token.balanceOf(dapp);
 
-                  receipt = await this.memberContract.use(
+                  receipt = await this.dao.use(
                     member,
                     this.structure.stakedTokens,
                     { from: dapp }
@@ -455,19 +455,19 @@ contract('ProofOfFriends', function (
                 });
 
                 it('should decrease member staked tokens', async function () {
-                  const memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+                  const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
                   memberStructure.stakedTokens.should.be.bignumber.equal(
                     preMemberStructure.stakedTokens.sub(this.structure.stakedTokens)
                   );
                 });
 
                 it('should decrease total staked tokens', async function () {
-                  (await this.memberContract.totalStakedTokens())
+                  (await this.dao.totalStakedTokens())
                     .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
                 });
 
                 it('should decrease contract token balance', async function () {
-                  (await this.token.balanceOf(this.memberContract.address))
+                  (await this.token.balanceOf(this.dao.address))
                     .should.be.bignumber.equal(contractPreBalance.sub(this.structure.stakedTokens));
                 });
 
@@ -477,7 +477,7 @@ contract('ProofOfFriends', function (
                 });
 
                 it('should emit TokensUnstaked', async function () {
-                  await expectEvent.inTransaction(receipt.tx, ProofOfFriends, 'TokensUsed', {
+                  await expectEvent.inTransaction(receipt.tx, DAO, 'TokensUsed', {
                     account: member,
                     value: this.structure.stakedTokens,
                   });
@@ -488,7 +488,7 @@ contract('ProofOfFriends', function (
             describe('if member has not enough staked token', function () {
               it('reverts', async function () {
                 await shouldFail.reverting(
-                  this.memberContract.use(
+                  this.dao.use(
                     member,
                     this.structure.stakedTokens.addn(1),
                     { from: dapp }
@@ -501,7 +501,7 @@ contract('ProofOfFriends', function (
           describe('if user is not member', function () {
             it('reverts', async function () {
               await shouldFail.reverting(
-                this.memberContract.use(anotherAccount, this.structure.stakedTokens, { from: dapp })
+                this.dao.use(anotherAccount, this.structure.stakedTokens, { from: dapp })
               );
             });
           });
@@ -512,12 +512,12 @@ contract('ProofOfFriends', function (
     context('as an ERC1363Payable', function () {
       context('if a member is calling ERC1363 functions', function () {
         beforeEach(async function () {
-          this.mock = this.memberContract;
+          this.mock = this.dao;
 
           await this.mock.newMember(creator, { from: operator });
         });
 
-        shouldBehaveLikeERC1363Payable(ProofOfFriends, [creator, spender], tokenBalance);
+        shouldBehaveLikeERC1363Payable(DAO, [creator, spender], tokenBalance);
       });
 
       context('if not a member is calling ERC1363 functions', function () {
@@ -539,14 +539,14 @@ contract('ProofOfFriends', function (
 
             beforeEach(async function () {
               await transferFromAndCallWithData.call(
-                this, member, this.memberContract.address, value, { from: spender }
+                this, member, this.dao.address, value, { from: spender }
               );
-              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+              memberStructure = structDecode(await this.dao.getMemberByAddress(member));
             });
 
             describe('check isMember', function () {
               it('returns true', async function () {
-                (await this.memberContract.isMember(member)).should.be.equal(true);
+                (await this.dao.isMember(member)).should.be.equal(true);
               });
             });
 
@@ -571,13 +571,13 @@ contract('ProofOfFriends', function (
             let memberStructure;
 
             beforeEach(async function () {
-              await transferAndCallWithData.call(this, this.memberContract.address, value, { from: member });
-              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+              await transferAndCallWithData.call(this, this.dao.address, value, { from: member });
+              memberStructure = structDecode(await this.dao.getMemberByAddress(member));
             });
 
             describe('check isMember', function () {
               it('returns true', async function () {
-                (await this.memberContract.isMember(member)).should.be.equal(true);
+                (await this.dao.isMember(member)).should.be.equal(true);
               });
             });
 
@@ -600,13 +600,13 @@ contract('ProofOfFriends', function (
             let memberStructure;
 
             beforeEach(async function () {
-              await approveAndCallWithData.call(this, this.memberContract.address, value, { from: member });
-              memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+              await approveAndCallWithData.call(this, this.dao.address, value, { from: member });
+              memberStructure = structDecode(await this.dao.getMemberByAddress(member));
             });
 
             describe('check isMember', function () {
               it('returns true', async function () {
-                (await this.memberContract.isMember(member)).should.be.equal(true);
+                (await this.dao.isMember(member)).should.be.equal(true);
               });
             });
 

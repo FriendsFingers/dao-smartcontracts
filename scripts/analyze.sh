@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-surya inheritance dist/ProofOfFriends.dist.sol | dot -Tpng > analysis/inheritance-tree/ProofOfFriends.png
+surya inheritance dist/DAO.dist.sol | dot -Tpng > analysis/inheritance-tree/DAO.png
 
-surya graph dist/ProofOfFriends.dist.sol | dot -Tpng > analysis/control-flow/ProofOfFriends.png
+surya graph dist/DAO.dist.sol | dot -Tpng > analysis/control-flow/DAO.png
 
-surya mdreport analysis/description-table/ProofOfFriends.md dist/ProofOfFriends.dist.sol
+surya mdreport analysis/description-table/DAO.md dist/DAO.dist.sol
