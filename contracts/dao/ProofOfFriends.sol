@@ -27,6 +27,11 @@ contract ProofOfFriends is ERC1363Payable, DAORoles {
         uint256 value
     );
 
+    event TokensUsed(
+        address indexed account,
+        uint256 value
+    );
+
     DAO.Members private _members;
 
     constructor (IERC1363 acceptedToken) public ERC1363Payable(acceptedToken) {} // solhint-disable-line no-empty-blocks
@@ -59,6 +64,19 @@ contract ProofOfFriends is ERC1363Payable, DAORoles {
         IERC20(acceptedToken()).transfer(msg.sender, amount);
 
         emit TokensUnstaked(msg.sender, amount);
+    }
+
+    /**
+     * @dev Use tokens from a specific account
+     * @param account Address to use the tokens from
+     * @param amount Number of tokens to use
+     */
+    function use(address account, uint256 amount) public onlyDapp {
+        _members.unstake(account, amount);
+
+        IERC20(acceptedToken()).transfer(msg.sender, amount);
+
+        emit TokensUsed(account, amount);
     }
 
     /**

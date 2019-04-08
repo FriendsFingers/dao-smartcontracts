@@ -13,6 +13,7 @@ contract('ProofOfFriends', function (
   [
     creator,
     operator,
+    dapp,
     member,
     spender,
     anotherAccount,
@@ -56,6 +57,7 @@ contract('ProofOfFriends', function (
       this.memberContract = await ProofOfFriends.new(this.token.address, { from: creator });
 
       await this.memberContract.addOperator(operator, { from: creator });
+      await this.memberContract.addDapp(dapp, { from: operator });
     });
 
     it('should start with zero totalStakedTokens', async function () {
@@ -318,15 +320,15 @@ contract('ProofOfFriends', function (
         });
 
         describe('unstake tokens', function () {
+          beforeEach(async function () {
+            await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
+
+            // the below call is because of staking by ERC1363 functions implies
+            // a transfer of tokens but we are using stake mock
+            await this.token.transfer(this.memberContract.address, this.structure.stakedTokens, { from: member });
+          });
+
           describe('if user is member', function () {
-            beforeEach(async function () {
-              await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
-
-              // the below call is because of staking by ERC1363 functions implies
-              // a transfer of tokens but we are using stake mock
-              await this.token.transfer(this.memberContract.address, this.structure.stakedTokens, { from: member });
-            });
-
             describe('if member has enough staked token', function () {
               let receipt;
 
@@ -393,6 +395,113 @@ contract('ProofOfFriends', function (
             it('reverts', async function () {
               await shouldFail.reverting(
                 this.memberContract.unstake(this.structure.stakedTokens, { from: anotherAccount })
+              );
+            });
+          });
+        });
+      });
+
+      context('testing use', function () {
+        describe('use tokens', function () {
+          beforeEach(async function () {
+            await this.memberContract.stake(member, this.structure.stakedTokens, { from: operator });
+
+            // the below call is because of staking by ERC1363 functions implies
+            // a transfer of tokens but we are using stake mock
+            await this.token.transfer(this.memberContract.address, this.structure.stakedTokens, { from: member });
+          });
+
+          describe('if user is member', function () {
+            describe('if member has enough staked token', function () {
+              describe('if not a dapp is calling', function () {
+                it('reverts', async function () {
+                  await shouldFail.reverting(
+                    this.memberContract.use(member, this.structure.stakedTokens, { from: creator })
+                  );
+
+                  await shouldFail.reverting(
+                    this.memberContract.use(member, this.structure.stakedTokens, { from: operator })
+                  );
+
+                  await shouldFail.reverting(
+                    this.memberContract.use(member, this.structure.stakedTokens, { from: member })
+                  );
+
+                  await shouldFail.reverting(
+                    this.memberContract.use(member, this.structure.stakedTokens, { from: anotherAccount })
+                  );
+                });
+              });
+
+              describe('if a dapp is calling', function () {
+                let receipt;
+
+                let preMemberStructure;
+                let preStakedTokens;
+                let contractPreBalance;
+                let dappPreBalance;
+
+                beforeEach(async function () {
+                  preMemberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+                  preStakedTokens = await this.memberContract.totalStakedTokens();
+                  contractPreBalance = await this.token.balanceOf(this.memberContract.address);
+                  dappPreBalance = await this.token.balanceOf(dapp);
+
+                  receipt = await this.memberContract.use(
+                    member,
+                    this.structure.stakedTokens,
+                    { from: dapp }
+                  );
+                });
+
+                it('should decrease member staked tokens', async function () {
+                  const memberStructure = structDecode(await this.memberContract.getMemberByAddress(member));
+                  memberStructure.stakedTokens.should.be.bignumber.equal(
+                    preMemberStructure.stakedTokens.sub(this.structure.stakedTokens)
+                  );
+                });
+
+                it('should decrease total staked tokens', async function () {
+                  (await this.memberContract.totalStakedTokens())
+                    .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
+                });
+
+                it('should decrease contract token balance', async function () {
+                  (await this.token.balanceOf(this.memberContract.address))
+                    .should.be.bignumber.equal(contractPreBalance.sub(this.structure.stakedTokens));
+                });
+
+                it('should increase dapp token balance', async function () {
+                  (await this.token.balanceOf(dapp))
+                    .should.be.bignumber.equal(dappPreBalance.add(this.structure.stakedTokens));
+                });
+
+                it('should emit TokensUnstaked', async function () {
+                  await expectEvent.inTransaction(receipt.tx, ProofOfFriends, 'TokensUsed', {
+                    account: member,
+                    value: this.structure.stakedTokens,
+                  });
+                });
+              });
+            });
+
+            describe('if member has not enough staked token', function () {
+              it('reverts', async function () {
+                await shouldFail.reverting(
+                  this.memberContract.use(
+                    member,
+                    this.structure.stakedTokens.addn(1),
+                    { from: dapp }
+                  )
+                );
+              });
+            });
+          });
+
+          describe('if user is not member', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(
+                this.memberContract.use(anotherAccount, this.structure.stakedTokens, { from: dapp })
               );
             });
           });
