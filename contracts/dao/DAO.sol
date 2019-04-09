@@ -29,6 +29,7 @@ contract DAO is ERC1363Payable, DAORoles {
 
     event TokensUsed(
         address indexed account,
+        address indexed dapp,
         uint256 value
     );
 
@@ -76,7 +77,7 @@ contract DAO is ERC1363Payable, DAORoles {
 
         IERC20(acceptedToken()).transfer(msg.sender, amount);
 
-        emit TokensUsed(account, amount);
+        emit TokensUsed(account, msg.sender, amount);
     }
 
     /**

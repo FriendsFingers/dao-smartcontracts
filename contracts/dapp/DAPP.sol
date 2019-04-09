@@ -10,26 +10,28 @@ contract DAPP {
     // the token fee to use dapp
     uint256 private _fee;
 
-    // the address where to deposit fee tokens
-    address private _depositWallet;
-
-    modifier useFee() {
+    /**
+     * @dev fee tokens will be transferred into this.
+     * Transfer to a deposit wallet after tokenPayable or add a withdraw tokens function.
+     */
+    modifier tokenPayable() {
         _dao.use(msg.sender, _fee);
         _;
     }
 
+    /**
+     * @dev modifier to allow only members to do some actions
+     */
     modifier onlyMember() {
         require(_dao.isMember(msg.sender));
         _;
     }
 
-    constructor (DAO dao, uint256 fee, address depositWallet) public {
+    constructor (DAO dao, uint256 fee) public {
         require(address(dao) != address(0));
-        require(address(depositWallet) != address(0));
         require(fee > 0);
 
         _dao = dao;
-        _depositWallet = depositWallet;
         _fee = fee;
     }
 
@@ -38,13 +40,6 @@ contract DAPP {
      */
     function dao() public view returns (DAO) {
         return _dao;
-    }
-
-    /**
-     * @return the address where to deposit fee tokens
-     */
-    function depositWallet() public view returns (address) {
-        return _depositWallet;
     }
 
     /**

@@ -1,7 +1,7 @@
 const { BN, constants, shouldFail, expectEvent, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-const { structDecode } = require('./utils/structDecode');
+const { structDecode } = require('../utils/structDecode');
 
 const { shouldBehaveLikeERC1363Payable } = require('../ERC1363/ERC1363Payable.behaviour');
 
@@ -476,9 +476,10 @@ contract('DAO', function (
                     .should.be.bignumber.equal(dappPreBalance.add(this.structure.stakedTokens));
                 });
 
-                it('should emit TokensUnstaked', async function () {
+                it('should emit TokensUsed', async function () {
                   await expectEvent.inTransaction(receipt.tx, DAO, 'TokensUsed', {
                     account: member,
+                    dapp: dapp,
                     value: this.structure.stakedTokens,
                   });
                 });

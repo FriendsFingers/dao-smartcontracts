@@ -1,7 +1,7 @@
 const { BN, constants, shouldFail, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-const { structDecode } = require('./utils/structDecode');
+const { structDecode } = require('../utils/structDecode');
 
 const Organization = artifacts.require('OrganizationMock');
 
