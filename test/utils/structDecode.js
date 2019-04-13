@@ -1,7 +1,7 @@
 function structDecode (struct) {
   return {
     id: struct[0],
-    member: struct[1],
+    account: struct[1],
     fingerprint: struct[2],
     creationDate: struct[3],
     stakedTokens: struct[4],

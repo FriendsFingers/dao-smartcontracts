@@ -13,7 +13,7 @@ library Organization {
     // structure defining a member
     struct Member {
         uint256 id;
-        address member;
+        address account;
         bytes9 fingerprint;
         uint256 creationDate;
         uint256 stakedTokens;
@@ -48,7 +48,7 @@ library Organization {
     function getMember(Members storage members, uint256 memberId) internal view returns (Member storage) {
         Member storage structure = members.list[memberId];
 
-        require(structure.member != address(0));
+        require(structure.account != address(0));
 
         return structure;
     }

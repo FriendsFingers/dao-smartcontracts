@@ -108,15 +108,15 @@ contract DAO is ERC1363Payable, DAORoles {
 
     /**
      * @dev Returns the member structure
-     * @param account Address of the member you are looking for
+     * @param memberAddress Address of the member you are looking for
      * @return array
      */
-    function getMemberByAddress(address account)
+    function getMemberByAddress(address memberAddress)
         public
         view
         returns (
             uint256 id,
-            address member,
+            address account,
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
@@ -124,9 +124,9 @@ contract DAO is ERC1363Payable, DAORoles {
             bool kyc
         )
     {
-        require(isMember(account));
+        require(isMember(memberAddress));
 
-        return getMemberById(_members.addressMap[account]);
+        return getMemberById(_members.addressMap[memberAddress]);
     }
 
     /**
@@ -139,7 +139,7 @@ contract DAO is ERC1363Payable, DAORoles {
         view
         returns (
             uint256 id,
-            address member,
+            address account,
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
@@ -150,7 +150,7 @@ contract DAO is ERC1363Payable, DAORoles {
         Organization.Member storage structure = _members.getMember(memberId);
 
         id = structure.id;
-        member = structure.member;
+        account = structure.account;
         fingerprint = structure.fingerprint;
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;

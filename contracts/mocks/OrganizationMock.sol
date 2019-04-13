@@ -40,7 +40,7 @@ contract OrganizationMock {
         Organization.Member storage structure = _members.getMember(memberId);
 
         id = structure.id;
-        member = structure.member;
+        member = structure.account;
         fingerprint = structure.fingerprint;
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
@@ -56,7 +56,7 @@ contract OrganizationMock {
         _members.unstake(msg.sender, amount);
     }
 
-    function getFingerprint(address account, uint256 memberId) public pure returns (bytes9) {
-        return bytes9(keccak256(abi.encodePacked(account, memberId)));
+    function getFingerprint(address memberAddress, uint256 memberId) public pure returns (bytes9) {
+        return bytes9(keccak256(abi.encodePacked(memberAddress, memberId)));
     }
 }

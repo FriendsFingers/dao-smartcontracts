@@ -10,7 +10,7 @@ contract DAOMock is DAO {
         _stake(account, amount);
     }
 
-    function getFingerprint(address account, uint256 memberId) public pure returns (bytes9) {
-        return bytes9(keccak256(abi.encodePacked(account, memberId)));
+    function getFingerprint(address memberAddress, uint256 memberId) public pure returns (bytes9) {
+        return bytes9(keccak256(abi.encodePacked(memberAddress, memberId)));
     }
 }

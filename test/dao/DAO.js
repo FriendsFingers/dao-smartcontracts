@@ -120,8 +120,8 @@ contract('DAO', function (
                 toCheck.should.be.bignumber.equal(memberId);
               });
 
-              it('has a member', async function () {
-                const toCheck = memberStructure.member;
+              it('has an account', async function () {
+                const toCheck = memberStructure.account;
                 toCheck.should.be.equal(member);
               });
 
@@ -169,8 +169,8 @@ contract('DAO', function (
                 toCheck.should.be.bignumber.equal(memberId);
               });
 
-              it('has a member', async function () {
-                const toCheck = memberStructure.member;
+              it('has an account', async function () {
+                const toCheck = memberStructure.account;
                 toCheck.should.be.equal(member);
               });
 
