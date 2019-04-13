@@ -4,6 +4,7 @@ import "../dao/Organization.sol";
 
 contract OrganizationMock {
     using Organization for Organization.Members;
+    using Organization for Organization.Member;
 
     Organization.Members private _members;
 
@@ -36,7 +37,15 @@ contract OrganizationMock {
             bool kyc
         )
     {
-        return _members.getMember(memberId);
+        Organization.Member storage structure = _members.getMember(memberId);
+
+        id = structure.id;
+        member = structure.member;
+        fingerprint = structure.fingerprint;
+        creationDate = structure.creationDate;
+        stakedTokens = structure.stakedTokens;
+        data = structure.data;
+        kyc = structure.kyc;
     }
 
     function stake(address account, uint256 amount) public {

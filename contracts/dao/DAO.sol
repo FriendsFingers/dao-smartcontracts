@@ -11,6 +11,7 @@ import "./Organization.sol";
  */
 contract DAO is ERC1363Payable, DAORoles {
     using Organization for Organization.Members;
+    using Organization for Organization.Member;
 
     event MemberAdded(
         address indexed account,
@@ -146,7 +147,15 @@ contract DAO is ERC1363Payable, DAORoles {
             bool kyc
         )
     {
-        return _members.getMember(memberId);
+        Organization.Member storage structure = _members.getMember(memberId);
+
+        id = structure.id;
+        member = structure.member;
+        fingerprint = structure.fingerprint;
+        creationDate = structure.creationDate;
+        stakedTokens = structure.stakedTokens;
+        data = structure.data;
+        kyc = structure.kyc;
     }
 
     /**

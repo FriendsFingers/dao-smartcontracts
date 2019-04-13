@@ -12,6 +12,7 @@ library Organization {
 
     // structure defining a member
     struct Member {
+        uint256 id;
         address member;
         bytes9 fingerprint;
         uint256 creationDate;
@@ -42,33 +43,14 @@ library Organization {
      * @dev Returns the member structure
      * @param members Current members struct
      * @param memberId Id of the member you are looking for
-     * @return array
+     * @return Member
      */
-    function getMember(Members storage members, uint256 memberId)
-        internal
-        view
-        returns (
-            uint256 id,
-            address member,
-            bytes9 fingerprint,
-            uint256 creationDate,
-            uint256 stakedTokens,
-            bytes32 data,
-            bool kyc
-        )
-    {
+    function getMember(Members storage members, uint256 memberId) internal view returns (Member storage) {
         Member storage structure = members.list[memberId];
 
-        member = structure.member;
+        require(structure.member != address(0));
 
-        require(member != address(0));
-
-        id = memberId;
-        fingerprint = structure.fingerprint;
-        creationDate = structure.creationDate;
-        stakedTokens = structure.stakedTokens;
-        data = structure.data;
-        kyc = structure.kyc;
+        return structure;
     }
 
     /**
@@ -86,6 +68,7 @@ library Organization {
 
         members.addressMap[account] = memberId;
         members.list[memberId] = Member(
+            memberId,
             account,
             fingerprint,
             block.timestamp, // solhint-disable-line not-rely-on-time
