@@ -82,7 +82,7 @@ library Organization {
         require(!isMember(members, account));
 
         uint256 memberId = members.count.add(1);
-        bytes9 fingerprint = _getFingerprint(account, memberId);
+        bytes9 fingerprint = getFingerprint(account, memberId);
 
         members.addressMap[account] = memberId;
         members.list[memberId] = Member(
@@ -136,7 +136,7 @@ library Organization {
      * @param memberId The member id
      * @return bytes9 It represents member fingerprint
      */
-    function _getFingerprint(address account, uint256 memberId) internal pure returns (bytes9) {
+    function getFingerprint(address account, uint256 memberId) private pure returns (bytes9) {
         return bytes9(keccak256(abi.encodePacked(account, memberId)));
     }
 }
