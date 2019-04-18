@@ -39,6 +39,8 @@ contract('DAPP', function (
     await this.dao.addOperator(operator, { from: creator });
 
     await this.dao.newMember(member, { from: operator });
+
+    this.memberCreationDate = await time.latest();
   });
 
   context('if invalid constructor', function () {
@@ -178,6 +180,24 @@ contract('DAPP', function (
           it('reverts', async function () {
             await shouldFail.reverting(this.dapp.tokenPayableAction({ from: anotherAccount }));
           });
+        });
+      });
+    });
+
+    context('testing memberSince sample function', function () {
+      describe('if member', function () {
+        it('return true if date is greater than creation', async function () {
+          (await this.dapp.memberSince(member, this.memberCreationDate.addn(1))).should.be.equal(true);
+        });
+
+        it('return false if date is lower than creation', async function () {
+          (await this.dapp.memberSince(member, this.memberCreationDate.subn(1))).should.be.equal(false);
+        });
+      });
+
+      describe('if another account', function () {
+        it('return false', async function () {
+          (await this.dapp.memberSince(anotherAccount, this.memberCreationDate.addn(1))).should.be.equal(false);
         });
       });
     });
