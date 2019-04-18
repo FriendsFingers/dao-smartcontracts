@@ -107,6 +107,33 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
+     * @dev Get creation date of a member
+     * @param account Address you want to check
+     * @return uint256 Member creation date, zero otherwise
+     */
+    function creationDateOf(address account) public view returns (uint256) {
+        return _members.creationDateOf(account);
+    }
+
+    /**
+     * @dev Check how many tokens staked for given address
+     * @param account Address you want to check
+     * @return uint256 Member staked tokens
+     */
+    function stakedTokensOf(address account) public view returns (uint256) {
+        return _members.stakedTokensOf(account);
+    }
+
+    /**
+     * @dev Check if an address has passed KYC
+     * @param account Address you want to check
+     * @return bool
+     */
+    function hasKYC(address account) public view returns (bool) {
+        return _members.hasKYC(account);
+    }
+
+    /**
      * @dev Returns the member structure
      * @param memberAddress Address of the member you are looking for
      * @return array

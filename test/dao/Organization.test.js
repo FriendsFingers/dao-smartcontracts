@@ -90,11 +90,15 @@ contract('Organization', function (
             it('has a creation date', async function () {
               const toCheck = memberStructure.creationDate;
               toCheck.should.be.bignumber.equal(await time.latest());
+
+              (await this.organization.creationDateOf(member)).should.be.bignumber.equal(await time.latest());
             });
 
             it('has a staked tokens value', async function () {
               const toCheck = memberStructure.stakedTokens;
               toCheck.should.be.bignumber.equal(new BN(0));
+
+              (await this.organization.stakedTokensOf(member)).should.be.bignumber.equal(new BN(0));
             });
 
             it('has a data value', async function () {
@@ -105,6 +109,8 @@ contract('Organization', function (
             it('has a kyc value', async function () {
               const toCheck = memberStructure.kyc;
               assert.equal(toCheck, false);
+
+              (await this.organization.hasKYC(member)).should.be.equal(false);
             });
           });
         });
@@ -119,6 +125,24 @@ contract('Organization', function (
           describe('check isMember', function () {
             it('returns false', async function () {
               (await this.organization.isMember(anotherAccount)).should.be.equal(false);
+            });
+          });
+
+          describe('check creationDateOf', function () {
+            it('should be zero', async function () {
+              (await this.organization.creationDateOf(anotherAccount)).should.be.bignumber.equal(new BN(0));
+            });
+          });
+
+          describe('check stakedTokensOf', function () {
+            it('should be zero', async function () {
+              (await this.organization.stakedTokensOf(anotherAccount)).should.be.bignumber.equal(new BN(0));
+            });
+          });
+
+          describe('check hasKYC', function () {
+            it('should be false', async function () {
+              (await this.organization.hasKYC(anotherAccount)).should.be.equal(false);
             });
           });
         });
@@ -156,6 +180,9 @@ contract('Organization', function (
             it('should increase member staked tokens', async function () {
               const memberStructure = await this.organization.getMember(memberId);
               memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
+
+              (await this.organization.stakedTokensOf(member))
+                .should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
             });
 
             it('should increase total staked tokens', async function () {
@@ -191,6 +218,9 @@ contract('Organization', function (
               it('should decrease member staked tokens', async function () {
                 const memberStructure = await this.organization.getMember(memberId);
                 memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.sub(toStake));
+
+                (await this.organization.stakedTokensOf(member))
+                  .should.be.bignumber.equal(preMemberStructure.stakedTokens.sub(toStake));
               });
 
               it('should decrease total staked tokens', async function () {

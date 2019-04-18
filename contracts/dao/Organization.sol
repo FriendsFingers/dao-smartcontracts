@@ -40,6 +40,42 @@ library Organization {
     }
 
     /**
+     * @dev Get creation date of a member
+     * @param members Current members struct
+     * @param account Address you want to check
+     * @return uint256 Member creation date, zero otherwise
+     */
+    function creationDateOf(Members storage members, address account) internal view returns (uint256) {
+        Member storage member = members.list[members.addressMap[account]];
+
+        return member.creationDate;
+    }
+
+    /**
+     * @dev Check how many tokens staked for given address
+     * @param members Current members struct
+     * @param account Address you want to check
+     * @return uint256 Member staked tokens
+     */
+    function stakedTokensOf(Members storage members, address account) internal view returns (uint256) {
+        Member storage member = members.list[members.addressMap[account]];
+
+        return member.stakedTokens;
+    }
+
+    /**
+     * @dev Check if an address has passed KYC
+     * @param members Current members struct
+     * @param account Address you want to check
+     * @return bool
+     */
+    function hasKYC(Members storage members, address account) internal view returns (bool) {
+        Member storage member = members.list[members.addressMap[account]];
+
+        return member.kyc;
+    }
+
+    /**
      * @dev Returns the member structure
      * @param members Current members struct
      * @param memberId Id of the member you are looking for
@@ -92,8 +128,8 @@ library Organization {
         require(isMember(members, account));
 
         Member storage member = members.list[members.addressMap[account]];
-        member.stakedTokens = member.stakedTokens.add(amount);
 
+        member.stakedTokens = member.stakedTokens.add(amount);
         members.totalStakedTokens = members.totalStakedTokens.add(amount);
     }
 
@@ -107,9 +143,10 @@ library Organization {
         require(isMember(members, account));
 
         Member storage member = members.list[members.addressMap[account]];
-        require(member.stakedTokens >= amount);
-        member.stakedTokens = member.stakedTokens.sub(amount);
 
+        require(member.stakedTokens >= amount);
+
+        member.stakedTokens = member.stakedTokens.sub(amount);
         members.totalStakedTokens = members.totalStakedTokens.sub(amount);
     }
 

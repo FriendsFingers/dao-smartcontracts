@@ -20,6 +20,18 @@ contract OrganizationMock {
         return _members.isMember(account);
     }
 
+    function creationDateOf(address account) public view returns (uint256) {
+        return _members.creationDateOf(account);
+    }
+
+    function stakedTokensOf(address account) public view returns (uint256) {
+        return _members.stakedTokensOf(account);
+    }
+
+    function hasKYC(address account) public view returns (bool) {
+        return _members.hasKYC(account);
+    }
+
     function addMember(address account) public {
         _members.addMember(account);
     }
