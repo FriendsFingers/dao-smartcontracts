@@ -6,7 +6,7 @@ function structDecode (struct) {
     creationDate: struct[3],
     stakedTokens: struct[4],
     data: struct[5],
-    kyc: struct[6],
+    verified: struct[6],
   };
 }
 

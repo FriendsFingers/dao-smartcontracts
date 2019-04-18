@@ -18,7 +18,7 @@ library Organization {
         uint256 creationDate;
         uint256 stakedTokens;
         bytes32 data;
-        bool kyc;
+        bool verified;
     }
 
     // structure defining members status
@@ -64,15 +64,15 @@ library Organization {
     }
 
     /**
-     * @dev Check if an address has passed KYC
+     * @dev Check if an address has been verified
      * @param members Current members struct
      * @param account Address you want to check
      * @return bool
      */
-    function hasKYC(Members storage members, address account) internal view returns (bool) {
+    function isVerified(Members storage members, address account) internal view returns (bool) {
         Member storage member = members.list[members.addressMap[account]];
 
-        return member.kyc;
+        return member.verified;
     }
 
     /**

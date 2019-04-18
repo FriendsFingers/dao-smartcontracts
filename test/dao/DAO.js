@@ -147,8 +147,8 @@ contract('DAO', function (
                 assert.equal(web3.utils.hexToUtf8(toCheck), '');
               });
 
-              it('has a kyc value', async function () {
-                const toCheck = memberStructure.kyc;
+              it('has a verified value', async function () {
+                const toCheck = memberStructure.verified;
                 assert.equal(toCheck, false);
               });
             });
@@ -200,11 +200,11 @@ contract('DAO', function (
                 assert.equal(web3.utils.hexToUtf8(toCheck), '');
               });
 
-              it('has a kyc value', async function () {
-                const toCheck = memberStructure.kyc;
+              it('has a verified value', async function () {
+                const toCheck = memberStructure.verified;
                 assert.equal(toCheck, false);
 
-                (await this.dao.hasKYC(member)).should.be.equal(false);
+                (await this.dao.isVerified(member)).should.be.equal(false);
               });
             });
           });
@@ -239,9 +239,9 @@ contract('DAO', function (
             });
           });
 
-          describe('check hasKYC', function () {
+          describe('check isVerified', function () {
             it('should be false', async function () {
-              (await this.dao.hasKYC(anotherAccount)).should.be.equal(false);
+              (await this.dao.isVerified(anotherAccount)).should.be.equal(false);
             });
           });
         });

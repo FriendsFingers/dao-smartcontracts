@@ -125,12 +125,12 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
-     * @dev Check if an address has passed KYC
+     * @dev Check if an address has been verified
      * @param account Address you want to check
      * @return bool
      */
-    function hasKYC(address account) public view returns (bool) {
-        return _members.hasKYC(account);
+    function isVerified(address account) public view returns (bool) {
+        return _members.isVerified(account);
     }
 
     /**
@@ -148,7 +148,7 @@ contract DAO is ERC1363Payable, DAORoles {
             uint256 creationDate,
             uint256 stakedTokens,
             bytes32 data,
-            bool kyc
+            bool verified
         )
     {
         require(isMember(memberAddress));
@@ -171,7 +171,7 @@ contract DAO is ERC1363Payable, DAORoles {
             uint256 creationDate,
             uint256 stakedTokens,
             bytes32 data,
-            bool kyc
+            bool verified
         )
     {
         Organization.Member storage structure = _members.getMember(memberId);
@@ -182,7 +182,7 @@ contract DAO is ERC1363Payable, DAORoles {
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
         data = structure.data;
-        kyc = structure.kyc;
+        verified = structure.verified;
     }
 
     /**

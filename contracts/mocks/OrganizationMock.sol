@@ -28,8 +28,8 @@ contract OrganizationMock {
         return _members.stakedTokensOf(account);
     }
 
-    function hasKYC(address account) public view returns (bool) {
-        return _members.hasKYC(account);
+    function isVerified(address account) public view returns (bool) {
+        return _members.isVerified(account);
     }
 
     function addMember(address account) public {
@@ -46,7 +46,7 @@ contract OrganizationMock {
             uint256 creationDate,
             uint256 stakedTokens,
             bytes32 data,
-            bool kyc
+            bool verified
         )
     {
         Organization.Member storage structure = _members.getMember(memberId);
@@ -57,7 +57,7 @@ contract OrganizationMock {
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
         data = structure.data;
-        kyc = structure.kyc;
+        verified = structure.verified;
     }
 
     function stake(address account, uint256 amount) public {

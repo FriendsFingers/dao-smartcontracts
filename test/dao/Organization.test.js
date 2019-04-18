@@ -106,11 +106,11 @@ contract('Organization', function (
               assert.equal(web3.utils.hexToUtf8(toCheck), '');
             });
 
-            it('has a kyc value', async function () {
-              const toCheck = memberStructure.kyc;
+            it('has a verified value', async function () {
+              const toCheck = memberStructure.verified;
               assert.equal(toCheck, false);
 
-              (await this.organization.hasKYC(member)).should.be.equal(false);
+              (await this.organization.isVerified(member)).should.be.equal(false);
             });
           });
         });
@@ -140,9 +140,9 @@ contract('Organization', function (
             });
           });
 
-          describe('check hasKYC', function () {
+          describe('check isVerified', function () {
             it('should be false', async function () {
-              (await this.organization.hasKYC(anotherAccount)).should.be.equal(false);
+              (await this.organization.isVerified(anotherAccount)).should.be.equal(false);
             });
           });
         });
