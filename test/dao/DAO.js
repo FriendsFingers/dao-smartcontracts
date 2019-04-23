@@ -36,7 +36,7 @@ contract('DAO', function (
 
     describe('if token does not support ERC1363 interface', function () {
       it('reverts', async function () {
-        const erc20Token = await ERC20Mock.new();
+        const erc20Token = await ERC20Mock.new(creator, 0);
         await shouldFail.reverting(DAO.new(erc20Token.address));
       });
     });
