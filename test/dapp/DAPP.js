@@ -32,7 +32,7 @@ contract('DAPP', function (
 
     this.token = await ERC1363.new(creator, tokenBalance);
 
-    await this.token.mintMock(tokenBalance, { from: member });
+    await this.token.mintMock(member, tokenBalance);
 
     this.dao = await DAO.new(this.token.address, { from: creator });
 

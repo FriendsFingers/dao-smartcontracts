@@ -9,7 +9,7 @@ contract ERC1363Mock is ERC1363 {
         _mint(initialAccount, initialBalance);
     }
 
-    function mintMock(uint256 amount) public {
-        _mint(msg.sender, amount);
+    function mintMock(address account, uint256 amount) public {
+        _mint(account, amount);
     }
 }

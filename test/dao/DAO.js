@@ -5,7 +5,7 @@ const { structDecode } = require('../utils/structDecode');
 
 const { shouldBehaveLikeERC1363Payable } = require('../ERC1363/ERC1363Payable.behaviour');
 
-const ERC20 = artifacts.require('ERC20');
+const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC1363 = artifacts.require('ERC1363Mock');
 const DAO = artifacts.require('DAOMock');
 
@@ -36,7 +36,7 @@ contract('DAO', function (
 
     describe('if token does not support ERC1363 interface', function () {
       it('reverts', async function () {
-        const erc20Token = await ERC20.new();
+        const erc20Token = await ERC20Mock.new();
         await shouldFail.reverting(DAO.new(erc20Token.address));
       });
     });
@@ -52,7 +52,7 @@ contract('DAO', function (
       this.token = await ERC1363.new(creator, tokenBalance);
       this.notAcceptedToken = await ERC1363.new(creator, tokenBalance);
 
-      await this.token.mintMock(tokenBalance, { from: member });
+      await this.token.mintMock(member, tokenBalance);
 
       this.dao = await DAO.new(this.token.address, { from: creator });
 
@@ -684,6 +684,80 @@ contract('DAO', function (
 
                 (await this.dao.stakedTokensOf(member)).should.be.bignumber.equal(value);
               });
+            });
+          });
+        });
+      });
+    });
+
+    context('as a recoverable token contract', function () {
+      describe('recoverERC20', function () {
+        const amount = new BN(100);
+
+        describe('if it is the accepted payable token', function () {
+          beforeEach(async function () {
+            await this.token.mintMock(this.dao.address, amount);
+            await this.token.transferAndCall(this.dao.address, tokenBalance, { from: member });
+          });
+
+          describe('if owner is calling', function () {
+            describe('if there are more than total staked tokens', function () {
+              it('should recover any ERC20', async function () {
+                const preCreatorBalance = await this.token.balanceOf(creator);
+                const preContractBalance = await this.token.balanceOf(this.dao.address);
+
+                await this.dao.recoverERC20(this.token.address, amount, { from: creator });
+
+                const postCreatorBalance = await this.token.balanceOf(creator);
+                const postContractBalance = await this.token.balanceOf(this.dao.address);
+
+                postCreatorBalance.should.be.bignumber.equal(preCreatorBalance.add(amount));
+                postContractBalance.should.be.bignumber.equal(preContractBalance.sub(amount));
+              });
+            });
+
+            describe('if there are not more than total staked tokens', function () {
+              it('reverts', async function () {
+                await shouldFail.reverting(
+                  this.dao.recoverERC20(this.token.address, amount.addn(1), { from: creator })
+                );
+              });
+            });
+          });
+
+          describe('if third party is calling', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(
+                this.dao.recoverERC20(this.token.address, amount, { from: anotherAccount })
+              );
+            });
+          });
+        });
+
+        describe('if it is not the accepted payable token', function () {
+          beforeEach(async function () {
+            this.anotherERC20 = await ERC20Mock.new(this.dao.address, amount, { from: creator });
+          });
+
+          describe('if owner is calling', function () {
+            it('should recover token', async function () {
+              const preCreatorBalance = await this.anotherERC20.balanceOf(creator);
+
+              await this.dao.recoverERC20(this.anotherERC20.address, amount, { from: creator });
+
+              const postCreatorBalance = await this.anotherERC20.balanceOf(creator);
+              const postContractBalance = await this.anotherERC20.balanceOf(this.dao.address);
+
+              postCreatorBalance.should.be.bignumber.equal(preCreatorBalance.add(amount));
+              postContractBalance.should.be.bignumber.equal(new BN(0));
+            });
+          });
+
+          describe('if third party is calling', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(
+                this.dao.recoverERC20(this.anotherERC20.address, amount, { from: anotherAccount })
+              );
             });
           });
         });

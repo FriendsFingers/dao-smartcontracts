@@ -10,6 +10,8 @@ import "./Organization.sol";
  * @dev It identifies the DAO and Organization logic
  */
 contract DAO is ERC1363Payable, DAORoles {
+    using SafeMath for uint256;
+
     using Organization for Organization.Members;
     using Organization for Organization.Member;
 
@@ -201,6 +203,20 @@ contract DAO is ERC1363Payable, DAORoles {
         stakedTokens = structure.stakedTokens;
         data = structure.data;
         verified = structure.verified;
+    }
+
+    /**
+     * @dev Allow to recover tokens from contract
+     * @param tokenAddress address The token contract address
+     * @param tokenAmount uint256 Number of tokens to be sent
+     */
+    function recoverERC20(address tokenAddress, uint256 tokenAmount) public onlyOwner {
+        if (tokenAddress == address(acceptedToken())) {
+            uint256 currentBalance = IERC20(acceptedToken()).balanceOf(address(this));
+            require(currentBalance.sub(_members.totalStakedTokens) >= tokenAmount);
+        }
+
+        IERC20(tokenAddress).transfer(owner(), tokenAmount);
     }
 
     /**
