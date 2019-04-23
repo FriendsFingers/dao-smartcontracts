@@ -71,46 +71,60 @@ contract('Organization', function (
         describe('when member exists', function () {
           describe('check metadata', function () {
             it('has an id', async function () {
-              const toCheck = memberStructure.id;
-              toCheck.should.be.bignumber.equal(memberId);
+              memberStructure.id.should.be.bignumber.equal(memberId);
             });
 
             it('has an account', async function () {
-              const toCheck = memberStructure.account;
-              toCheck.should.be.equal(member);
+              memberStructure.account.should.be.equal(member);
             });
 
             it('has a fingerprint', async function () {
               const fingerprint = await this.organization.getFingerprint(member, memberId);
 
-              const toCheck = memberStructure.fingerprint;
-              assert.equal(toCheck, fingerprint);
+              assert.equal(memberStructure.fingerprint, fingerprint);
             });
 
             it('has a creation date', async function () {
-              const toCheck = memberStructure.creationDate;
-              toCheck.should.be.bignumber.equal(await time.latest());
+              memberStructure.creationDate.should.be.bignumber.equal(await time.latest());
 
               (await this.organization.creationDateOf(member)).should.be.bignumber.equal(await time.latest());
             });
 
             it('has a staked tokens value', async function () {
-              const toCheck = memberStructure.stakedTokens;
-              toCheck.should.be.bignumber.equal(new BN(0));
+              memberStructure.stakedTokens.should.be.bignumber.equal(new BN(0));
 
               (await this.organization.stakedTokensOf(member)).should.be.bignumber.equal(new BN(0));
             });
 
             it('has a data value', async function () {
-              const toCheck = memberStructure.data;
-              assert.equal(web3.utils.hexToUtf8(toCheck), '');
+              assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
             });
 
             it('has a verified value', async function () {
-              const toCheck = memberStructure.verified;
-              assert.equal(toCheck, false);
+              assert.equal(memberStructure.verified, false);
 
               (await this.organization.isVerified(member)).should.be.equal(false);
+            });
+
+            describe('set verified', function () {
+              it('succeed', async function () {
+                await this.organization.setVerified(member, true);
+
+                memberStructure = structDecode(await this.organization.getMember(memberId));
+
+                assert.equal(memberStructure.verified, true);
+              });
+            });
+
+            describe('set data', function () {
+              it('succeed', async function () {
+                const data = JSON.stringify({ key: 'value' });
+                await this.organization.setData(member, web3.utils.utf8ToHex(data));
+
+                memberStructure = structDecode(await this.organization.getMember(memberId));
+
+                assert.equal(web3.utils.hexToUtf8(memberStructure.data), data);
+              });
             });
           });
         });
@@ -143,6 +157,19 @@ contract('Organization', function (
           describe('check isVerified', function () {
             it('should be false', async function () {
               (await this.organization.isVerified(anotherAccount)).should.be.equal(false);
+            });
+          });
+
+          describe('set verified', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(this.organization.setVerified(anotherAccount, true));
+            });
+          });
+
+          describe('set data', function () {
+            it('reverts', async function () {
+              const data = JSON.stringify({ key: 'value' });
+              await shouldFail.reverting(this.organization.setData(anotherAccount, web3.utils.utf8ToHex(data)));
             });
           });
         });

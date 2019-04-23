@@ -68,6 +68,14 @@ contract OrganizationMock {
         _members.unstake(msg.sender, amount);
     }
 
+    function setVerified(address account, bool verified) public {
+        _members.setVerified(account, verified);
+    }
+
+    function setData(address account, bytes32 data) public {
+        _members.setData(account, data);
+    }
+
     function getFingerprint(address memberAddress, uint256 memberId) public pure returns (bytes9) {
         return bytes9(keccak256(abi.encodePacked(memberAddress, memberId)));
     }

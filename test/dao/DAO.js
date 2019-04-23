@@ -116,40 +116,71 @@ contract('DAO', function (
           describe('when member exists', function () {
             describe('check metadata', function () {
               it('has an id', async function () {
-                const toCheck = memberStructure.id;
-                toCheck.should.be.bignumber.equal(memberId);
+                memberStructure.id.should.be.bignumber.equal(memberId);
               });
 
               it('has an account', async function () {
-                const toCheck = memberStructure.account;
-                toCheck.should.be.equal(member);
+                memberStructure.account.should.be.equal(member);
               });
 
               it('has a fingerprint', async function () {
                 const fingerprint = await this.dao.getFingerprint(member, memberId);
 
-                const toCheck = memberStructure.fingerprint;
-                assert.equal(toCheck, fingerprint);
+                assert.equal(memberStructure.fingerprint, fingerprint);
               });
 
               it('has a creation date', async function () {
-                const toCheck = memberStructure.creationDate;
-                toCheck.should.be.bignumber.equal(await time.latest());
+                memberStructure.creationDate.should.be.bignumber.equal(await time.latest());
               });
 
               it('has a staked tokens value', async function () {
-                const toCheck = memberStructure.stakedTokens;
-                toCheck.should.be.bignumber.equal(new BN(0));
+                memberStructure.stakedTokens.should.be.bignumber.equal(new BN(0));
               });
 
               it('has a data value', async function () {
-                const toCheck = memberStructure.data;
-                assert.equal(web3.utils.hexToUtf8(toCheck), '');
+                assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
               });
 
               it('has a verified value', async function () {
-                const toCheck = memberStructure.verified;
-                assert.equal(toCheck, false);
+                assert.equal(memberStructure.verified, false);
+              });
+
+              describe('set verified', function () {
+                describe('from operator', function () {
+                  it('succeed', async function () {
+                    await this.dao.setVerified(member, true, { from: operator });
+
+                    memberStructure = structDecode(await this.dao.getMemberById(memberId));
+
+                    assert.equal(memberStructure.verified, true);
+                  });
+                });
+
+                describe('from another account', function () {
+                  it('reverts', async function () {
+                    await shouldFail.reverting(this.dao.setVerified(member, true, { from: anotherAccount }));
+                  });
+                });
+              });
+
+              describe('set data', function () {
+                describe('from operator', function () {
+                  it('succeed', async function () {
+                    await this.dao.setData(member, web3.utils.utf8ToHex(this.structure.data), { from: operator });
+
+                    memberStructure = structDecode(await this.dao.getMemberById(memberId));
+
+                    assert.equal(web3.utils.hexToUtf8(memberStructure.data), this.structure.data);
+                  });
+                });
+
+                describe('from another account', function () {
+                  it('reverts', async function () {
+                    await shouldFail.reverting(
+                      this.dao.setData(member, web3.utils.utf8ToHex(this.structure.data), { from: anotherAccount })
+                    );
+                  });
+                });
               });
             });
           });
@@ -165,44 +196,37 @@ contract('DAO', function (
           describe('when member exists', function () {
             describe('check metadata', function () {
               it('has an id', async function () {
-                const toCheck = memberStructure.id;
-                toCheck.should.be.bignumber.equal(memberId);
+                memberStructure.id.should.be.bignumber.equal(memberId);
               });
 
               it('has an account', async function () {
-                const toCheck = memberStructure.account;
-                toCheck.should.be.equal(member);
+                memberStructure.account.should.be.equal(member);
               });
 
               it('has a fingerprint', async function () {
                 const fingerprint = await this.dao.getFingerprint(member, memberId);
 
-                const toCheck = memberStructure.fingerprint;
-                assert.equal(toCheck, fingerprint);
+                assert.equal(memberStructure.fingerprint, fingerprint);
               });
 
               it('has a creation date', async function () {
-                const toCheck = memberStructure.creationDate;
-                toCheck.should.be.bignumber.equal(await time.latest());
+                memberStructure.creationDate.should.be.bignumber.equal(await time.latest());
 
                 (await this.dao.creationDateOf(member)).should.be.bignumber.equal(await time.latest());
               });
 
               it('has a staked tokens value', async function () {
-                const toCheck = memberStructure.stakedTokens;
-                toCheck.should.be.bignumber.equal(new BN(0));
+                memberStructure.stakedTokens.should.be.bignumber.equal(new BN(0));
 
                 (await this.dao.stakedTokensOf(member)).should.be.bignumber.equal(new BN(0));
               });
 
               it('has a data value', async function () {
-                const toCheck = memberStructure.data;
-                assert.equal(web3.utils.hexToUtf8(toCheck), '');
+                assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
               });
 
               it('has a verified value', async function () {
-                const toCheck = memberStructure.verified;
-                assert.equal(toCheck, false);
+                assert.equal(memberStructure.verified, false);
 
                 (await this.dao.isVerified(member)).should.be.equal(false);
               });

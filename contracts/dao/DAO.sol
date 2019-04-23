@@ -57,6 +57,37 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
+     * @dev Set the verified status for a member
+     * @param account Address you want to update
+     * @param verified Bool the new status for verified
+     */
+    function setVerified(address account, bool verified) external onlyOperator {
+        _members.setVerified(account, verified);
+    }
+
+    /**
+     * @dev Set data for a member
+     * @param account Address you want to update
+     * @param data bytes32 updated data
+     */
+    function setData(address account, bytes32 data) external onlyOperator {
+        _members.setData(account, data);
+    }
+
+    /**
+     * @dev Use tokens from a specific account
+     * @param account Address to use the tokens from
+     * @param amount Number of tokens to use
+     */
+    function use(address account, uint256 amount) external onlyDapp {
+        _members.unstake(account, amount);
+
+        IERC20(acceptedToken()).transfer(msg.sender, amount);
+
+        emit TokensUsed(account, msg.sender, amount);
+    }
+
+    /**
      * @dev Remove tokens from member stack
      * @param amount Number of tokens to unstake
      */
@@ -66,19 +97,6 @@ contract DAO is ERC1363Payable, DAORoles {
         IERC20(acceptedToken()).transfer(msg.sender, amount);
 
         emit TokensUnstaked(msg.sender, amount);
-    }
-
-    /**
-     * @dev Use tokens from a specific account
-     * @param account Address to use the tokens from
-     * @param amount Number of tokens to use
-     */
-    function use(address account, uint256 amount) public onlyDapp {
-        _members.unstake(account, amount);
-
-        IERC20(acceptedToken()).transfer(msg.sender, amount);
-
-        emit TokensUsed(account, msg.sender, amount);
     }
 
     /**

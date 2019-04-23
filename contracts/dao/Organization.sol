@@ -151,6 +151,34 @@ library Organization {
     }
 
     /**
+     * @dev Set the verified status for a member
+     * @param members Current members struct
+     * @param account Address you want to update
+     * @param verified Bool the new status for verified
+     */
+    function setVerified(Members storage members, address account, bool verified) internal {
+        require(isMember(members, account));
+
+        Member storage member = members.list[members.addressMap[account]];
+
+        member.verified = verified;
+    }
+
+    /**
+     * @dev Set data for a member
+     * @param members Current members struct
+     * @param account Address you want to update
+     * @param data bytes32 updated data
+     */
+    function setData(Members storage members, address account, bytes32 data) internal {
+        require(isMember(members, account));
+
+        Member storage member = members.list[members.addressMap[account]];
+
+        member.data = data;
+    }
+
+    /**
      * @dev Generate a member fingerprint
      * @param account Address you want to make member
      * @param memberId The member id
