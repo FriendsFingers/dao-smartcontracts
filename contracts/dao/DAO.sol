@@ -171,8 +171,6 @@ contract DAO is ERC1363Payable, DAORoles {
             bool verified
         )
     {
-        require(isMember(memberAddress));
-
         return getMemberById(_members.addressMap[memberAddress]);
     }
 
