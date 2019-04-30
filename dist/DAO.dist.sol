@@ -1,4 +1,4 @@
-pragma solidity ^0.5.7;
+pragma solidity ^0.5.8;
 
 // File: openzeppelin-solidity/contracts/introspection/ERC165Checker.sol
 

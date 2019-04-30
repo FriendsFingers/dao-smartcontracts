@@ -1,4 +1,4 @@
-pragma solidity ^0.5.7;
+pragma solidity ^0.5.8;
 
 import "erc-payable-token/contracts/payment/ERC1363Payable.sol";
 import "../access/roles/DAORoles.sol";
