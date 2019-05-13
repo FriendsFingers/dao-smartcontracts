@@ -141,24 +141,24 @@ contract('DAO', function (
                 assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
               });
 
-              it('has a verified value', async function () {
-                assert.equal(memberStructure.verified, false);
+              it('has a approved value', async function () {
+                assert.equal(memberStructure.approved, false);
               });
 
-              describe('set verified', function () {
+              describe('set approved', function () {
                 describe('from operator', function () {
                   it('succeed', async function () {
-                    await this.dao.setVerified(member, true, { from: operator });
+                    await this.dao.setApproved(member, true, { from: operator });
 
                     memberStructure = structDecode(await this.dao.getMemberById(memberId));
 
-                    assert.equal(memberStructure.verified, true);
+                    assert.equal(memberStructure.approved, true);
                   });
                 });
 
                 describe('from another account', function () {
                   it('reverts', async function () {
-                    await shouldFail.reverting(this.dao.setVerified(member, true, { from: anotherAccount }));
+                    await shouldFail.reverting(this.dao.setApproved(member, true, { from: anotherAccount }));
                   });
                 });
               });
@@ -225,10 +225,10 @@ contract('DAO', function (
                 assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
               });
 
-              it('has a verified value', async function () {
-                assert.equal(memberStructure.verified, false);
+              it('has a approved value', async function () {
+                assert.equal(memberStructure.approved, false);
 
-                (await this.dao.isVerified(member)).should.be.equal(false);
+                (await this.dao.isApproved(member)).should.be.equal(false);
               });
             });
           });
@@ -263,9 +263,9 @@ contract('DAO', function (
             });
           });
 
-          describe('check isVerified', function () {
+          describe('check isApproved', function () {
             it('should be false', async function () {
-              (await this.dao.isVerified(anotherAccount)).should.be.equal(false);
+              (await this.dao.isApproved(anotherAccount)).should.be.equal(false);
             });
           });
         });

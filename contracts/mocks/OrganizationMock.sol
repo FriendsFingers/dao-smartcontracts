@@ -28,8 +28,8 @@ contract OrganizationMock {
         return _members.stakedTokensOf(account);
     }
 
-    function isVerified(address account) public view returns (bool) {
-        return _members.isVerified(account);
+    function isApproved(address account) public view returns (bool) {
+        return _members.isApproved(account);
     }
 
     function addMember(address account) public {
@@ -46,7 +46,7 @@ contract OrganizationMock {
             uint256 creationDate,
             uint256 stakedTokens,
             bytes32 data,
-            bool verified
+            bool approved
         )
     {
         Organization.Member storage structure = _members.getMember(memberId);
@@ -57,7 +57,7 @@ contract OrganizationMock {
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
         data = structure.data;
-        verified = structure.verified;
+        approved = structure.approved;
     }
 
     function stake(address account, uint256 amount) public {
@@ -68,8 +68,8 @@ contract OrganizationMock {
         _members.unstake(msg.sender, amount);
     }
 
-    function setVerified(address account, bool verified) public {
-        _members.setVerified(account, verified);
+    function setApproved(address account, bool approved) public {
+        _members.setApproved(account, approved);
     }
 
     function setData(address account, bytes32 data) public {

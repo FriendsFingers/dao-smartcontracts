@@ -5,7 +5,7 @@
 
 |  File Name  |  SHA-1 Hash  |
 |-------------|--------------|
-| dist/DAO.dist.sol | de4f5466b3fa7a3f2c0db94311d65f592ef37fe2 |
+| dist/DAO.dist.sol | 68217b34f5649748f6e57d2df7485e610791b29b |
 
 
 ### Contracts Description Table
@@ -97,12 +97,12 @@
 | └ | isMember | Internal 🔒 |   | |
 | └ | creationDateOf | Internal 🔒 |   | |
 | └ | stakedTokensOf | Internal 🔒 |   | |
-| └ | isVerified | Internal 🔒 |   | |
+| └ | isApproved | Internal 🔒 |   | |
 | └ | getMember | Internal 🔒 |   | |
 | └ | addMember | Internal 🔒 | 🛑  | |
 | └ | stake | Internal 🔒 | 🛑  | |
 | └ | unstake | Internal 🔒 | 🛑  | |
-| └ | setVerified | Internal 🔒 | 🛑  | |
+| └ | setApproved | Internal 🔒 | 🛑  | |
 | └ | setData | Internal 🔒 | 🛑  | |
 | └ | getFingerprint | Private 🔐 |   | |
 ||||||
@@ -110,7 +110,7 @@
 | └ | \<Constructor\> | Public ❗️ | 🛑  | ERC1363Payable |
 | └ | \<Fallback\> | External ❗️ |  💵 |NO❗️ |
 | └ | newMember | External ❗️ | 🛑  | onlyOperator |
-| └ | setVerified | External ❗️ | 🛑  | onlyOperator |
+| └ | setApproved | External ❗️ | 🛑  | onlyOperator |
 | └ | setData | External ❗️ | 🛑  | onlyOperator |
 | └ | use | External ❗️ | 🛑  | onlyDapp |
 | └ | unstake | Public ❗️ | 🛑  |NO❗️ |
@@ -119,7 +119,7 @@
 | └ | isMember | Public ❗️ |   |NO❗️ |
 | └ | creationDateOf | Public ❗️ |   |NO❗️ |
 | └ | stakedTokensOf | Public ❗️ |   |NO❗️ |
-| └ | isVerified | Public ❗️ |   |NO❗️ |
+| └ | isApproved | Public ❗️ |   |NO❗️ |
 | └ | getMemberByAddress | Public ❗️ |   |NO❗️ |
 | └ | getMemberById | Public ❗️ |   |NO❗️ |
 | └ | recoverERC20 | Public ❗️ | 🛑  | onlyOwner |

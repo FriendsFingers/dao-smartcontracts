@@ -100,19 +100,19 @@ contract('Organization', function (
               assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
             });
 
-            it('has a verified value', async function () {
-              assert.equal(memberStructure.verified, false);
+            it('has a approved value', async function () {
+              assert.equal(memberStructure.approved, false);
 
-              (await this.organization.isVerified(member)).should.be.equal(false);
+              (await this.organization.isApproved(member)).should.be.equal(false);
             });
 
-            describe('set verified', function () {
+            describe('set approved', function () {
               it('succeed', async function () {
-                await this.organization.setVerified(member, true);
+                await this.organization.setApproved(member, true);
 
                 memberStructure = structDecode(await this.organization.getMember(memberId));
 
-                assert.equal(memberStructure.verified, true);
+                assert.equal(memberStructure.approved, true);
               });
             });
 
@@ -154,15 +154,15 @@ contract('Organization', function (
             });
           });
 
-          describe('check isVerified', function () {
+          describe('check isApproved', function () {
             it('should be false', async function () {
-              (await this.organization.isVerified(anotherAccount)).should.be.equal(false);
+              (await this.organization.isApproved(anotherAccount)).should.be.equal(false);
             });
           });
 
-          describe('set verified', function () {
+          describe('set approved', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.organization.setVerified(anotherAccount, true));
+              await shouldFail.reverting(this.organization.setApproved(anotherAccount, true));
             });
           });
 

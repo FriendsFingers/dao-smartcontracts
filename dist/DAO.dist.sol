@@ -800,7 +800,7 @@ library Organization {
         uint256 creationDate;
         uint256 stakedTokens;
         bytes32 data;
-        bool verified;
+        bool approved;
     }
 
     // structure defining members status
@@ -846,15 +846,15 @@ library Organization {
     }
 
     /**
-     * @dev Check if an address has been verified
+     * @dev Check if an address has been approved
      * @param members Current members struct
      * @param account Address you want to check
      * @return bool
      */
-    function isVerified(Members storage members, address account) internal view returns (bool) {
+    function isApproved(Members storage members, address account) internal view returns (bool) {
         Member storage member = members.list[members.addressMap[account]];
 
-        return member.verified;
+        return member.approved;
     }
 
     /**
@@ -933,17 +933,17 @@ library Organization {
     }
 
     /**
-     * @dev Set the verified status for a member
+     * @dev Set the approved status for a member
      * @param members Current members struct
      * @param account Address you want to update
-     * @param verified Bool the new status for verified
+     * @param approved Bool the new status for approved
      */
-    function setVerified(Members storage members, address account, bool verified) internal {
+    function setApproved(Members storage members, address account, bool approved) internal {
         require(isMember(members, account));
 
         Member storage member = members.list[members.addressMap[account]];
 
-        member.verified = verified;
+        member.approved = approved;
     }
 
     /**
@@ -1028,12 +1028,12 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
-     * @dev Set the verified status for a member
+     * @dev Set the approved status for a member
      * @param account Address you want to update
-     * @param verified Bool the new status for verified
+     * @param approved Bool the new status for approved
      */
-    function setVerified(address account, bool verified) external onlyOperator {
-        _members.setVerified(account, verified);
+    function setApproved(address account, bool approved) external onlyOperator {
+        _members.setApproved(account, approved);
     }
 
     /**
@@ -1114,12 +1114,12 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
-     * @dev Check if an address has been verified
+     * @dev Check if an address has been approved
      * @param account Address you want to check
      * @return bool
      */
-    function isVerified(address account) public view returns (bool) {
-        return _members.isVerified(account);
+    function isApproved(address account) public view returns (bool) {
+        return _members.isApproved(account);
     }
 
     /**
@@ -1137,7 +1137,7 @@ contract DAO is ERC1363Payable, DAORoles {
             uint256 creationDate,
             uint256 stakedTokens,
             bytes32 data,
-            bool verified
+            bool approved
         )
     {
         return getMemberById(_members.addressMap[memberAddress]);
@@ -1158,7 +1158,7 @@ contract DAO is ERC1363Payable, DAORoles {
             uint256 creationDate,
             uint256 stakedTokens,
             bytes32 data,
-            bool verified
+            bool approved
         )
     {
         Organization.Member storage structure = _members.getMember(memberId);
@@ -1169,7 +1169,7 @@ contract DAO is ERC1363Payable, DAORoles {
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
         data = structure.data;
-        verified = structure.verified;
+        approved = structure.approved;
     }
 
     /**

@@ -18,7 +18,7 @@ library Organization {
         uint256 creationDate;
         uint256 stakedTokens;
         bytes32 data;
-        bool verified;
+        bool approved;
     }
 
     // structure defining members status
@@ -64,15 +64,15 @@ library Organization {
     }
 
     /**
-     * @dev Check if an address has been verified
+     * @dev Check if an address has been approved
      * @param members Current members struct
      * @param account Address you want to check
      * @return bool
      */
-    function isVerified(Members storage members, address account) internal view returns (bool) {
+    function isApproved(Members storage members, address account) internal view returns (bool) {
         Member storage member = members.list[members.addressMap[account]];
 
-        return member.verified;
+        return member.approved;
     }
 
     /**
@@ -151,17 +151,17 @@ library Organization {
     }
 
     /**
-     * @dev Set the verified status for a member
+     * @dev Set the approved status for a member
      * @param members Current members struct
      * @param account Address you want to update
-     * @param verified Bool the new status for verified
+     * @param approved Bool the new status for approved
      */
-    function setVerified(Members storage members, address account, bool verified) internal {
+    function setApproved(Members storage members, address account, bool approved) internal {
         require(isMember(members, account));
 
         Member storage member = members.list[members.addressMap[account]];
 
-        member.verified = verified;
+        member.approved = approved;
     }
 
     /**
