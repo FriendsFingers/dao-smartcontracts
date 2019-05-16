@@ -27,6 +27,14 @@ contract DAPP {
         _;
     }
 
+    /**
+     * @dev modifier to allow only approved to do some actions
+     */
+    modifier onlyApproved() {
+        require(_dao.isApproved(msg.sender));
+        _;
+    }
+
     constructor (DAO dao, uint256 fee) public {
         require(address(dao) != address(0));
         require(fee > 0);

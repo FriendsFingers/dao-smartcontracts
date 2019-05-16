@@ -16,6 +16,11 @@ contract DAPPMock is DAPP {
      */
     function onlyMemberAction() public onlyMember {} // solhint-disable-line no-empty-blocks
 
+    /**
+     * @dev mock function to test only approved function
+     */
+    function onlyApprovedAction() public onlyApproved {} // solhint-disable-line no-empty-blocks
+
     function memberSince(address account, uint256 date) public view returns (bool) {
         return dao().isMember(account) && dao().creationDateOf(account) <= date;
     }

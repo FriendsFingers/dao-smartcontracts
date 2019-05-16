@@ -84,6 +84,27 @@ contract('DAPP', function (
       });
     });
 
+    context('testing onlyApproved actions', function () {
+      describe('from approved member', function () {
+        it('allows access', async function () {
+          await this.dao.setApproved(member, true, { from: operator });
+          await this.dapp.onlyApprovedAction({ from: member });
+        });
+      });
+
+      describe('from not approved member', function () {
+        it('reverts', async function () {
+          await shouldFail.reverting(this.dapp.onlyApprovedAction({ from: member }));
+        });
+      });
+
+      describe('from another account', function () {
+        it('reverts', async function () {
+          await shouldFail.reverting(this.dapp.onlyApprovedAction({ from: anotherAccount }));
+        });
+      });
+    });
+
     context('testing tokenPayable', function () {
       context('if member is calling', function () {
         describe('if member has enough tokens staked', function () {
