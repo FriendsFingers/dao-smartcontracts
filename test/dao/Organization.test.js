@@ -29,6 +29,10 @@ contract('Organization', function (
       (await this.organization.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
     });
 
+    it('should start with zero totalUsedTokens', async function () {
+      (await this.organization.totalUsedTokens()).should.be.bignumber.equal(new BN(0));
+    });
+
     it('should start with zero members', async function () {
       (await this.organization.membersNumber()).should.be.bignumber.equal(new BN(0));
     });
@@ -96,6 +100,12 @@ contract('Organization', function (
               (await this.organization.stakedTokensOf(member)).should.be.bignumber.equal(new BN(0));
             });
 
+            it('has a used tokens value', async function () {
+              memberStructure.usedTokens.should.be.bignumber.equal(new BN(0));
+
+              (await this.organization.usedTokensOf(member)).should.be.bignumber.equal(new BN(0));
+            });
+
             it('has a data value', async function () {
               assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
             });
@@ -154,6 +164,12 @@ contract('Organization', function (
             });
           });
 
+          describe('check usedTokensOf', function () {
+            it('should be zero', async function () {
+              (await this.organization.usedTokensOf(anotherAccount)).should.be.bignumber.equal(new BN(0));
+            });
+          });
+
           describe('check isApproved', function () {
             it('should be false', async function () {
               (await this.organization.isApproved(anotherAccount)).should.be.equal(false);
@@ -189,8 +205,8 @@ contract('Organization', function (
         });
       });
 
-      context('testing stake/unstake', function () {
-        const toStake = new BN(10);
+      context('testing stake/unstake/use', function () {
+        const tokenAmount = new BN(10);
 
         describe('stake tokens', function () {
           let preMemberStructure;
@@ -200,27 +216,29 @@ contract('Organization', function (
             preMemberStructure = structDecode(await this.organization.getMember(memberId));
             preStakedTokens = await this.organization.totalStakedTokens();
 
-            await this.organization.stake(member, toStake, { from: operator });
+            await this.organization.stake(member, tokenAmount, { from: operator });
           });
 
           describe('if user is member', function () {
             it('should increase member staked tokens', async function () {
               const memberStructure = await this.organization.getMember(memberId);
-              memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
+              memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(tokenAmount));
 
-              (await this.organization.stakedTokensOf(member))
-                .should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
+              (await this.organization.stakedTokensOf(member)).should.be.bignumber.equal(
+                preMemberStructure.stakedTokens.add(tokenAmount)
+              );
             });
 
             it('should increase total staked tokens', async function () {
-              (await this.organization.totalStakedTokens())
-                .should.be.bignumber.equal(preStakedTokens.add(toStake));
+              (await this.organization.totalStakedTokens()).should.be.bignumber.equal(
+                preStakedTokens.add(tokenAmount)
+              );
             });
           });
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.organization.stake(anotherAccount, toStake, { from: operator }));
+              await shouldFail.reverting(this.organization.stake(anotherAccount, tokenAmount, { from: operator }));
             });
           });
         });
@@ -228,7 +246,7 @@ contract('Organization', function (
         describe('unstake tokens', function () {
           describe('if user is member', function () {
             beforeEach(async function () {
-              await this.organization.stake(member, toStake, { from: operator });
+              await this.organization.stake(member, tokenAmount, { from: operator });
             });
 
             describe('if member has enough staked token', function () {
@@ -239,20 +257,24 @@ contract('Organization', function (
                 preMemberStructure = structDecode(await this.organization.getMember(memberId));
                 preStakedTokens = await this.organization.totalStakedTokens();
 
-                await this.organization.unstake(toStake, { from: member });
+                await this.organization.unstake(tokenAmount, { from: member });
               });
 
               it('should decrease member staked tokens', async function () {
                 const memberStructure = await this.organization.getMember(memberId);
-                memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.sub(toStake));
+                memberStructure.stakedTokens.should.be.bignumber.equal(
+                  preMemberStructure.stakedTokens.sub(tokenAmount)
+                );
 
-                (await this.organization.stakedTokensOf(member))
-                  .should.be.bignumber.equal(preMemberStructure.stakedTokens.sub(toStake));
+                (await this.organization.stakedTokensOf(member)).should.be.bignumber.equal(
+                  preMemberStructure.stakedTokens.sub(tokenAmount)
+                );
               });
 
               it('should decrease total staked tokens', async function () {
-                (await this.organization.totalStakedTokens())
-                  .should.be.bignumber.equal(preStakedTokens.sub(toStake));
+                (await this.organization.totalStakedTokens()).should.be.bignumber.equal(
+                  preStakedTokens.sub(tokenAmount)
+                );
               });
             });
 
@@ -260,7 +282,7 @@ contract('Organization', function (
               it('reverts', async function () {
                 await shouldFail.reverting(
                   this.organization.unstake(
-                    toStake.addn(1),
+                    tokenAmount.addn(1),
                     { from: member }
                   )
                 );
@@ -271,7 +293,79 @@ contract('Organization', function (
           describe('if user is not member', function () {
             it('reverts', async function () {
               await shouldFail.reverting(
-                this.organization.unstake(toStake, { from: anotherAccount })
+                this.organization.unstake(tokenAmount, { from: anotherAccount })
+              );
+            });
+          });
+        });
+
+        describe('use tokens', function () {
+          describe('if user is member', function () {
+            beforeEach(async function () {
+              await this.organization.stake(member, tokenAmount, { from: operator });
+            });
+
+            describe('if member has enough staked token', function () {
+              let preMemberStructure;
+              let preStakedTokens;
+              let preUsedTokens;
+
+              beforeEach(async function () {
+                preMemberStructure = structDecode(await this.organization.getMember(memberId));
+                preStakedTokens = await this.organization.totalStakedTokens();
+                preUsedTokens = await this.organization.totalUsedTokens();
+
+                await this.organization.use(tokenAmount, { from: member });
+              });
+
+              it('should decrease member staked tokens', async function () {
+                const memberStructure = await this.organization.getMember(memberId);
+                memberStructure.stakedTokens.should.be.bignumber.equal(
+                  preMemberStructure.stakedTokens.sub(tokenAmount)
+                );
+
+                (await this.organization.stakedTokensOf(member)).should.be.bignumber.equal(
+                  preMemberStructure.stakedTokens.sub(tokenAmount)
+                );
+              });
+
+              it('should decrease total staked tokens', async function () {
+                (await this.organization.totalStakedTokens())
+                  .should.be.bignumber.equal(preStakedTokens.sub(tokenAmount));
+              });
+
+              it('should increase member used tokens', async function () {
+                const memberStructure = await this.organization.getMember(memberId);
+                memberStructure.usedTokens.should.be.bignumber.equal(preMemberStructure.usedTokens.add(tokenAmount));
+
+                (await this.organization.usedTokensOf(member)).should.be.bignumber.equal(
+                  preMemberStructure.usedTokens.add(tokenAmount)
+                );
+              });
+
+              it('should increase total used tokens', async function () {
+                (await this.organization.totalUsedTokens()).should.be.bignumber.equal(
+                  preUsedTokens.add(tokenAmount)
+                );
+              });
+            });
+
+            describe('if member has not enough staked token', function () {
+              it('reverts', async function () {
+                await shouldFail.reverting(
+                  this.organization.use(
+                    tokenAmount.addn(1),
+                    { from: member }
+                  )
+                );
+              });
+            });
+          });
+
+          describe('if user is not member', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(
+                this.organization.use(tokenAmount, { from: anotherAccount })
               );
             });
           });

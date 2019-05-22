@@ -5,8 +5,9 @@ function structDecode (struct) {
     fingerprint: struct[2],
     creationDate: struct[3],
     stakedTokens: struct[4],
-    data: struct[5],
-    approved: struct[6],
+    usedTokens: struct[5],
+    data: struct[6],
+    approved: struct[7],
   };
 }
 

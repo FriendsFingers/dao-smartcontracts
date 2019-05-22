@@ -64,6 +64,10 @@ contract('DAO', function (
       (await this.dao.totalStakedTokens()).should.be.bignumber.equal(new BN(0));
     });
 
+    it('should start with zero totalUsedTokens', async function () {
+      (await this.dao.totalUsedTokens()).should.be.bignumber.equal(new BN(0));
+    });
+
     it('should start with zero members', async function () {
       (await this.dao.membersNumber()).should.be.bignumber.equal(new BN(0));
     });
@@ -135,6 +139,10 @@ contract('DAO', function (
 
               it('has a staked tokens value', async function () {
                 memberStructure.stakedTokens.should.be.bignumber.equal(new BN(0));
+              });
+
+              it('has a used tokens value', async function () {
+                memberStructure.usedTokens.should.be.bignumber.equal(new BN(0));
               });
 
               it('has a data value', async function () {
@@ -221,6 +229,12 @@ contract('DAO', function (
                 (await this.dao.stakedTokensOf(member)).should.be.bignumber.equal(new BN(0));
               });
 
+              it('has a used tokens value', async function () {
+                memberStructure.usedTokens.should.be.bignumber.equal(new BN(0));
+
+                (await this.dao.usedTokensOf(member)).should.be.bignumber.equal(new BN(0));
+              });
+
               it('has a data value', async function () {
                 assert.equal(web3.utils.hexToUtf8(memberStructure.data), '');
               });
@@ -260,6 +274,12 @@ contract('DAO', function (
           describe('check stakedTokensOf', function () {
             it('should be zero', async function () {
               (await this.dao.stakedTokensOf(anotherAccount)).should.be.bignumber.equal(new BN(0));
+            });
+          });
+
+          describe('check usedTokensOf', function () {
+            it('should be zero', async function () {
+              (await this.dao.usedTokensOf(anotherAccount)).should.be.bignumber.equal(new BN(0));
             });
           });
 
@@ -322,20 +342,21 @@ contract('DAO', function (
         });
       });
 
-      context('testing stake/unstake', function () {
+      context('testing stake/unstake/use', function () {
         describe('stake tokens', function () {
-          const toStake = new BN(1);
-
+          let tokenAmount;
           let receipt;
 
           let preMemberStructure;
           let preStakedTokens;
 
           beforeEach(async function () {
+            tokenAmount = this.structure.stakedTokens;
+
             preMemberStructure = structDecode(await this.dao.getMemberByAddress(member));
             preStakedTokens = await this.dao.totalStakedTokens();
 
-            receipt = await this.dao.stake(member, toStake, { from: operator });
+            receipt = await this.dao.stake(member, tokenAmount, { from: operator });
           });
 
           describe('if user is not member', function () {
@@ -351,32 +372,38 @@ contract('DAO', function (
 
           it('should increase member staked tokens', async function () {
             const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
-            memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
+            memberStructure.stakedTokens.should.be.bignumber.equal(preMemberStructure.stakedTokens.add(tokenAmount));
 
-            (await this.dao.stakedTokensOf(member))
-              .should.be.bignumber.equal(preMemberStructure.stakedTokens.add(toStake));
+            (await this.dao.stakedTokensOf(member)).should.be.bignumber.equal(
+              preMemberStructure.stakedTokens.add(tokenAmount)
+            );
           });
 
           it('should increase total staked tokens', async function () {
-            (await this.dao.totalStakedTokens())
-              .should.be.bignumber.equal(preStakedTokens.add(toStake));
+            (await this.dao.totalStakedTokens()).should.be.bignumber.equal(
+              preStakedTokens.add(tokenAmount)
+            );
           });
 
           it('should emit TokensStaked', async function () {
             await expectEvent.inTransaction(receipt.tx, DAO, 'TokensStaked', {
               account: member,
-              value: toStake,
+              value: tokenAmount,
             });
           });
         });
 
         describe('unstake tokens', function () {
+          let tokenAmount;
+
           beforeEach(async function () {
-            await this.dao.stake(member, this.structure.stakedTokens, { from: operator });
+            tokenAmount = this.structure.stakedTokens;
+
+            await this.dao.stake(member, tokenAmount, { from: operator });
 
             // the below call is because of staking by ERC1363 functions implies
             // a transfer of tokens but we are using stake mock
-            await this.token.transfer(this.dao.address, this.structure.stakedTokens, { from: member });
+            await this.token.transfer(this.dao.address, tokenAmount, { from: member });
           });
 
           describe('if user is member', function () {
@@ -395,7 +422,7 @@ contract('DAO', function (
                 accountPreBalance = await this.token.balanceOf(member);
 
                 receipt = await this.dao.unstake(
-                  this.structure.stakedTokens,
+                  tokenAmount,
                   { from: member }
                 );
               });
@@ -403,32 +430,36 @@ contract('DAO', function (
               it('should decrease member staked tokens', async function () {
                 const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
                 memberStructure.stakedTokens.should.be.bignumber.equal(
-                  preMemberStructure.stakedTokens.sub(this.structure.stakedTokens)
+                  preMemberStructure.stakedTokens.sub(tokenAmount)
                 );
 
-                (await this.dao.stakedTokensOf(member))
-                  .should.be.bignumber.equal(preMemberStructure.stakedTokens.sub(this.structure.stakedTokens));
+                (await this.dao.stakedTokensOf(member)).should.be.bignumber.equal(
+                  preMemberStructure.stakedTokens.sub(tokenAmount)
+                );
               });
 
               it('should decrease total staked tokens', async function () {
-                (await this.dao.totalStakedTokens())
-                  .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
+                (await this.dao.totalStakedTokens()).should.be.bignumber.equal(
+                  preStakedTokens.sub(tokenAmount)
+                );
               });
 
               it('should decrease contract token balance', async function () {
-                (await this.token.balanceOf(this.dao.address))
-                  .should.be.bignumber.equal(contractPreBalance.sub(this.structure.stakedTokens));
+                (await this.token.balanceOf(this.dao.address)).should.be.bignumber.equal(
+                  contractPreBalance.sub(tokenAmount)
+                );
               });
 
               it('should increase account token balance', async function () {
-                (await this.token.balanceOf(member))
-                  .should.be.bignumber.equal(accountPreBalance.add(this.structure.stakedTokens));
+                (await this.token.balanceOf(member)).should.be.bignumber.equal(
+                  accountPreBalance.add(tokenAmount)
+                );
               });
 
               it('should emit TokensUnstaked', async function () {
                 await expectEvent.inTransaction(receipt.tx, DAO, 'TokensUnstaked', {
                   account: member,
-                  value: this.structure.stakedTokens,
+                  value: tokenAmount,
                 });
               });
             });
@@ -437,7 +468,7 @@ contract('DAO', function (
               it('reverts', async function () {
                 await shouldFail.reverting(
                   this.dao.unstake(
-                    this.structure.stakedTokens.addn(1),
+                    tokenAmount.addn(1),
                     { from: member }
                   )
                 );
@@ -447,43 +478,32 @@ contract('DAO', function (
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
-                this.dao.unstake(this.structure.stakedTokens, { from: anotherAccount })
-              );
+              await shouldFail.reverting(this.dao.unstake(tokenAmount, { from: anotherAccount }));
             });
           });
         });
-      });
 
-      context('testing use', function () {
         describe('use tokens', function () {
+          let tokenAmount;
+
           beforeEach(async function () {
-            await this.dao.stake(member, this.structure.stakedTokens, { from: operator });
+            tokenAmount = this.structure.stakedTokens;
+
+            await this.dao.stake(member, tokenAmount, { from: operator });
 
             // the below call is because of staking by ERC1363 functions implies
             // a transfer of tokens but we are using stake mock
-            await this.token.transfer(this.dao.address, this.structure.stakedTokens, { from: member });
+            await this.token.transfer(this.dao.address, tokenAmount, { from: member });
           });
 
           describe('if user is member', function () {
             describe('if member has enough staked token', function () {
               describe('if not a dapp is calling', function () {
                 it('reverts', async function () {
-                  await shouldFail.reverting(
-                    this.dao.use(member, this.structure.stakedTokens, { from: creator })
-                  );
-
-                  await shouldFail.reverting(
-                    this.dao.use(member, this.structure.stakedTokens, { from: operator })
-                  );
-
-                  await shouldFail.reverting(
-                    this.dao.use(member, this.structure.stakedTokens, { from: member })
-                  );
-
-                  await shouldFail.reverting(
-                    this.dao.use(member, this.structure.stakedTokens, { from: anotherAccount })
-                  );
+                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: creator }));
+                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: operator }));
+                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: member }));
+                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: anotherAccount }));
                 });
               });
 
@@ -492,18 +512,20 @@ contract('DAO', function (
 
                 let preMemberStructure;
                 let preStakedTokens;
+                let preUsedTokens;
                 let contractPreBalance;
                 let dappPreBalance;
 
                 beforeEach(async function () {
                   preMemberStructure = structDecode(await this.dao.getMemberByAddress(member));
                   preStakedTokens = await this.dao.totalStakedTokens();
+                  preUsedTokens = await this.dao.totalUsedTokens();
                   contractPreBalance = await this.token.balanceOf(this.dao.address);
                   dappPreBalance = await this.token.balanceOf(dapp);
 
                   receipt = await this.dao.use(
                     member,
-                    this.structure.stakedTokens,
+                    tokenAmount,
                     { from: dapp }
                   );
                 });
@@ -511,33 +533,54 @@ contract('DAO', function (
                 it('should decrease member staked tokens', async function () {
                   const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
                   memberStructure.stakedTokens.should.be.bignumber.equal(
-                    preMemberStructure.stakedTokens.sub(this.structure.stakedTokens)
+                    preMemberStructure.stakedTokens.sub(tokenAmount)
                   );
 
-                  (await this.dao.stakedTokensOf(member))
-                    .should.be.bignumber.equal(preMemberStructure.stakedTokens.sub(this.structure.stakedTokens));
+                  (await this.dao.stakedTokensOf(member)).should.be.bignumber.equal(
+                    preMemberStructure.stakedTokens.sub(tokenAmount)
+                  );
                 });
 
                 it('should decrease total staked tokens', async function () {
-                  (await this.dao.totalStakedTokens())
-                    .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
+                  (await this.dao.totalStakedTokens()).should.be.bignumber.equal(
+                    preStakedTokens.sub(tokenAmount)
+                  );
+                });
+
+                it('should increase member used tokens', async function () {
+                  const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
+                  memberStructure.usedTokens.should.be.bignumber.equal(
+                    preMemberStructure.usedTokens.add(tokenAmount)
+                  );
+
+                  (await this.dao.usedTokensOf(member)).should.be.bignumber.equal(
+                    preMemberStructure.usedTokens.add(tokenAmount)
+                  );
+                });
+
+                it('should increase total used tokens', async function () {
+                  (await this.dao.totalUsedTokens()).should.be.bignumber.equal(
+                    preUsedTokens.add(tokenAmount)
+                  );
                 });
 
                 it('should decrease contract token balance', async function () {
-                  (await this.token.balanceOf(this.dao.address))
-                    .should.be.bignumber.equal(contractPreBalance.sub(this.structure.stakedTokens));
+                  (await this.token.balanceOf(this.dao.address)).should.be.bignumber.equal(
+                    contractPreBalance.sub(tokenAmount)
+                  );
                 });
 
                 it('should increase dapp token balance', async function () {
-                  (await this.token.balanceOf(dapp))
-                    .should.be.bignumber.equal(dappPreBalance.add(this.structure.stakedTokens));
+                  (await this.token.balanceOf(dapp)).should.be.bignumber.equal(
+                    dappPreBalance.add(tokenAmount)
+                  );
                 });
 
                 it('should emit TokensUsed', async function () {
                   await expectEvent.inTransaction(receipt.tx, DAO, 'TokensUsed', {
                     account: member,
                     dapp: dapp,
-                    value: this.structure.stakedTokens,
+                    value: tokenAmount,
                   });
                 });
               });
@@ -548,7 +591,7 @@ contract('DAO', function (
                 await shouldFail.reverting(
                   this.dao.use(
                     member,
-                    this.structure.stakedTokens.addn(1),
+                    tokenAmount.addn(1),
                     { from: dapp }
                   )
                 );
@@ -559,7 +602,7 @@ contract('DAO', function (
           describe('if user is not member', function () {
             it('reverts', async function () {
               await shouldFail.reverting(
-                this.dao.use(anotherAccount, this.structure.stakedTokens, { from: dapp })
+                this.dao.use(anotherAccount, tokenAmount, { from: dapp })
               );
             });
           });

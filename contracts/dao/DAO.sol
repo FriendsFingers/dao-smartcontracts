@@ -82,7 +82,7 @@ contract DAO is ERC1363Payable, DAORoles {
      * @param amount Number of tokens to use
      */
     function use(address account, uint256 amount) external onlyDapp {
-        _members.unstake(account, amount);
+        _members.use(account, amount);
 
         IERC20(acceptedToken()).transfer(msg.sender, amount);
 
@@ -118,6 +118,14 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
+     * @dev Returns the total used tokens number
+     * @return uint256
+     */
+    function totalUsedTokens() public view returns (uint256) {
+        return _members.totalUsedTokens;
+    }
+
+    /**
      * @dev Returns if an address is member or not
      * @param account Address of the member you are looking for
      * @return bool
@@ -145,6 +153,15 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
+     * @dev Check how many tokens used for given address
+     * @param account Address you want to check
+     * @return uint256 Member used tokens
+     */
+    function usedTokensOf(address account) public view returns (uint256) {
+        return _members.usedTokensOf(account);
+    }
+
+    /**
      * @dev Check if an address has been approved
      * @param account Address you want to check
      * @return bool
@@ -167,6 +184,7 @@ contract DAO is ERC1363Payable, DAORoles {
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
+            uint256 usedTokens,
             bytes32 data,
             bool approved
         )
@@ -188,6 +206,7 @@ contract DAO is ERC1363Payable, DAORoles {
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
+            uint256 usedTokens,
             bytes32 data,
             bool approved
         )
@@ -199,6 +218,7 @@ contract DAO is ERC1363Payable, DAORoles {
         fingerprint = structure.fingerprint;
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
+        usedTokens = structure.usedTokens;
         data = structure.data;
         approved = structure.approved;
     }

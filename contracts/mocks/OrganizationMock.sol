@@ -16,6 +16,10 @@ contract OrganizationMock {
         return _members.totalStakedTokens;
     }
 
+    function totalUsedTokens() public view returns (uint256) {
+        return _members.totalUsedTokens;
+    }
+
     function isMember(address account) public view returns (bool) {
         return _members.isMember(account);
     }
@@ -26,6 +30,10 @@ contract OrganizationMock {
 
     function stakedTokensOf(address account) public view returns (uint256) {
         return _members.stakedTokensOf(account);
+    }
+
+    function usedTokensOf(address account) public view returns (uint256) {
+        return _members.usedTokensOf(account);
     }
 
     function isApproved(address account) public view returns (bool) {
@@ -45,6 +53,7 @@ contract OrganizationMock {
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
+            uint256 usedTokens,
             bytes32 data,
             bool approved
         )
@@ -56,6 +65,7 @@ contract OrganizationMock {
         fingerprint = structure.fingerprint;
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
+        usedTokens = structure.usedTokens;
         data = structure.data;
         approved = structure.approved;
     }
@@ -66,6 +76,10 @@ contract OrganizationMock {
 
     function unstake(uint256 amount) public {
         _members.unstake(msg.sender, amount);
+    }
+
+    function use(uint256 amount) public {
+        _members.use(msg.sender, amount);
     }
 
     function setApproved(address account, bool approved) public {

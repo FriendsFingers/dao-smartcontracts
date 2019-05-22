@@ -123,6 +123,7 @@ contract('DAPP', function (
 
             let preMemberStructure;
             let preStakedTokens;
+            let preUseddTokens;
             let daoPreBalance;
             let dappPreBalance;
 
@@ -131,6 +132,7 @@ contract('DAPP', function (
 
               preMemberStructure = structDecode(await this.dao.getMemberByAddress(member));
               preStakedTokens = await this.dao.totalStakedTokens();
+              preUseddTokens = await this.dao.totalUsedTokens();
               daoPreBalance = await this.token.balanceOf(this.dao.address);
               dappPreBalance = await this.token.balanceOf(this.dapp.address);
 
@@ -145,18 +147,34 @@ contract('DAPP', function (
             });
 
             it('should decrease dao total staked tokens', async function () {
-              (await this.dao.totalStakedTokens())
-                .should.be.bignumber.equal(preStakedTokens.sub(this.structure.stakedTokens));
+              (await this.dao.totalStakedTokens()).should.be.bignumber.equal(
+                preStakedTokens.sub(this.structure.stakedTokens)
+              );
+            });
+
+            it('should increase member used tokens', async function () {
+              const memberStructure = structDecode(await this.dao.getMemberByAddress(member));
+              memberStructure.usedTokens.should.be.bignumber.equal(
+                preMemberStructure.usedTokens.add(this.structure.stakedTokens)
+              );
+            });
+
+            it('should increase dao total used tokens', async function () {
+              (await this.dao.totalUsedTokens()).should.be.bignumber.equal(
+                preUseddTokens.add(this.structure.stakedTokens)
+              );
             });
 
             it('should decrease dao token balance', async function () {
-              (await this.token.balanceOf(this.dao.address))
-                .should.be.bignumber.equal(daoPreBalance.sub(this.structure.stakedTokens));
+              (await this.token.balanceOf(this.dao.address)).should.be.bignumber.equal(
+                daoPreBalance.sub(this.structure.stakedTokens)
+              );
             });
 
             it('should increase dapp token balance', async function () {
-              (await this.token.balanceOf(this.dapp.address))
-                .should.be.bignumber.equal(dappPreBalance.add(this.structure.stakedTokens));
+              (await this.token.balanceOf(this.dapp.address)).should.be.bignumber.equal(
+                dappPreBalance.add(this.structure.stakedTokens)
+              );
             });
 
             it('should emit TokensUsed', async function () {

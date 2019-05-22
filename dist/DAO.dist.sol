@@ -799,6 +799,7 @@ library Organization {
         bytes9 fingerprint;
         uint256 creationDate;
         uint256 stakedTokens;
+        uint256 usedTokens;
         bytes32 data;
         bool approved;
     }
@@ -807,6 +808,7 @@ library Organization {
     struct Members {
         uint256 count;
         uint256 totalStakedTokens;
+        uint256 totalUsedTokens;
         mapping(address => uint256) addressMap;
         mapping(uint256 => Member) list;
     }
@@ -843,6 +845,18 @@ library Organization {
         Member storage member = members.list[members.addressMap[account]];
 
         return member.stakedTokens;
+    }
+
+    /**
+     * @dev Check how many tokens used for given address
+     * @param members Current members struct
+     * @param account Address you want to check
+     * @return uint256 Member used tokens
+     */
+    function usedTokensOf(Members storage members, address account) internal view returns (uint256) {
+        Member storage member = members.list[members.addressMap[account]];
+
+        return member.usedTokens;
     }
 
     /**
@@ -891,6 +905,7 @@ library Organization {
             fingerprint,
             block.timestamp, // solhint-disable-line not-rely-on-time
             0,
+            0,
             "",
             false
         );
@@ -930,6 +945,26 @@ library Organization {
 
         member.stakedTokens = member.stakedTokens.sub(amount);
         members.totalStakedTokens = members.totalStakedTokens.sub(amount);
+    }
+
+    /**
+     * @dev Use tokens from member stack
+     * @param members Current members struct
+     * @param account Address you want to use tokens
+     * @param amount Number of tokens to use
+     */
+    function use(Members storage members, address account, uint256 amount) internal {
+        require(isMember(members, account));
+
+        Member storage member = members.list[members.addressMap[account]];
+
+        require(member.stakedTokens >= amount);
+
+        member.stakedTokens = member.stakedTokens.sub(amount);
+        members.totalStakedTokens = members.totalStakedTokens.sub(amount);
+
+        member.usedTokens = member.usedTokens.add(amount);
+        members.totalUsedTokens = members.totalUsedTokens.add(amount);
     }
 
     /**
@@ -1051,7 +1086,7 @@ contract DAO is ERC1363Payable, DAORoles {
      * @param amount Number of tokens to use
      */
     function use(address account, uint256 amount) external onlyDapp {
-        _members.unstake(account, amount);
+        _members.use(account, amount);
 
         IERC20(acceptedToken()).transfer(msg.sender, amount);
 
@@ -1087,6 +1122,14 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
+     * @dev Returns the total used tokens number
+     * @return uint256
+     */
+    function totalUsedTokens() public view returns (uint256) {
+        return _members.totalUsedTokens;
+    }
+
+    /**
      * @dev Returns if an address is member or not
      * @param account Address of the member you are looking for
      * @return bool
@@ -1114,6 +1157,15 @@ contract DAO is ERC1363Payable, DAORoles {
     }
 
     /**
+     * @dev Check how many tokens used for given address
+     * @param account Address you want to check
+     * @return uint256 Member used tokens
+     */
+    function usedTokensOf(address account) public view returns (uint256) {
+        return _members.usedTokensOf(account);
+    }
+
+    /**
      * @dev Check if an address has been approved
      * @param account Address you want to check
      * @return bool
@@ -1136,6 +1188,7 @@ contract DAO is ERC1363Payable, DAORoles {
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
+            uint256 usedTokens,
             bytes32 data,
             bool approved
         )
@@ -1157,6 +1210,7 @@ contract DAO is ERC1363Payable, DAORoles {
             bytes9 fingerprint,
             uint256 creationDate,
             uint256 stakedTokens,
+            uint256 usedTokens,
             bytes32 data,
             bool approved
         )
@@ -1168,6 +1222,7 @@ contract DAO is ERC1363Payable, DAORoles {
         fingerprint = structure.fingerprint;
         creationDate = structure.creationDate;
         stakedTokens = structure.stakedTokens;
+        usedTokens = structure.usedTokens;
         data = structure.data;
         approved = structure.approved;
     }
