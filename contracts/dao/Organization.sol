@@ -189,14 +189,14 @@ library Organization {
      * @dev Set the approved status for a member
      * @param members Current members struct
      * @param account Address you want to update
-     * @param approved Bool the new status for approved
+     * @param status Bool the new status for approved
      */
-    function setApproved(Members storage members, address account, bool approved) internal {
+    function setApproved(Members storage members, address account, bool status) internal {
         require(isMember(members, account));
 
         Member storage member = members.list[members.addressMap[account]];
 
-        member.approved = approved;
+        member.approved = status;
     }
 
     /**

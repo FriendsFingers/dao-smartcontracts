@@ -5,7 +5,7 @@
 
 |  File Name  |  SHA-1 Hash  |
 |-------------|--------------|
-| dist/DAO.dist.sol | 68217b34f5649748f6e57d2df7485e610791b29b |
+| dist/DAO.dist.sol | a4ad1dc4289e01a52bb09060f1b374bf58d10334 |
 
 
 ### Contracts Description Table
@@ -97,11 +97,13 @@
 | └ | isMember | Internal 🔒 |   | |
 | └ | creationDateOf | Internal 🔒 |   | |
 | └ | stakedTokensOf | Internal 🔒 |   | |
+| └ | usedTokensOf | Internal 🔒 |   | |
 | └ | isApproved | Internal 🔒 |   | |
 | └ | getMember | Internal 🔒 |   | |
 | └ | addMember | Internal 🔒 | 🛑  | |
 | └ | stake | Internal 🔒 | 🛑  | |
 | └ | unstake | Internal 🔒 | 🛑  | |
+| └ | use | Internal 🔒 | 🛑  | |
 | └ | setApproved | Internal 🔒 | 🛑  | |
 | └ | setData | Internal 🔒 | 🛑  | |
 | └ | getFingerprint | Private 🔐 |   | |
@@ -116,9 +118,11 @@
 | └ | unstake | Public ❗️ | 🛑  |NO❗️ |
 | └ | membersNumber | Public ❗️ |   |NO❗️ |
 | └ | totalStakedTokens | Public ❗️ |   |NO❗️ |
+| └ | totalUsedTokens | Public ❗️ |   |NO❗️ |
 | └ | isMember | Public ❗️ |   |NO❗️ |
 | └ | creationDateOf | Public ❗️ |   |NO❗️ |
 | └ | stakedTokensOf | Public ❗️ |   |NO❗️ |
+| └ | usedTokensOf | Public ❗️ |   |NO❗️ |
 | └ | isApproved | Public ❗️ |   |NO❗️ |
 | └ | getMemberByAddress | Public ❗️ |   |NO❗️ |
 | └ | getMemberById | Public ❗️ |   |NO❗️ |

@@ -971,14 +971,14 @@ library Organization {
      * @dev Set the approved status for a member
      * @param members Current members struct
      * @param account Address you want to update
-     * @param approved Bool the new status for approved
+     * @param status Bool the new status for approved
      */
-    function setApproved(Members storage members, address account, bool approved) internal {
+    function setApproved(Members storage members, address account, bool status) internal {
         require(isMember(members, account));
 
         Member storage member = members.list[members.addressMap[account]];
 
-        member.approved = approved;
+        member.approved = status;
     }
 
     /**
@@ -1024,6 +1024,11 @@ contract DAO is ERC1363Payable, DAORoles {
         uint256 id
     );
 
+    event MemberStatusChanged(
+        address indexed account,
+        bool approved
+    );
+
     event TokensStaked(
         address indexed account,
         uint256 value
@@ -1065,10 +1070,12 @@ contract DAO is ERC1363Payable, DAORoles {
     /**
      * @dev Set the approved status for a member
      * @param account Address you want to update
-     * @param approved Bool the new status for approved
+     * @param status Bool the new status for approved
      */
-    function setApproved(address account, bool approved) external onlyOperator {
-        _members.setApproved(account, approved);
+    function setApproved(address account, bool status) external onlyOperator {
+        _members.setApproved(account, status);
+
+        emit MemberStatusChanged(account, status);
     }
 
     /**

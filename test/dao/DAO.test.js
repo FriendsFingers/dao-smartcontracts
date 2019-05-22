@@ -155,12 +155,44 @@ contract('DAO', function (
 
               describe('set approved', function () {
                 describe('from operator', function () {
-                  it('succeed', async function () {
-                    await this.dao.setApproved(member, true, { from: operator });
+                  describe('setting true', function () {
+                    beforeEach(async function () {
+                      ({ logs: this.logs } = await this.dao.setApproved(member, true, { from: operator }));
+                    });
 
-                    memberStructure = structDecode(await this.dao.getMemberById(memberId));
+                    it('succeed', async function () {
+                      memberStructure = structDecode(await this.dao.getMemberById(memberId));
 
-                    assert.equal(memberStructure.approved, true);
+                      assert.equal(memberStructure.approved, true);
+                    });
+
+                    it('emit MemberStatusChanged event', async function () {
+                      expectEvent.inLogs(this.logs, 'MemberStatusChanged', {
+                        account: member,
+                        approved: true,
+                      });
+                    });
+                  });
+
+                  describe('setting false', function () {
+                    beforeEach(async function () {
+                      await this.dao.setApproved(member, true, { from: operator });
+
+                      ({ logs: this.logs } = await this.dao.setApproved(member, false, { from: operator }));
+                    });
+
+                    it('succeed', async function () {
+                      memberStructure = structDecode(await this.dao.getMemberById(memberId));
+
+                      assert.equal(memberStructure.approved, false);
+                    });
+
+                    it('emit MemberStatusChanged event', async function () {
+                      expectEvent.inLogs(this.logs, 'MemberStatusChanged', {
+                        account: member,
+                        approved: false,
+                      });
+                    });
                   });
                 });
 

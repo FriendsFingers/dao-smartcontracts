@@ -20,6 +20,11 @@ contract DAO is ERC1363Payable, DAORoles {
         uint256 id
     );
 
+    event MemberStatusChanged(
+        address indexed account,
+        bool approved
+    );
+
     event TokensStaked(
         address indexed account,
         uint256 value
@@ -61,10 +66,12 @@ contract DAO is ERC1363Payable, DAORoles {
     /**
      * @dev Set the approved status for a member
      * @param account Address you want to update
-     * @param approved Bool the new status for approved
+     * @param status Bool the new status for approved
      */
-    function setApproved(address account, bool approved) external onlyOperator {
-        _members.setApproved(account, approved);
+    function setApproved(address account, bool status) external onlyOperator {
+        _members.setApproved(account, status);
+
+        emit MemberStatusChanged(account, status);
     }
 
     /**

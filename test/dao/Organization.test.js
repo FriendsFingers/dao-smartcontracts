@@ -117,12 +117,21 @@ contract('Organization', function (
             });
 
             describe('set approved', function () {
-              it('succeed', async function () {
+              it('setting true, succeed', async function () {
                 await this.organization.setApproved(member, true);
 
                 memberStructure = structDecode(await this.organization.getMember(memberId));
 
                 assert.equal(memberStructure.approved, true);
+              });
+
+              it('setting false, succeed', async function () {
+                await this.organization.setApproved(member, true);
+                await this.organization.setApproved(member, false);
+
+                memberStructure = structDecode(await this.organization.getMember(memberId));
+
+                assert.equal(memberStructure.approved, false);
               });
             });
 
