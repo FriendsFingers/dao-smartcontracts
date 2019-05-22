@@ -5,7 +5,7 @@
 
 |  File Name  |  SHA-1 Hash  |
 |-------------|--------------|
-| dist/DAO.dist.sol | a4ad1dc4289e01a52bb09060f1b374bf58d10334 |
+| dist/DAO.dist.sol | a55699598d0477c638bef030934c1cdc7375e321 |
 
 
 ### Contracts Description Table
@@ -111,6 +111,7 @@
 | **DAO** | Implementation | ERC1363Payable, DAORoles |||
 | └ | \<Constructor\> | Public ❗️ | 🛑  | ERC1363Payable |
 | └ | \<Fallback\> | External ❗️ |  💵 |NO❗️ |
+| └ | join | External ❗️ | 🛑  |NO❗️ |
 | └ | newMember | External ❗️ | 🛑  | onlyOperator |
 | └ | setApproved | External ❗️ | 🛑  | onlyOperator |
 | └ | setData | External ❗️ | 🛑  | onlyOperator |

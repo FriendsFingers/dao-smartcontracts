@@ -1060,8 +1060,14 @@ contract DAO is ERC1363Payable, DAORoles {
 
     /**
      * @dev Generate a new member and the member structure
+     */
+    function join() external {
+        _newMember(msg.sender);
+    }
+
+    /**
+     * @dev Generate a new member and the member structure
      * @param account Address you want to make member
-     * @return uint256 The new member id
      */
     function newMember(address account) external onlyOperator {
         _newMember(account);

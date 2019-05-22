@@ -344,6 +344,27 @@ contract('DAO', function (
           });
         });
 
+        context('via join function', function () {
+          describe('if member already exists', function () {
+            it('reverts', async function () {
+              await shouldFail.reverting(this.dao.join({ from: member }));
+            });
+          });
+
+          describe('if member does not exist', function () {
+            it('success and emit MemberAdded event', async function () {
+              ({ logs: this.logs } = await this.dao.join({ from: anotherAccount }));
+
+              const newMembersNumber = await this.dao.membersNumber();
+
+              expectEvent.inLogs(this.logs, 'MemberAdded', {
+                account: anotherAccount,
+                id: newMembersNumber,
+              });
+            });
+          });
+        });
+
         context('via fallback function', function () {
           describe('if sending more than 0', function () {
             it('reverts', async function () {
