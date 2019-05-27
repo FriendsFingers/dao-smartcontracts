@@ -1,4 +1,4 @@
-const { shouldFail, constants, expectEvent } = require('openzeppelin-test-helpers');
+const { expectRevert, constants, expectEvent } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 function capitalize (str) {
@@ -16,7 +16,7 @@ function shouldBehaveLikeDAORole (owner, authorized, otherAuthorized, [anyone], 
     });
 
     it('reverts when querying roles for the null account', async function () {
-      await shouldFail.reverting(this.contract[`is${rolename}`](ZERO_ADDRESS));
+      await expectRevert.unspecified(this.contract[`is${rolename}`](ZERO_ADDRESS));
     });
 
     describe('access control', function () {
@@ -32,7 +32,7 @@ function shouldBehaveLikeDAORole (owner, authorized, otherAuthorized, [anyone], 
         const from = anyone;
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.contract[`only${rolename}Mock`]({ from }));
+          await expectRevert.unspecified(this.contract[`only${rolename}Mock`]({ from }));
         });
       });
     });
@@ -52,11 +52,11 @@ function shouldBehaveLikeDAORole (owner, authorized, otherAuthorized, [anyone], 
         });
 
         it('reverts when adding role to an already assigned account', async function () {
-          await shouldFail.reverting(this.contract[`add${rolename}`](authorized, { from }));
+          await expectRevert.unspecified(this.contract[`add${rolename}`](authorized, { from }));
         });
 
         it('reverts when adding role to the null account', async function () {
-          await shouldFail.reverting(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }));
+          await expectRevert.unspecified(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }));
         });
       });
 
@@ -64,7 +64,7 @@ function shouldBehaveLikeDAORole (owner, authorized, otherAuthorized, [anyone], 
         const from = anyone;
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.contract[`add${rolename}`](owner, { from }));
+          await expectRevert.unspecified(this.contract[`add${rolename}`](owner, { from }));
         });
       });
     });
@@ -85,11 +85,11 @@ function shouldBehaveLikeDAORole (owner, authorized, otherAuthorized, [anyone], 
         });
 
         it('reverts when removing from an unassigned account', async function () {
-          await shouldFail.reverting(this.contract[`remove${rolename}`](anyone, { from }));
+          await expectRevert.unspecified(this.contract[`remove${rolename}`](anyone, { from }));
         });
 
         it('reverts when removing role from the null account', async function () {
-          await shouldFail.reverting(this.contract[`remove${rolename}`](ZERO_ADDRESS, { from }));
+          await expectRevert.unspecified(this.contract[`remove${rolename}`](ZERO_ADDRESS, { from }));
         });
       });
 
@@ -97,7 +97,7 @@ function shouldBehaveLikeDAORole (owner, authorized, otherAuthorized, [anyone], 
         const from = anyone;
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.contract[`remove${rolename}`](authorized, { from }));
+          await expectRevert.unspecified(this.contract[`remove${rolename}`](authorized, { from }));
         });
       });
     });

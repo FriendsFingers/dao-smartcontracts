@@ -1,4 +1,4 @@
-const { BN, constants, shouldFail, expectEvent, time } = require('openzeppelin-test-helpers');
+const { BN, constants, expectRevert, expectEvent, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { structDecode } = require('../utils/structDecode');
@@ -30,14 +30,14 @@ contract('DAO', function (
   context('if invalid constructor', function () {
     describe('if accepted token is the zero address', function () {
       it('reverts', async function () {
-        await shouldFail.reverting(DAO.new(ZERO_ADDRESS));
+        await expectRevert.unspecified(DAO.new(ZERO_ADDRESS));
       });
     });
 
     describe('if token does not support ERC1363 interface', function () {
       it('reverts', async function () {
         const erc20Token = await ERC20Mock.new(creator, 0);
-        await shouldFail.reverting(DAO.new(erc20Token.address));
+        await expectRevert.unspecified(DAO.new(erc20Token.address));
       });
     });
   });
@@ -198,7 +198,7 @@ contract('DAO', function (
 
                 describe('from another account', function () {
                   it('reverts', async function () {
-                    await shouldFail.reverting(this.dao.setApproved(member, true, { from: anotherAccount }));
+                    await expectRevert.unspecified(this.dao.setApproved(member, true, { from: anotherAccount }));
                   });
                 });
               });
@@ -216,7 +216,7 @@ contract('DAO', function (
 
                 describe('from another account', function () {
                   it('reverts', async function () {
-                    await shouldFail.reverting(
+                    await expectRevert.unspecified(
                       this.dao.setData(member, web3.utils.utf8ToHex(this.structure.data), { from: anotherAccount })
                     );
                   });
@@ -283,11 +283,11 @@ contract('DAO', function (
         context('when member does not exist', function () {
           describe('check metadata', function () {
             it('reverts using id', async function () {
-              await shouldFail.reverting(this.dao.getMemberById(999));
+              await expectRevert.unspecified(this.dao.getMemberById(999));
             });
 
             it('reverts using address', async function () {
-              await shouldFail.reverting(this.dao.getMemberByAddress(anotherAccount));
+              await expectRevert.unspecified(this.dao.getMemberByAddress(anotherAccount));
             });
           });
 
@@ -327,19 +327,19 @@ contract('DAO', function (
         context('via newMember function', function () {
           describe('if not an operator is calling', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dao.newMember(anotherAccount, { from: anotherAccount }));
+              await expectRevert.unspecified(this.dao.newMember(anotherAccount, { from: anotherAccount }));
             });
           });
 
           describe('if member already exists', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dao.newMember(member, { from: operator }));
+              await expectRevert.unspecified(this.dao.newMember(member, { from: operator }));
             });
           });
 
           describe('if member is the zero address', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dao.newMember(ZERO_ADDRESS, { from: operator }));
+              await expectRevert.unspecified(this.dao.newMember(ZERO_ADDRESS, { from: operator }));
             });
           });
         });
@@ -347,7 +347,7 @@ contract('DAO', function (
         context('via join function', function () {
           describe('if member already exists', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dao.join({ from: member }));
+              await expectRevert.unspecified(this.dao.join({ from: member }));
             });
           });
 
@@ -368,14 +368,14 @@ contract('DAO', function (
         context('via fallback function', function () {
           describe('if sending more than 0', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dao.sendTransaction({ value: 1, from: anotherAccount }));
+              await expectRevert.unspecified(this.dao.sendTransaction({ value: 1, from: anotherAccount }));
             });
           });
 
           describe('if sending 0', function () {
             describe('if member already exists', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(this.dao.sendTransaction({ value: 0, from: member }));
+                await expectRevert.unspecified(this.dao.sendTransaction({ value: 0, from: member }));
               });
             });
 
@@ -519,7 +519,7 @@ contract('DAO', function (
 
             describe('if member has not enough staked token', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(
+                await expectRevert.unspecified(
                   this.dao.unstake(
                     tokenAmount.addn(1),
                     { from: member }
@@ -531,7 +531,7 @@ contract('DAO', function (
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dao.unstake(tokenAmount, { from: anotherAccount }));
+              await expectRevert.unspecified(this.dao.unstake(tokenAmount, { from: anotherAccount }));
             });
           });
         });
@@ -553,10 +553,10 @@ contract('DAO', function (
             describe('if member has enough staked token', function () {
               describe('if not a dapp is calling', function () {
                 it('reverts', async function () {
-                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: creator }));
-                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: operator }));
-                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: member }));
-                  await shouldFail.reverting(this.dao.use(member, tokenAmount, { from: anotherAccount }));
+                  await expectRevert.unspecified(this.dao.use(member, tokenAmount, { from: creator }));
+                  await expectRevert.unspecified(this.dao.use(member, tokenAmount, { from: operator }));
+                  await expectRevert.unspecified(this.dao.use(member, tokenAmount, { from: member }));
+                  await expectRevert.unspecified(this.dao.use(member, tokenAmount, { from: anotherAccount }));
                 });
               });
 
@@ -641,7 +641,7 @@ contract('DAO', function (
 
             describe('if member has not enough staked token', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(
+                await expectRevert.unspecified(
                   this.dao.use(
                     member,
                     tokenAmount.addn(1),
@@ -654,7 +654,7 @@ contract('DAO', function (
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
+              await expectRevert.unspecified(
                 this.dao.use(anotherAccount, tokenAmount, { from: dapp })
               );
             });
@@ -814,7 +814,7 @@ contract('DAO', function (
 
             describe('if there are not more than total staked tokens', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(
+                await expectRevert.unspecified(
                   this.dao.recoverERC20(this.token.address, amount.addn(1), { from: creator })
                 );
               });
@@ -823,7 +823,7 @@ contract('DAO', function (
 
           describe('if third party is calling', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
+              await expectRevert.unspecified(
                 this.dao.recoverERC20(this.token.address, amount, { from: anotherAccount })
               );
             });
@@ -851,7 +851,7 @@ contract('DAO', function (
 
           describe('if third party is calling', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
+              await expectRevert.unspecified(
                 this.dao.recoverERC20(this.anotherERC20.address, amount, { from: anotherAccount })
               );
             });

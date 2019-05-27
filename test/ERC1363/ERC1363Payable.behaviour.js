@@ -1,4 +1,4 @@
-const { shouldFail, expectEvent } = require('openzeppelin-test-helpers');
+const { expectRevert, expectEvent } = require('openzeppelin-test-helpers');
 
 const { shouldSupportInterfaces } = require('erc-payable-token/test/introspection/SupportsInterface.behavior');
 
@@ -47,7 +47,7 @@ function shouldBehaveLikeERC1363Payable (ERC1363Payable, [owner, spender], balan
       describe('using a not accepted ERC1363', function () {
         it('reverts', async function () {
           this.token = this.notAcceptedToken;
-          await shouldFail.reverting(transferFun.call(this, owner, this.mock.address, value, { from: spender }));
+          await expectRevert.unspecified(transferFun.call(this, owner, this.mock.address, value, { from: spender }));
         });
       });
     };
@@ -96,7 +96,7 @@ function shouldBehaveLikeERC1363Payable (ERC1363Payable, [owner, spender], balan
       describe('using a not accepted ERC1363', function () {
         it('reverts', async function () {
           this.token = this.notAcceptedToken;
-          await shouldFail.reverting(transferFun.call(this, this.mock.address, value, { from: owner }));
+          await expectRevert.unspecified(transferFun.call(this, this.mock.address, value, { from: owner }));
         });
       });
     };
@@ -144,7 +144,7 @@ function shouldBehaveLikeERC1363Payable (ERC1363Payable, [owner, spender], balan
       describe('using a not accepted ERC1363', function () {
         it('reverts', async function () {
           this.token = this.notAcceptedToken;
-          await shouldFail.reverting(approveFun.call(this, this.mock.address, value, { from: owner }));
+          await expectRevert.unspecified(approveFun.call(this, this.mock.address, value, { from: owner }));
         });
       });
     };

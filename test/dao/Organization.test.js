@@ -1,4 +1,4 @@
-const { BN, constants, shouldFail, time } = require('openzeppelin-test-helpers');
+const { BN, constants, expectRevert, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { structDecode } = require('../utils/structDecode');
@@ -151,7 +151,7 @@ contract('Organization', function (
         describe('when member does not exist', function () {
           describe('check metadata', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.organization.getMember(999));
+              await expectRevert.unspecified(this.organization.getMember(999));
             });
           });
 
@@ -187,14 +187,14 @@ contract('Organization', function (
 
           describe('set approved', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.organization.setApproved(anotherAccount, true));
+              await expectRevert.unspecified(this.organization.setApproved(anotherAccount, true));
             });
           });
 
           describe('set data', function () {
             it('reverts', async function () {
               const data = JSON.stringify({ key: 'value' });
-              await shouldFail.reverting(this.organization.setData(anotherAccount, web3.utils.utf8ToHex(data)));
+              await expectRevert.unspecified(this.organization.setData(anotherAccount, web3.utils.utf8ToHex(data)));
             });
           });
         });
@@ -203,13 +203,13 @@ contract('Organization', function (
       context('creating another member', function () {
         describe('if member already exists', function () {
           it('reverts', async function () {
-            await shouldFail.reverting(this.organization.addMember(member, { from: operator }));
+            await expectRevert.unspecified(this.organization.addMember(member, { from: operator }));
           });
         });
 
         describe('if member is the zero address', function () {
           it('reverts', async function () {
-            await shouldFail.reverting(this.organization.addMember(ZERO_ADDRESS, { from: operator }));
+            await expectRevert.unspecified(this.organization.addMember(ZERO_ADDRESS, { from: operator }));
           });
         });
       });
@@ -247,7 +247,7 @@ contract('Organization', function (
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.organization.stake(anotherAccount, tokenAmount, { from: operator }));
+              await expectRevert.unspecified(this.organization.stake(anotherAccount, tokenAmount, { from: operator }));
             });
           });
         });
@@ -289,7 +289,7 @@ contract('Organization', function (
 
             describe('if member has not enough staked token', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(
+                await expectRevert.unspecified(
                   this.organization.unstake(
                     tokenAmount.addn(1),
                     { from: member }
@@ -301,7 +301,7 @@ contract('Organization', function (
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
+              await expectRevert.unspecified(
                 this.organization.unstake(tokenAmount, { from: anotherAccount })
               );
             });
@@ -361,7 +361,7 @@ contract('Organization', function (
 
             describe('if member has not enough staked token', function () {
               it('reverts', async function () {
-                await shouldFail.reverting(
+                await expectRevert.unspecified(
                   this.organization.use(
                     tokenAmount.addn(1),
                     { from: member }
@@ -373,7 +373,7 @@ contract('Organization', function (
 
           describe('if user is not member', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(
+              await expectRevert.unspecified(
                 this.organization.use(tokenAmount, { from: anotherAccount })
               );
             });

@@ -1,4 +1,4 @@
-const { BN, constants, shouldFail, expectEvent, time } = require('openzeppelin-test-helpers');
+const { BN, constants, expectRevert, expectEvent, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { structDecode } = require('../utils/structDecode');
@@ -46,13 +46,13 @@ contract('DAPP', function (
   context('if invalid constructor', function () {
     describe('if accepted token is the zero address', function () {
       it('reverts', async function () {
-        await shouldFail.reverting(DAPP.new(ZERO_ADDRESS, fee));
+        await expectRevert.unspecified(DAPP.new(ZERO_ADDRESS, fee));
       });
     });
 
     describe('if fee is equal to 0', function () {
       it('reverts', async function () {
-        await shouldFail.reverting(DAPP.new(this.dao.address, 0));
+        await expectRevert.unspecified(DAPP.new(this.dao.address, 0));
       });
     });
   });
@@ -79,7 +79,7 @@ contract('DAPP', function (
 
       describe('from another account', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.dapp.onlyMemberAction({ from: anotherAccount }));
+          await expectRevert.unspecified(this.dapp.onlyMemberAction({ from: anotherAccount }));
         });
       });
     });
@@ -94,13 +94,13 @@ contract('DAPP', function (
 
       describe('from not approved member', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.dapp.onlyApprovedAction({ from: member }));
+          await expectRevert.unspecified(this.dapp.onlyApprovedAction({ from: member }));
         });
       });
 
       describe('from another account', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.dapp.onlyApprovedAction({ from: anotherAccount }));
+          await expectRevert.unspecified(this.dapp.onlyApprovedAction({ from: anotherAccount }));
         });
       });
     });
@@ -114,7 +114,7 @@ contract('DAPP', function (
 
           describe('if dapp is not authorized', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dapp.tokenPayableAction({ from: member }));
+              await expectRevert.unspecified(this.dapp.tokenPayableAction({ from: member }));
             });
           });
 
@@ -194,7 +194,7 @@ contract('DAPP', function (
 
           describe('if dapp is not authorized', function () {
             it('reverts', async function () {
-              await shouldFail.reverting(this.dapp.tokenPayableAction({ from: member }));
+              await expectRevert.unspecified(this.dapp.tokenPayableAction({ from: member }));
             });
           });
 
@@ -204,7 +204,7 @@ contract('DAPP', function (
             });
 
             it('reverts', async function () {
-              await shouldFail.reverting(this.dapp.tokenPayableAction({ from: member }));
+              await expectRevert.unspecified(this.dapp.tokenPayableAction({ from: member }));
             });
           });
         });
@@ -217,7 +217,7 @@ contract('DAPP', function (
           });
 
           it('reverts', async function () {
-            await shouldFail.reverting(this.dapp.tokenPayableAction({ from: anotherAccount }));
+            await expectRevert.unspecified(this.dapp.tokenPayableAction({ from: anotherAccount }));
           });
         });
       });
