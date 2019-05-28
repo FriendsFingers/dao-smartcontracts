@@ -71,7 +71,7 @@
     "truffle-flattener": "1.2.11"
   },
   "dependencies": {
-    "erc-payable-token": "2.2.3",
-    "openzeppelin-solidity": "2.2.0"
+    "erc-payable-token": "2.3.0",
+    "openzeppelin-solidity": "2.3.0"
   }
 }

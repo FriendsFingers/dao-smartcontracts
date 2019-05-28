@@ -5,7 +5,7 @@
 
 |  File Name  |  SHA-1 Hash  |
 |-------------|--------------|
-| dist/DAO.dist.sol | a55699598d0477c638bef030934c1cdc7375e321 |
+| dist/DAO.dist.sol | 80f8c6bd83363b5c6fc637bf8fe3b97210a04d20 |
 
 
 ### Contracts Description Table
@@ -23,12 +23,12 @@
 | └ | _callERC165SupportsInterface | Private 🔐 |   | |
 ||||||
 | **IERC20** | Interface |  |||
-| └ | transfer | External ❗️ | 🛑  |NO❗️ |
-| └ | approve | External ❗️ | 🛑  |NO❗️ |
-| └ | transferFrom | External ❗️ | 🛑  |NO❗️ |
 | └ | totalSupply | External ❗️ |   |NO❗️ |
 | └ | balanceOf | External ❗️ |   |NO❗️ |
+| └ | transfer | External ❗️ | 🛑  |NO❗️ |
 | └ | allowance | External ❗️ |   |NO❗️ |
+| └ | approve | External ❗️ | 🛑  |NO❗️ |
+| └ | transferFrom | External ❗️ | 🛑  |NO❗️ |
 ||||||
 | **IERC165** | Interface |  |||
 | └ | supportsInterface | External ❗️ |   |NO❗️ |
@@ -87,10 +87,10 @@
 | └ | _removeDapp | Internal 🔒 | 🛑  | |
 ||||||
 | **SafeMath** | Library |  |||
+| └ | add | Internal 🔒 |   | |
+| └ | sub | Internal 🔒 |   | |
 | └ | mul | Internal 🔒 |   | |
 | └ | div | Internal 🔒 |   | |
-| └ | sub | Internal 🔒 |   | |
-| └ | add | Internal 🔒 |   | |
 | └ | mod | Internal 🔒 |   | |
 ||||||
 | **Organization** | Library |  |||

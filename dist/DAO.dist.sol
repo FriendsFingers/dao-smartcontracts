@@ -3,24 +3,23 @@ pragma solidity ^0.5.8;
 // File: openzeppelin-solidity/contracts/introspection/ERC165Checker.sol
 
 /**
- * @title ERC165Checker
- * @dev Use `using ERC165Checker for address`; to include this library
- * https://eips.ethereum.org/EIPS/eip-165
+ * @dev Library used to query support of an interface declared via `IERC165`.
+ *
+ * Note that these functions return the actual result of the query: they do not
+ * `revert` if an interface is not supported. It is up to the caller to decide
+ * what to do in these cases.
  */
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
-     * 0x01ffc9a7 ===
-     *     bytes4(keccak256('supportsInterface(bytes4)'))
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
 
     /**
-     * @notice Query if a contract supports ERC165
-     * @param account The address of the contract to query for support of ERC165
-     * @return true if the contract at account implements ERC165
+     * @dev Returns true if `account` supports the `IERC165` interface,
      */
     function _supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
@@ -30,12 +29,10 @@ library ERC165Checker {
     }
 
     /**
-     * @notice Query if a contract implements an interface, also checks support of ERC165
-     * @param account The address of the contract to query for support of an interface
-     * @param interfaceId The interface identifier, as specified in ERC-165
-     * @return true if the contract at account indicates support of the interface with
-     * identifier interfaceId, false otherwise
-     * @dev Interface identification is specified in ERC-165.
+     * @dev Returns true if `account` supports the interface defined by
+     * `interfaceId`. Support for `IERC165` itself is queried automatically.
+     *
+     * See `IERC165.supportsInterface`.
      */
     function _supportsInterface(address account, bytes4 interfaceId) internal view returns (bool) {
         // query support of both ERC165 as per the spec and support of _interfaceId
@@ -44,12 +41,13 @@ library ERC165Checker {
     }
 
     /**
-     * @notice Query if a contract implements interfaces, also checks support of ERC165
-     * @param account The address of the contract to query for support of an interface
-     * @param interfaceIds A list of interface identifiers, as specified in ERC-165
-     * @return true if the contract at account indicates support all interfaces in the
-     * interfaceIds list, false otherwise
-     * @dev Interface identification is specified in ERC-165.
+     * @dev Returns true if `account` supports all the interfaces defined in
+     * `interfaceIds`. Support for `IERC165` itself is queried automatically.
+     *
+     * Batch-querying can lead to gas savings by skipping repeated checks for
+     * `IERC165` support.
+     *
+     * See `IERC165.supportsInterface`.
      */
     function _supportsAllInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool) {
         // query support of ERC165 itself
@@ -127,39 +125,99 @@ library ERC165Checker {
 // File: openzeppelin-solidity/contracts/token/ERC20/IERC20.sol
 
 /**
- * @title ERC20 interface
- * @dev see https://eips.ethereum.org/EIPS/eip-20
+ * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
+ * the optional functions; to access them see `ERC20Detailed`.
  */
 interface IERC20 {
-    function transfer(address to, uint256 value) external returns (bool);
-
-    function approve(address spender, uint256 value) external returns (bool);
-
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
-
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
     function totalSupply() external view returns (uint256);
 
-    function balanceOf(address who) external view returns (uint256);
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
 
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a `Transfer` event.
+     */
+    function transfer(address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through `transferFrom`. This is
+     * zero by default.
+     *
+     * This value changes when `approve` or `transferFrom` are called.
+     */
     function allowance(address owner, address spender) external view returns (uint256);
 
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * > Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an `Approval` event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `sender` to `recipient` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a `Transfer` event.
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
     event Transfer(address indexed from, address indexed to, uint256 value);
 
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to `approve`. `value` is the new allowance.
+     */
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 // File: openzeppelin-solidity/contracts/introspection/IERC165.sol
 
 /**
- * @title IERC165
- * @dev https://eips.ethereum.org/EIPS/eip-165
+ * @dev Interface of the ERC165 standard, as defined in the
+ * [EIP](https://eips.ethereum.org/EIPS/eip-165).
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others (`ERC165Checker`).
+ *
+ * For an implementation, see `ERC165`.
  */
 interface IERC165 {
     /**
-     * @notice Query if a contract implements an interface
-     * @param interfaceId The interface identifier, as specified in ERC-165
-     * @dev Interface identification is specified in ERC-165. This function
-     * uses less than 30,000 gas.
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * [EIP section](https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified)
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
      */
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
@@ -167,42 +225,50 @@ interface IERC165 {
 // File: openzeppelin-solidity/contracts/introspection/ERC165.sol
 
 /**
- * @title ERC165
- * @author Matt Condon (@shrugs)
- * @dev Implements ERC165 using a lookup table.
+ * @dev Implementation of the `IERC165` interface.
+ *
+ * Contracts may inherit from this and call `_registerInterface` to declare
+ * their support of an interface.
  */
 contract ERC165 is IERC165 {
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
-     * 0x01ffc9a7 ===
-     *     bytes4(keccak256('supportsInterface(bytes4)'))
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
 
     /**
-     * @dev a mapping of interface id to whether or not it's supported
+     * @dev Mapping of interface ids to whether or not it's supported.
      */
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    /**
-     * @dev A contract implementing SupportsInterfaceWithLookup
-     * implement ERC165 itself
-     */
     constructor () internal {
+        // Derived contracts need only register support for their own interfaces,
+        // we register support for ERC165 itself here
         _registerInterface(_INTERFACE_ID_ERC165);
     }
 
     /**
-     * @dev implement supportsInterface(bytes4) using a lookup table
+     * @dev See `IERC165.supportsInterface`.
+     *
+     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
      */
     function supportsInterface(bytes4 interfaceId) external view returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 
     /**
-     * @dev internal method for registering an interface
+     * @dev Registers the contract as an implementer of the interface defined by
+     * `interfaceId`. Support of the actual ERC165 interface is automatic and
+     * registering its interface id is not required.
+     *
+     * See `IERC165.supportsInterface`.
+     *
+     * Requirements:
+     *
+     * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
      */
     function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff);
+        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
         _supportedInterfaces[interfaceId] = true;
     }
 }
@@ -504,9 +570,13 @@ contract ERC1363Payable is IERC1363Receiver, IERC1363Spender, ERC165 {
 // File: openzeppelin-solidity/contracts/ownership/Ownable.sol
 
 /**
- * @title Ownable
- * @dev The Ownable contract has an owner address, and provides basic authorization control
- * functions, this simplifies the implementation of "user permissions".
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be aplied to your functions to restrict their use to
+ * the owner.
  */
 contract Ownable {
     address private _owner;
@@ -514,8 +584,7 @@ contract Ownable {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
-     * @dev The Ownable constructor sets the original `owner` of the contract to the sender
-     * account.
+     * @dev Initializes the contract setting the deployer as the initial owner.
      */
     constructor () internal {
         _owner = msg.sender;
@@ -523,7 +592,7 @@ contract Ownable {
     }
 
     /**
-     * @return the address of the owner.
+     * @dev Returns the address of the current owner.
      */
     function owner() public view returns (address) {
         return _owner;
@@ -533,22 +602,22 @@ contract Ownable {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(isOwner());
+        require(isOwner(), "Ownable: caller is not the owner");
         _;
     }
 
     /**
-     * @return true if `msg.sender` is the owner of the contract.
+     * @dev Returns true if the caller is the current owner.
      */
     function isOwner() public view returns (bool) {
         return msg.sender == _owner;
     }
 
     /**
-     * @dev Allows the current owner to relinquish control of the contract.
-     * It will not be possible to call the functions with the `onlyOwner`
-     * modifier anymore.
-     * @notice Renouncing ownership will leave the contract without an owner,
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * > Note: Renouncing ownership will leave the contract without an owner,
      * thereby removing any functionality that is only available to the owner.
      */
     function renounceOwnership() public onlyOwner {
@@ -557,19 +626,18 @@ contract Ownable {
     }
 
     /**
-     * @dev Allows the current owner to transfer control of the contract to a newOwner.
-     * @param newOwner The address to transfer ownership to.
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public onlyOwner {
         _transferOwnership(newOwner);
     }
 
     /**
-     * @dev Transfers control of the contract to a newOwner.
-     * @param newOwner The address to transfer ownership to.
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
      */
     function _transferOwnership(address newOwner) internal {
-        require(newOwner != address(0));
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
@@ -587,31 +655,27 @@ library Roles {
     }
 
     /**
-     * @dev give an account access to this role
+     * @dev Give an account access to this role.
      */
     function add(Role storage role, address account) internal {
-        require(account != address(0));
-        require(!has(role, account));
-
+        require(!has(role, account), "Roles: account already has role");
         role.bearer[account] = true;
     }
 
     /**
-     * @dev remove an account's access to this role
+     * @dev Remove an account's access to this role.
      */
     function remove(Role storage role, address account) internal {
-        require(account != address(0));
-        require(has(role, account));
-
+        require(has(role, account), "Roles: account does not have role");
         role.bearer[account] = false;
     }
 
     /**
-     * @dev check if an account has this role
+     * @dev Check if an account has this role.
      * @return bool
      */
     function has(Role storage role, address account) internal view returns (bool) {
-        require(account != address(0));
+        require(account != address(0), "Roles: account is the zero address");
         return role.bearer[account];
     }
 }
@@ -719,12 +783,59 @@ contract DAORoles is Ownable {
 // File: openzeppelin-solidity/contracts/math/SafeMath.sol
 
 /**
- * @title SafeMath
- * @dev Unsigned math operations with safety checks that revert on error
+ * @dev Wrappers over Solidity's arithmetic operations with added overflow
+ * checks.
+ *
+ * Arithmetic operations in Solidity wrap on overflow. This can easily result
+ * in bugs, because programmers usually assume that an overflow raises an
+ * error, which is the standard behavior in high level programming languages.
+ * `SafeMath` restores this intuition by reverting the transaction when an
+ * operation overflows.
+ *
+ * Using this library instead of the unchecked operations eliminates an entire
+ * class of bugs, so it's recommended to use it always.
  */
 library SafeMath {
     /**
-     * @dev Multiplies two unsigned integers, reverts on overflow.
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b <= a, "SafeMath: subtraction overflow");
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     * - Multiplication cannot overflow.
      */
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
         // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
@@ -735,17 +846,25 @@ library SafeMath {
         }
 
         uint256 c = a * b;
-        require(c / a == b);
+        require(c / a == b, "SafeMath: multiplication overflow");
 
         return c;
     }
 
     /**
-     * @dev Integer division of two unsigned integers truncating the quotient, reverts on division by zero.
+     * @dev Returns the integer division of two unsigned integers. Reverts on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     * - The divisor cannot be zero.
      */
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
         // Solidity only automatically asserts when dividing by 0
-        require(b > 0);
+        require(b > 0, "SafeMath: division by zero");
         uint256 c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
@@ -753,31 +872,18 @@ library SafeMath {
     }
 
     /**
-     * @dev Subtracts two unsigned integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
-     */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        require(b <= a);
-        uint256 c = a - b;
-
-        return c;
-    }
-
-    /**
-     * @dev Adds two unsigned integers, reverts on overflow.
-     */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        require(c >= a);
-
-        return c;
-    }
-
-    /**
-     * @dev Divides two unsigned integers and returns the remainder (unsigned integer modulo),
-     * reverts when dividing by zero.
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * Reverts when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     * - The divisor cannot be zero.
      */
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        require(b != 0);
+        require(b != 0, "SafeMath: modulo by zero");
         return a % b;
     }
 }
