@@ -1,11 +1,12 @@
 # FriendsFingers platform's DAO Smart Contracts
 
+[![NPM Package](https://img.shields.io/npm/v/dao-smartcontracts.svg?style=flat-square)](https://www.npmjs.org/package/dao-smartcontracts)
 [![Build Status](https://travis-ci.org/FriendsFingers/dao-smartcontracts.svg?branch=master)](https://travis-ci.org/FriendsFingers/dao-smartcontracts) 
 [![Coverage Status](https://coveralls.io/repos/github/FriendsFingers/dao-smartcontracts/badge.svg)](https://coveralls.io/github/FriendsFingers/dao-smartcontracts)
 [![MIT licensed](https://img.shields.io/github/license/FriendsFingers/dao-smartcontracts.svg)](https://github.com/FriendsFingers/dao-smartcontracts/blob/master/LICENSE)
 
 
-Smart Contracts defining the FriendsFingers platform's DAO.
+Smart Contracts defining the [FriendsFingers](https://app.friendsfingers.com) platform's DAO and DAPPs behaviors.
 
 
 ## Development

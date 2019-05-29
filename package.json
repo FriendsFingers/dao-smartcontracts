@@ -1,7 +1,7 @@
 {
   "name": "dao-smartcontracts",
-  "version": "1.0.0",
-  "description": "Smart Contracts defining the FriendsFingers platform's DAO.",
+  "version": "0.0.1",
+  "description": "Smart Contracts defining the FriendsFingers platform's DAO and DAPPs behaviors.",
   "files": [
     "contracts",
     "test"
@@ -29,7 +29,8 @@
     "clean": "rm -rf coverage",
     "profile": "npm run clean && npm run coverage && open coverage/index.html",
     "flat": "scripts/flat.sh",
-    "analyze": "scripts/analyze.sh"
+    "analyze": "scripts/analyze.sh",
+    "version": "scripts/version.js"
   },
   "repository": {
     "type": "git",
