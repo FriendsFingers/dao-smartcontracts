@@ -5,7 +5,7 @@
 
 |  File Name  |  SHA-1 Hash  |
 |-------------|--------------|
-| dist/DAO.dist.sol | 80f8c6bd83363b5c6fc637bf8fe3b97210a04d20 |
+| dist/DAO.dist.sol | f8f02377f9012ba7a3cc9b48ceb23378880c0c40 |
 
 
 ### Contracts Description Table
