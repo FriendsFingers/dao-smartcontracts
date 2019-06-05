@@ -1,6 +1,6 @@
 {
   "package_name": "dao-smartcontracts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Smart Contracts defining the FriendsFingers platform's DAO and DAPPs behaviors.",
   "authors": [
     "Vittorio Minacori (https://github.com/vittominacori)"

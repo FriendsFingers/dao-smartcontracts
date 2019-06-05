@@ -9,7 +9,17 @@ contract DAPPMock is DAPP {
     /**
      * @dev mock function to test fee payment
      */
-    function tokenPayableAction() public tokenPayable {} // solhint-disable-line no-empty-blocks
+    function useFeeAction() public useFee {} // solhint-disable-line no-empty-blocks
+
+    /**
+     * @dev mock function to test using tokens
+     */
+    function useTokensAction(uint256 amount) public useTokens(amount) {} // solhint-disable-line no-empty-blocks
+
+    /**
+     * @dev mock function to test using tokens and fee
+     */
+    function useDappAction(uint256 amount) public useTokens(amount) useFee {} // solhint-disable-line no-empty-blocks
 
     /**
      * @dev mock function to test only member function

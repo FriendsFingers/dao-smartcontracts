@@ -7,15 +7,25 @@ contract DAPP {
     // the DAO smart contract
     DAO private _dao;
 
-    // the token fee to use dapp
+    // the token fixed fee to use dapp
     uint256 private _fee;
 
     /**
      * @dev fee tokens will be transferred into this.
-     * Transfer to a deposit wallet after tokenPayable or add a withdraw tokens function.
+     * Transfer to a deposit wallet after useFee or add a withdraw tokens function.
      */
-    modifier tokenPayable() {
+    modifier useFee() {
         _dao.use(msg.sender, _fee);
+        _;
+    }
+
+    /**
+     * @dev the amount of tokens will be transferred into this.
+     * Transfer to a deposit wallet after useTokens or add a withdraw tokens function.
+     * @param amount Number of tokens to use
+     */
+    modifier useTokens(uint256 amount) {
+        _dao.use(msg.sender, amount);
         _;
     }
 
@@ -37,7 +47,6 @@ contract DAPP {
 
     constructor (DAO dao, uint256 fee) public {
         require(address(dao) != address(0));
-        require(fee > 0);
 
         _dao = dao;
         _fee = fee;

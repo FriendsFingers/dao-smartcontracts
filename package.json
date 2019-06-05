@@ -1,6 +1,6 @@
 {
   "name": "dao-smartcontracts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Smart Contracts defining the FriendsFingers platform's DAO and DAPPs behaviors.",
   "files": [
     "contracts",
@@ -68,8 +68,8 @@
     "solhint": "^2.1.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "surya": "^0.2.11",
-    "truffle": "^5.0.20",
-    "truffle-flattener": "1.2.11"
+    "truffle": "^5.0.21",
+    "truffle-flattener": "^1.2.11"
   },
   "dependencies": {
     "erc-payable-token": "2.3.1",
