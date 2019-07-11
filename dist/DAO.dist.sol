@@ -1,7 +1,6 @@
+pragma solidity ^0.5.10;
 
 // File: openzeppelin-solidity/contracts/introspection/ERC165Checker.sol
-
-pragma solidity ^0.5.0;
 
 /**
  * @dev Library used to query support of an interface declared via `IERC165`.
@@ -125,8 +124,6 @@ library ERC165Checker {
 
 // File: openzeppelin-solidity/contracts/token/ERC20/IERC20.sol
 
-pragma solidity ^0.5.0;
-
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
  * the optional functions; to access them see `ERC20Detailed`.
@@ -204,8 +201,6 @@ interface IERC20 {
 
 // File: openzeppelin-solidity/contracts/introspection/IERC165.sol
 
-pragma solidity ^0.5.0;
-
 /**
  * @dev Interface of the ERC165 standard, as defined in the
  * [EIP](https://eips.ethereum.org/EIPS/eip-165).
@@ -228,9 +223,6 @@ interface IERC165 {
 }
 
 // File: openzeppelin-solidity/contracts/introspection/ERC165.sol
-
-pragma solidity ^0.5.0;
-
 
 /**
  * @dev Implementation of the `IERC165` interface.
@@ -282,10 +274,6 @@ contract ERC165 is IERC165 {
 }
 
 // File: erc-payable-token/contracts/token/ERC1363/IERC1363.sol
-
-pragma solidity ^0.5.10;
-
-
 
 /**
  * @title IERC1363 Interface
@@ -375,8 +363,6 @@ contract IERC1363 is IERC20, ERC165 {
 
 // File: erc-payable-token/contracts/token/ERC1363/IERC1363Receiver.sol
 
-pragma solidity ^0.5.10;
-
 /**
  * @title IERC1363Receiver Interface
  * @author Vittorio Minacori (https://github.com/vittominacori)
@@ -409,8 +395,6 @@ contract IERC1363Receiver {
 
 // File: erc-payable-token/contracts/token/ERC1363/IERC1363Spender.sol
 
-pragma solidity ^0.5.10;
-
 /**
  * @title IERC1363Spender Interface
  * @author Vittorio Minacori (https://github.com/vittominacori)
@@ -441,12 +425,6 @@ contract IERC1363Spender {
 }
 
 // File: erc-payable-token/contracts/payment/ERC1363Payable.sol
-
-pragma solidity ^0.5.10;
-
-
-
-
 
 /**
  * @title ERC1363Payable
@@ -591,8 +569,6 @@ contract ERC1363Payable is IERC1363Receiver, IERC1363Spender, ERC165 {
 
 // File: openzeppelin-solidity/contracts/ownership/Ownable.sol
 
-pragma solidity ^0.5.0;
-
 /**
  * @dev Contract module which provides a basic access control mechanism, where
  * there is an account (an owner) that can be granted exclusive access to
@@ -669,8 +645,6 @@ contract Ownable {
 
 // File: openzeppelin-solidity/contracts/access/Roles.sol
 
-pragma solidity ^0.5.0;
-
 /**
  * @title Roles
  * @dev Library for managing addresses assigned to a Role.
@@ -707,10 +681,6 @@ library Roles {
 }
 
 // File: contracts/access/roles/DAORoles.sol
-
-pragma solidity ^0.5.10;
-
-
 
 /**
  * @title DAORoles
@@ -811,8 +781,6 @@ contract DAORoles is Ownable {
 }
 
 // File: openzeppelin-solidity/contracts/math/SafeMath.sol
-
-pragma solidity ^0.5.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -921,9 +889,6 @@ library SafeMath {
 }
 
 // File: contracts/dao/Organization.sol
-
-pragma solidity ^0.5.10;
-
 
 /**
  * @title Organization
@@ -1148,11 +1113,6 @@ library Organization {
 }
 
 // File: contracts/dao/DAO.sol
-
-pragma solidity ^0.5.10;
-
-
-
 
 /**
  * @title DAO
