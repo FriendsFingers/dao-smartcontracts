@@ -1,7 +1,7 @@
-pragma solidity ^0.5.10;
+pragma solidity ^0.5.11;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/access/Roles.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Roles.sol";
 
 /**
  * @title DAORoles

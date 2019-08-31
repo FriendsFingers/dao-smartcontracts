@@ -4,7 +4,7 @@ module.exports = {
     compileCommand: 'node --max-old-space-size=4096 ../node_modules/.bin/truffle compile --network coverage',
     copyPackages: [
         'erc-payable-token',
-        'openzeppelin-solidity',
+        '@openzeppelin/contracts',
     ],
     skipFiles: [
         'mocks'
